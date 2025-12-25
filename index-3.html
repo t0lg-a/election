@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>Election Models</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#101826;
+      --text:#e6edf3;
+      --muted:#9fb0c0;
+      --border:rgba(255,255,255,.10);
+      --shadow:0 10px 40px rgba(0,0,0,.35);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(56,189,248,.12), transparent 55%),
+                  radial-gradient(900px 600px at 90% 0%, rgba(244,114,182,.10), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      line-height:1.35;
+    }
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:980px;margin:0 auto;padding:40px 18px 64px}
+    header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}
+    .title{margin:0;font-size:26px;letter-spacing:.2px;font-weight:700}
+    .sub{margin:6px 0 0;color:var(--muted);font-size:13px;max-width:62ch}
+    .repo{
+      color:var(--muted);
+      font-size:12px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      background:rgba(255,255,255,.03);
+      white-space:nowrap;
+    }
+    .grid{display:grid;grid-template-columns:repeat(12, 1fr);gap:14px;margin-top:16px}
+    .card{
+      grid-column:span 6;
+      min-height:126px;
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      transition:transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .card:hover{transform:translateY(-2px); border-color:rgba(255,255,255,.18)}
+    .card:focus-within{outline:2px solid rgba(56,189,248,.45); outline-offset:2px}
+    .inner{padding:16px 16px 14px}
+    .kicker{font-size:11px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+    .name{font-size:18px;font-weight:700;margin:0 0 6px 0}
+    .desc{margin:0 0 12px 0;color:var(--muted);font-size:13px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .tags{display:flex;gap:8px;flex-wrap:wrap}
+    .tag{
+      font-size:11px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,.18);
+      color:var(--muted);
+    }
+    .btn{
+      display:inline-flex;align-items:center;gap:8px;
+      font-size:12px;padding:8px 12px;border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+    }
+    .btn:hover{background:rgba(255,255,255,.07)}
+    .btn svg{opacity:.85}
+    footer{margin-top:18px;color:var(--muted);font-size:12px}
+    code{color:var(--text)}
+    @media (max-width: 760px){
+      header{flex-direction:column;align-items:flex-start}
+      .card{grid-column:span 12}
+      .wrap{padding-top:28px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1 class="title">Election Models</h1>
+        <p class="sub">Pick a model. Minimal ceremony, maximum map.</p>
+      </div>
+      <a class="repo" href="https://github.com/t0lg-a/election" target="_blank" rel="noopener noreferrer">GitHub repo</a>
+    </header>
+
+    <main class="grid" aria-label="Model list">
+      <section class="card">
+        <div class="inner">
+          <div class="kicker">United States</div>
+          <h2 class="name">US Federal</h2>
+          <p class="desc">House + Senate map, swing controls, and chamber counts.</p>
+          <div class="row">
+            <div class="tags"><span class="tag">House</span><span class="tag">Senate</span><span class="tag">Map</span></div>
+            <a class="btn" href="./us.html" aria-label="Open US model">Open
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="inner">
+          <div class="kicker">United States</div>
+          <h2 class="name">Texas</h2>
+          <p class="desc">State-level model page.</p>
+          <div class="row">
+            <div class="tags"><span class="tag">State</span><span class="tag">Map</span></div>
+            <a class="btn" href="./texas.html" aria-label="Open Texas model">Open
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="inner">
+          <div class="kicker">Europe</div>
+          <h2 class="name">Germany</h2>
+          <p class="desc">Bundestag-style model page.</p>
+          <div class="row">
+            <div class="tags"><span class="tag">Seats</span><span class="tag">Map</span></div>
+            <a class="btn" href="./germany.html" aria-label="Open Germany model">Open
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="inner">
+          <div class="kicker">Europe</div>
+          <h2 class="name">France</h2>
+          <p class="desc">National-to-local ratios on a real map.</p>
+          <div class="row">
+            <div class="tags"><span class="tag">Seats</span><span class="tag">Map</span></div>
+            <a class="btn" href="./france.html" aria-label="Open France model">Open
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="inner">
+          <div class="kicker">Middle East / Europe</div>
+          <h2 class="name">Turkey</h2>
+          <p class="desc">Turkey model page.</p>
+          <div class="row">
+            <div class="tags"><span class="tag">Seats</span><span class="tag">Map</span></div>
+            <a class="btn" href="./turkey.html" aria-label="Open Turkey model">Open
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="inner">
+          <div class="kicker">Data</div>
+          <h2 class="name">District Shapes</h2>
+          <p class="desc">GeoJSON file used by some maps.</p>
+          <div class="row">
+            <div class="tags"><span class="tag">GeoJSON</span></div>
+            <a class="btn" href="./district-shapes.geojson" aria-label="View district-shapes.geojson">View
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Put this file in the repo root as <code>index.html</code> so it serves at <code>/election/</code>.
+    </footer>
+  </div>
+</body>
+</html>
