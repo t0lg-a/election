@@ -632,7 +632,7 @@
             <div class="tiny">
               Sliders show <b>R − D</b> margin (negative = Dem, positive = GOP) and an uncertainty band.<br/><br/>
               Components:
-              <b>Generic Ballot (35x)</b>, <b>Polls (50x)</b>, <b>National Indicators (15x)</b>, then the weighted <b>Result</b>.<br/><br/>
+              <b>Generic Ballot (35x)</b>, <b>Polls (50x)</b>, <b>National  (15x)</b>, then the weighted <b>Result</b>.<br/><br/>
               Win probability uses an internal <b>10pt</b> error scale (not displayed).
             </div>
           </div>
@@ -879,7 +879,7 @@ function computeIndicatorNationalFromPolls(modeKey){
   avg.D /= implied.length; avg.R /= implied.length;
   return normalizePair(avg.D, avg.R);
 }
-function computeIndicatorState(indNat, ratio){
+function computetate(indNat, ratio){
   return normalizePair(indNat.D * ratio.D, indNat.R * ratio.R);
 }
 function weightedCombine(components){
@@ -1056,7 +1056,7 @@ function buildDetailHTML(modeKey, st, cachedIndNat){
   const body = `
     ${sliderHTML("Fundamentals (35x)", gbM, 6)}
     ${model.pollPair ? sliderHTML("Polls (50x)", pollM, pollSigma) : sliderEmptyHTML("Polls (50x)", "No poll for this state")}
-    ${cachedIndNat ? sliderHTML("Indicators (15x)", indM, 5) : sliderEmptyHTML("National Indicators (15x)", "No polls entered anywhere")}
+    ${cachedIndNat ? sliderHTML("Indicators (15x)", indM, 5) : sliderEmptyHTML("Indicators (15x)", "No polls entered anywhere")}
     <div class="hr"></div>
     ${sliderHTML("Result (weighted)", mFinal, model.combinedSigma)}
   `;
