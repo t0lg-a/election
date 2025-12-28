@@ -589,7 +589,8 @@
         <div class="barActions">
           <div class="chip" id="chipMode"><span class="dot ok"></span><strong>Senate</strong></div>
           <div class="chip"><span class="dot"></span>Generic ballot: <strong id="chipGBText">—</strong></div>
-          
+          <div class="chip"><span class="dot"></span>Races loaded: <strong id="chipRacesText">—</strong></div>
+        </div>
       </div>
     </div>
 
@@ -637,7 +638,17 @@
           </div>
         </section>
 
-
+        <section class="card" id="statusCard">
+          <div class="cardTitleRow">
+            <div class="cardTitle">
+              <div class="h">Data status</div>
+              <div class="sub">Loaded from CSV next to this HTML</div>
+            </div>
+          </div>
+          <div class="cardInner" id="statusBody">
+            <div class="tiny">Loading <span class="mono">entries_all.csv</span>…</div>
+          </div>
+        </section>
       </aside>
 
       <main style="display:flex;flex-direction:column;gap:14px;">
