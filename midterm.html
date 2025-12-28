@@ -1054,9 +1054,9 @@ function buildDetailHTML(modeKey, st, cachedIndNat){
   const pR = Math.round(model.winProb.pR*100);
 
   const body = `
-    ${sliderHTML("Fundamentals (35x)", gbM, 6)}
+    ${sliderHTML("Generic Ballot (35x)", gbM, 6)}
     ${model.pollPair ? sliderHTML("Polls (50x)", pollM, pollSigma) : sliderEmptyHTML("Polls (50x)", "No poll for this state")}
-    ${cachedIndNat ? sliderHTML("Indicators (15x)", indM, 5) : sliderEmptyHTML("Indicators (15x)", "No polls entered anywhere")}
+    ${cachedIndNat ? sliderHTML("National Indicators (15x)", indM, 5) : sliderEmptyHTML("National Indicators (15x)", "No polls entered anywhere")}
     <div class="hr"></div>
     ${sliderHTML("Result (weighted)", mFinal, model.combinedSigma)}
   `;
