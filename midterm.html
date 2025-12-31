@@ -891,9 +891,10 @@ function bucketKeyFromMargin(m){
 }
 function formatMarginDR(m){
   if (!isFinite(m)) return "—";
-  const a = Math.abs(m);
+  const mm = clamp(m, -25, 25); // display clamp
+  const a = Math.abs(mm);
   if (a < 0.05) return "Tied";
-  return (m < 0) ? `D+${a.toFixed(1)}` : `R+${a.toFixed(1)}`;
+  return (mm < 0) ? `D+${a.toFixed(1)}` : `R+${a.toFixed(1)}`;
 }
 function pseudoEvtFromEl(el){
   const r = el.getBoundingClientRect();
@@ -947,9 +948,10 @@ function normalizePair(D, R){
 function marginRD(pair){ return pair.R - pair.D; } // negative = Dem lead
 function fmtLead(m){
   if (!isFinite(m)) return "—";
-  if (Math.abs(m) < 0.05) return "Tied";
-  const pts = Math.abs(m).toFixed(1);
-  return (m < 0) ? `D+${pts}` : `R+${pts}`;
+  const mm = clamp(m, -25, 25); // display clamp (keep model math unchanged)
+  if (Math.abs(mm) < 0.05) return "Tied";
+  const pts = Math.abs(mm).toFixed(1);
+  return (mm < 0) ? `D+${pts}` : `R+${pts}`;
 }
 function erf(x){
   const sign = x < 0 ? -1 : 1;
