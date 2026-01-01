@@ -1,0 +1,1371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Happiness + Weight + Steps + Weather + Screen Time</title>
+  <style>
+    :root{
+      --bg:#0b0f17; --card:#111827; --muted:#9ca3af; --text:#e5e7eb;
+      --accent:#60a5fa; --accent2:#34d399; --danger:#f87171; --border:#1f2937;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(1000px 600px at 20% 0%, rgba(96,165,250,.15), transparent 60%),
+                  radial-gradient(900px 500px at 80% 10%, rgba(52,211,153,.12), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    header{
+      padding:18px 16px 10px;
+      border-bottom:1px solid var(--border);
+      position:sticky; top:0; background:rgba(11,15,23,.78); backdrop-filter: blur(10px);
+      z-index:10;
+    }
+    .wrap{max-width:1100px; margin:0 auto; padding:0 14px;}
+    .top{display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;}
+    h1{margin:0; font-size:18px; font-weight:700; letter-spacing:.2px}
+    .sub{color:var(--muted); font-size:12px; margin-top:3px}
+    nav{display:flex; gap:8px; flex-wrap:wrap}
+    .tab{
+      border:1px solid var(--border);
+      background:rgba(17,24,39,.6);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:13px;
+    }
+    .tab.active{border-color:rgba(96,165,250,.55); box-shadow: 0 0 0 2px rgba(96,165,250,.15) inset}
+    main{padding:18px 0 42px}
+    .grid{display:grid; grid-template-columns: 1fr; gap:14px}
+    @media (min-width: 980px){
+      .grid.two{grid-template-columns: 420px 1fr}
+      .grid.three{grid-template-columns: 1fr 1fr 1fr}
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(17,24,39,.85), rgba(17,24,39,.62));
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow: var(--shadow);
+      padding:14px;
+    }
+    .card h2{margin:0 0 8px; font-size:14px}
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .field{flex: 1 1 160px}
+    label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px}
+    input, select, textarea{
+      width:100%;
+      background: rgba(11,15,23,.6);
+      border:1px solid rgba(31,41,55,.9);
+      color:var(--text);
+      padding:10px 10px;
+      border-radius:12px;
+      outline:none;
+      font-size:14px;
+    }
+    textarea{min-height:78px; resize:vertical}
+    input[type="range"]{padding:0; height:34px}
+    .btn{
+      border:1px solid var(--border);
+      background: rgba(96,165,250,.16);
+      color:var(--text);
+      padding:9px 11px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:13px;
+      transition:.12s transform ease;
+    }
+    .btn:active{transform: translateY(1px)}
+    .btn.secondary{background: rgba(156,163,175,.12)}
+    .btn.danger{background: rgba(248,113,113,.14)}
+    .btn.small{padding:7px 9px; font-size:12px}
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:6px 10px; border-radius:999px;
+      background: rgba(156,163,175,.10); border:1px solid rgba(31,41,55,.9);
+      color:var(--muted); font-size:12px;
+    }
+    .pill strong{color:var(--text); font-weight:700}
+    .muted{color:var(--muted)}
+    table{width:100%; border-collapse:collapse; overflow:hidden; border-radius:14px;}
+    th, td{
+      border-bottom:1px solid rgba(31,41,55,.85);
+      padding:10px 8px;
+      font-size:13px;
+      text-align:left;
+      vertical-align:top;
+    }
+    th{color:var(--muted); font-weight:600; font-size:12px}
+    tr:hover td{background: rgba(96,165,250,.05)}
+    .right{text-align:right}
+    .small{font-size:12px}
+    .kpis{display:flex; gap:10px; flex-wrap:wrap}
+    .kpis .pill{flex: 1 1 auto}
+    .split{display:flex; gap:10px; justify-content:space-between; align-items:center; flex-wrap:wrap}
+    .hide{display:none !important}
+    .note{font-size:12px; color:var(--muted); line-height:1.4}
+    canvas{max-height:300px}
+    .footer-note{color:var(--muted); font-size:12px; margin-top:10px}
+    .file{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    code.inline{background:rgba(11,15,23,.6); border:1px solid rgba(31,41,55,.9); padding:2px 6px; border-radius:8px}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>Happiness + Weight + Steps + Weather + Screen Time</h1>
+        <div class="sub">Local-first tracker (browser storage). Weather via Open-Meteo (no key). App usage is manual/import because OSes aren’t generous.</div>
+      </div>
+      <nav>
+        <button class="tab active" data-tab="log">Daily Log</button>
+        <button class="tab" data-tab="dash">Dashboard</button>
+        <button class="tab" data-tab="month">Monthly</button>
+        <button class="tab" data-tab="settings">Settings</button>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <!-- DAILY LOG -->
+    <section id="tab-log" class="grid two">
+      <div class="card">
+        <div class="split">
+          <h2>New / Edit Entry</h2>
+          <span class="pill"><span class="muted">Stored:</span> <strong id="countEntries">0</strong> <span class="muted">days</span></span>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="field">
+            <label>Date</label>
+            <input id="fDate" type="date" />
+          </div>
+          <div class="field">
+            <label>Happiness (0–10) <span id="hVal" class="muted"></span></label>
+            <input id="fHappy" type="range" min="0" max="10" step="0.5" value="6" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Weight</label>
+            <input id="fWeight" type="number" step="0.1" placeholder="e.g., 170.5" />
+          </div>
+          <div class="field">
+            <label>Steps</label>
+            <input id="fSteps" type="number" step="1" placeholder="e.g., 8500" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Screen time (hours)</label>
+            <input id="fScreen" type="number" step="0.1" placeholder="e.g., 4.2" />
+          </div>
+          <div class="field">
+            <label>Top app (auto-filled from list)</label>
+            <input id="fTopApp" type="text" disabled placeholder="—" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field" style="flex:1 1 100%">
+            <label>App usage (one per line)</label>
+            <textarea id="fApps" placeholder="Examples:
+Instagram=45m
+YouTube=1.5h
+Safari=1h 10m"></textarea>
+            <div class="note" style="margin-top:6px">
+              Accepted formats per line: <code class="inline">App=minutes</code>, <code class="inline">App=45m</code>,
+              <code class="inline">App=1.5h</code>, <code class="inline">App=1h 10m</code>, <code class="inline">App=1:10</code>.
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field" style="flex:1 1 100%">
+            <label>Notes (optional)</label>
+            <textarea id="fNotes" placeholder="sleep, stress, wins, chaos, etc."></textarea>
+          </div>
+        </div>
+
+        <div class="row" style="align-items:center; margin-top:8px">
+          <button class="btn" id="btnSave">Save / Update</button>
+          <button class="btn secondary" id="btnClear">Clear</button>
+          <button class="btn danger" id="btnDelete" disabled>Delete</button>
+        </div>
+
+        <div class="footer-note" id="editHint">Click a row to edit it.</div>
+      </div>
+
+      <div class="card">
+        <div class="split">
+          <h2>Daily Log</h2>
+          <div class="row" style="align-items:center">
+            <button class="btn small secondary" id="btnWeatherMissing">Fill missing weather</button>
+            <button class="btn small secondary" id="btnExportJSON">Export JSON</button>
+            <button class="btn small secondary" id="btnExportCSV">Export CSV</button>
+          </div>
+        </div>
+
+        <div style="overflow:auto; margin-top:10px; max-height:560px">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Happy</th>
+                <th>Weight</th>
+                <th>Steps</th>
+                <th class="right">Screen</th>
+                <th>Top app</th>
+                <th>Weather</th>
+                <th class="right">Temp</th>
+                <th class="right">Precip</th>
+              </tr>
+            </thead>
+            <tbody id="logBody"></tbody>
+          </table>
+        </div>
+
+        <div class="note" style="margin-top:10px">
+          Pure static sites can’t read iOS/Android usage stats directly. Import CSV or type the top apps. Bureaucracy: undefeated.
+        </div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="tab-dash" class="hide">
+      <div class="grid three">
+        <div class="card">
+          <h2>KPIs</h2>
+          <div class="kpis" id="kpis"></div>
+          <div class="note" style="margin-top:10px" id="corr"></div>
+        </div>
+        <div class="card">
+          <h2>Happiness</h2>
+          <canvas id="chartHappy"></canvas>
+        </div>
+        <div class="card">
+          <h2>Weight</h2>
+          <canvas id="chartWeight"></canvas>
+        </div>
+      </div>
+
+      <div class="grid two" style="margin-top:14px">
+        <div class="card">
+          <div class="split">
+            <h2>Steps</h2>
+            <span class="pill"><span class="muted">Goal:</span> <strong id="goalStepsLabel"></strong></span>
+          </div>
+          <canvas id="chartSteps"></canvas>
+        </div>
+        <div class="card">
+          <h2>Screen time</h2>
+          <canvas id="chartScreen"></canvas>
+          <div class="note" style="margin-top:10px">
+            If screen time and happiness correlate, it doesn’t mean “TikTok caused sadness.” It might mean “Tuesday happened.”
+          </div>
+        </div>
+      </div>
+
+      <div class="grid two" style="margin-top:14px">
+        <div class="card">
+          <h2>Top apps (last 14 days)</h2>
+          <canvas id="chartTopApps"></canvas>
+          <div class="note" style="margin-top:10px">
+            Totals are minutes summed across the last 14 logged days that include app usage entries.
+          </div>
+        </div>
+        <div class="card">
+          <h2>Weather vs Happiness (quick look)</h2>
+          <canvas id="chartWeatherHappy"></canvas>
+          <div class="note" style="margin-top:10px">
+            This bins by weather summary and averages happiness. Not causal. Humans love myth-making.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MONTHLY -->
+    <section id="tab-month" class="hide">
+      <div class="card">
+        <div class="split">
+          <h2>Monthly Summary</h2>
+          <span class="pill"><span class="muted">Months:</span> <strong id="monthCount">0</strong></span>
+        </div>
+        <div style="overflow:auto; margin-top:10px">
+          <table>
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th class="right">Days</th>
+                <th class="right">Avg Happy</th>
+                <th class="right">Avg Weight</th>
+                <th class="right">Total Steps</th>
+                <th class="right">Avg Screen (h)</th>
+                <th class="right">Clear</th>
+                <th class="right">Rain</th>
+              </tr>
+            </thead>
+            <tbody id="monthBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="tab-settings" class="hide">
+      <div class="grid two">
+        <div class="card">
+          <h2>Settings</h2>
+
+          <div class="row">
+            <div class="field">
+              <label>Units</label>
+              <select id="sUnits">
+                <option value="Imperial">Imperial (°F, in, lbs)</option>
+                <option value="Metric">Metric (°C, mm, kg)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Step goal</label>
+              <input id="sGoalSteps" type="number" step="100" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Latitude</label>
+              <input id="sLat" type="number" step="0.0001" placeholder="e.g., 31.5493" />
+            </div>
+            <div class="field">
+              <label>Longitude</label>
+              <input id="sLon" type="number" step="0.0001" placeholder="e.g., -97.1467" />
+            </div>
+          </div>
+
+          <div class="row" style="align-items:center">
+            <div class="field">
+              <label>Timezone (IANA)</label>
+              <input id="sTz" type="text" placeholder="America/Chicago" />
+            </div>
+            <button class="btn secondary" id="btnGeo" style="margin-top:22px">Use my location</button>
+          </div>
+
+          <div class="row" style="align-items:center">
+            <label style="display:flex; gap:8px; align-items:center; margin:8px 0 0; color:var(--muted)">
+              <input id="sAutoWeather" type="checkbox" />
+              Auto-fetch weather when you save a day
+            </label>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="btnSaveSettings">Save settings</button>
+            <button class="btn danger" id="btnWipe">Wipe all data</button>
+          </div>
+
+          <div class="note" style="margin-top:10px">
+            Weather uses Open-Meteo archive/forecast endpoints and your lat/lon. GitHub Pages is HTTPS, so geolocation works.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Import</h2>
+
+          <div class="file">
+            <div class="field" style="flex:1 1 260px">
+              <label>Import Tracker JSON (from Export JSON)</label>
+              <input id="importJSON" type="file" accept=".json,application/json" />
+            </div>
+            <button class="btn secondary" id="btnImportJSON">Import JSON</button>
+          </div>
+
+          <hr style="border:0; border-top:1px solid rgba(31,41,55,.85); margin:14px 0">
+
+          <div class="file">
+            <div class="field" style="flex:1 1 260px">
+              <label>Import Steps CSV (headers: date,steps)</label>
+              <input id="importStepsCSV" type="file" accept=".csv,text/csv" />
+            </div>
+            <button class="btn secondary" id="btnImportSteps">Import Steps CSV</button>
+          </div>
+
+          <hr style="border:0; border-top:1px solid rgba(31,41,55,.85); margin:14px 0">
+
+          <div class="file">
+            <div class="field" style="flex:1 1 260px">
+              <label>Import App Usage CSV (headers: date,app,minutes)</label>
+              <input id="importAppsCSV" type="file" accept=".csv,text/csv" />
+            </div>
+            <button class="btn secondary" id="btnImportApps">Import App Usage CSV</button>
+          </div>
+
+          <div class="note" style="margin-top:10px">
+            App usage CSV example:
+            <div class="small" style="margin-top:6px; padding:8px; border:1px solid rgba(31,41,55,.85); border-radius:12px; background:rgba(11,15,23,.6)">
+              date,app,minutes<br/>
+              2026-01-01,Instagram,42<br/>
+              2026-01-01,YouTube,68<br/>
+              2026-01-02,Safari,35
+            </div>
+          </div>
+
+          <div class="note" style="margin-top:12px">
+            iOS export isn’t officially “nice.” Some people extract from backups (knowledgeC.db) with tools like ScreenTime2CSV. :contentReference[oaicite:3]{index=3}
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+/* ---------------------------
+   Storage + Utilities
+--------------------------- */
+const LS_KEY = "tracker_v2";
+const defaultState = () => ({
+  settings: {
+    units: "Imperial",
+    goalSteps: 10000,
+    lat: null,
+    lon: null,
+    tz: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Chicago",
+    autoWeather: true
+  },
+  // entry:
+  // {date:"YYYY-MM-DD", happiness:number, weight:number|null, steps:number|null, screenHours:number|null,
+  //  apps:{[appName]: minutes} | null, notes:"", weather:{summary,tmax,tmin,precip,code}|null}
+  entries: []
+});
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    if(!parsed.settings || !Array.isArray(parsed.entries)) return defaultState();
+    // soft-migrate from older key if needed
+    return parsed;
+  }catch(e){
+    return defaultState();
+  }
+}
+function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+function todayISO(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+function toNum(v){
+  if(v === "" || v === null || v === undefined) return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+function sortEntriesAsc(arr){ return [...arr].sort((a,b)=> a.date.localeCompare(b.date)); }
+function sortEntriesDesc(arr){ return [...arr].sort((a,b)=> b.date.localeCompare(a.date)); }
+
+function movingAverage(values, window=7){
+  const out = [];
+  for(let i=0;i<values.length;i++){
+    let sum=0, count=0;
+    for(let j=Math.max(0,i-window+1); j<=i; j++){
+      const v = values[j];
+      if(v !== null && v !== undefined){
+        sum += v; count++;
+      }
+    }
+    out.push(count ? sum/count : null);
+  }
+  return out;
+}
+
+function pearson(x, y){
+  let xs=[], ys=[];
+  for(let i=0;i<x.length;i++){
+    if(x[i] == null || y[i] == null) continue;
+    xs.push(x[i]); ys.push(y[i]);
+  }
+  const n = xs.length;
+  if(n < 3) return null;
+  const mx = xs.reduce((a,b)=>a+b,0)/n;
+  const my = ys.reduce((a,b)=>a+b,0)/n;
+  let num=0, dx=0, dy=0;
+  for(let i=0;i<n;i++){
+    const vx = xs[i]-mx;
+    const vy = ys[i]-my;
+    num += vx*vy;
+    dx += vx*vx;
+    dy += vy*vy;
+  }
+  const den = Math.sqrt(dx*dy);
+  return den === 0 ? null : (num/den);
+}
+
+function download(filename, content, mime="application/octet-stream"){
+  const blob = new Blob([content], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 500);
+}
+
+function mean(arr){
+  const xs = arr.filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+  if(xs.length === 0) return null;
+  return xs.reduce((a,b)=>a+b,0)/xs.length;
+}
+
+function escapeHtml(s){
+  return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+}
+
+function fmtNum(x){
+  if(x == null) return "—";
+  const n = Number(x);
+  if(!Number.isFinite(n)) return "—";
+  return (Math.round(n*10)/10).toFixed(1).replace(".0","");
+}
+
+function hoursFromMinutes(min){
+  if(min == null) return null;
+  return min/60;
+}
+function fmtHours(h){
+  if(h == null) return "—";
+  return fmtNum(h) + "h";
+}
+
+function kpi(label, value){
+  const el = document.createElement("span");
+  el.className = "pill";
+  el.innerHTML = `<span class="muted">${label}:</span> <strong>${value}</strong>`;
+  return el;
+}
+
+/* ---------------------------
+   Weather (Open-Meteo)
+--------------------------- */
+function weatherCodeToText(code){
+  code = Number(code);
+  if(code === 0) return "Clear";
+  if(code >= 1 && code <= 3) return "Cloudy";
+  if(code >= 45 && code <= 48) return "Fog";
+  if(code >= 51 && code <= 57) return "Drizzle";
+  if(code >= 61 && code <= 67) return "Rain";
+  if(code >= 71 && code <= 77) return "Snow";
+  if(code >= 80 && code <= 82) return "Showers";
+  if(code >= 95 && code <= 99) return "Thunderstorm";
+  return "Other";
+}
+
+async function fetchWeatherRange(startDate, endDate){
+  const {lat, lon, tz, units} = state.settings;
+  if(lat == null || lon == null) throw new Error("Set latitude/longitude in Settings.");
+  const tempUnit = (units === "Metric") ? "celsius" : "fahrenheit";
+  const precipUnit = (units === "Metric") ? "mm" : "inch";
+
+  const today = todayISO();
+  const useArchive = (endDate <= today);
+  const base = useArchive ? "https://archive-api.open-meteo.com/v1/archive" : "https://api.open-meteo.com/v1/forecast";
+
+  const url = `${base}?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}`
+    + `&start_date=${startDate}&end_date=${endDate}`
+    + `&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum`
+    + `&timezone=${encodeURIComponent(tz)}`
+    + `&temperature_unit=${tempUnit}&precipitation_unit=${precipUnit}`;
+
+  const res = await fetch(url);
+  if(!res.ok) throw new Error("Weather fetch failed.");
+  const json = await res.json();
+  if(!json.daily || !json.daily.time) throw new Error("Weather data missing daily fields.");
+
+  const map = {};
+  for(let i=0;i<json.daily.time.length;i++){
+    const day = json.daily.time[i];
+    const code = json.daily.weathercode[i];
+    map[day] = {
+      code,
+      summary: weatherCodeToText(code),
+      tmax: json.daily.temperature_2m_max[i],
+      tmin: json.daily.temperature_2m_min[i],
+      precip: json.daily.precipitation_sum[i]
+    };
+  }
+  return map;
+}
+
+async function fillMissingWeather(){
+  const missing = state.entries.filter(e => !e.weather);
+  if(missing.length === 0) return;
+
+  const dates = missing.map(e => e.date).sort();
+  const start = dates[0];
+  const end = dates[dates.length - 1];
+  const map = await fetchWeatherRange(start, end);
+
+  let changed = 0;
+  for(const e of state.entries){
+    if(!e.weather && map[e.date]){
+      e.weather = map[e.date];
+      changed++;
+    }
+  }
+  if(changed) saveState();
+}
+
+/* ---------------------------
+   App usage parsing
+--------------------------- */
+function parseTimeToMinutes(str){
+  // accepts: "45" (minutes), "45m", "1.5h", "1h 10m", "1:10"
+  const s = String(str || "").trim().toLowerCase();
+  if(!s) return null;
+
+  // 1:10 -> 70 minutes
+  const colon = s.match(/^(\d+)\s*:\s*(\d{1,2})$/);
+  if(colon){
+    const h = Number(colon[1]), m = Number(colon[2]);
+    if(Number.isFinite(h) && Number.isFinite(m)) return h*60 + m;
+  }
+
+  // 1h 10m
+  const hm = s.match(/^(?:(\d+(?:\.\d+)?)\s*h)?\s*(?:(\d+(?:\.\d+)?)\s*m)?$/);
+  if(hm && (hm[1] || hm[2])){
+    const h = hm[1] ? Number(hm[1]) : 0;
+    const m = hm[2] ? Number(hm[2]) : 0;
+    const mins = h*60 + m;
+    return Number.isFinite(mins) ? mins : null;
+  }
+
+  // plain number -> minutes
+  const n = Number(s);
+  if(Number.isFinite(n)) return n;
+
+  return null;
+}
+
+function parseAppsTextarea(text){
+  const lines = String(text || "").split("\n").map(l => l.trim()).filter(Boolean);
+  if(lines.length === 0) return null;
+
+  const apps = {};
+  for(const line of lines){
+    const parts = line.split(/[=,]/); // allow "App=10m" or "App,10m"
+    if(parts.length < 2) continue;
+    const app = parts[0].trim();
+    const val = parts.slice(1).join("=").trim();
+    if(!app) continue;
+    const mins = parseTimeToMinutes(val);
+    if(mins == null) continue;
+    apps[app] = Math.max(0, Math.round(mins));
+  }
+  return Object.keys(apps).length ? apps : null;
+}
+
+function appsToTextarea(apps){
+  if(!apps) return "";
+  const entries = Object.entries(apps).sort((a,b)=> b[1]-a[1]);
+  return entries.map(([app, mins]) => `${app}=${mins}m`).join("\n");
+}
+
+function getTopApp(apps){
+  if(!apps) return null;
+  let best = null, bestMin = -1;
+  for(const [app, mins] of Object.entries(apps)){
+    if(mins > bestMin){ best = app; bestMin = mins; }
+  }
+  if(!best) return null;
+  return {app: best, minutes: bestMin};
+}
+
+/* ---------------------------
+   CSV parsing
+--------------------------- */
+function parseCSV(text){
+  const rows = [];
+  let row = [], cur = "", inQ = false;
+  for(let i=0;i<text.length;i++){
+    const c = text[i];
+    const n = text[i+1];
+    if(inQ){
+      if(c === '"' && n === '"'){ cur += '"'; i++; continue; }
+      if(c === '"'){ inQ = false; continue; }
+      cur += c; continue;
+    }else{
+      if(c === '"'){ inQ = true; continue; }
+      if(c === ','){ row.push(cur); cur=""; continue; }
+      if(c === '\r') continue;
+      if(c === '\n'){ row.push(cur); rows.push(row); row=[]; cur=""; continue; }
+      cur += c;
+    }
+  }
+  row.push(cur); rows.push(row);
+  return rows.filter(r => !(r.length===1 && String(r[0]).trim()===""));
+}
+
+function csvSafe(s){
+  const str = String(s);
+  if(str.includes(",") || str.includes('"') || str.includes("\n")){
+    return `"${str.replaceAll('"','""')}"`;
+  }
+  return str;
+}
+
+/* ---------------------------
+   UI elements
+--------------------------- */
+const els = {
+  tabs: [...document.querySelectorAll(".tab")],
+  sections: {
+    log: document.getElementById("tab-log"),
+    dash: document.getElementById("tab-dash"),
+    month: document.getElementById("tab-month"),
+    settings: document.getElementById("tab-settings"),
+  },
+
+  // form
+  fDate: document.getElementById("fDate"),
+  fHappy: document.getElementById("fHappy"),
+  hVal: document.getElementById("hVal"),
+  fWeight: document.getElementById("fWeight"),
+  fSteps: document.getElementById("fSteps"),
+  fScreen: document.getElementById("fScreen"),
+  fApps: document.getElementById("fApps"),
+  fTopApp: document.getElementById("fTopApp"),
+  fNotes: document.getElementById("fNotes"),
+
+  btnSave: document.getElementById("btnSave"),
+  btnClear: document.getElementById("btnClear"),
+  btnDelete: document.getElementById("btnDelete"),
+  editHint: document.getElementById("editHint"),
+
+  logBody: document.getElementById("logBody"),
+  countEntries: document.getElementById("countEntries"),
+
+  // actions
+  btnWeatherMissing: document.getElementById("btnWeatherMissing"),
+  btnExportJSON: document.getElementById("btnExportJSON"),
+  btnExportCSV: document.getElementById("btnExportCSV"),
+
+  // dashboard
+  kpis: document.getElementById("kpis"),
+  corr: document.getElementById("corr"),
+  goalStepsLabel: document.getElementById("goalStepsLabel"),
+
+  // monthly
+  monthBody: document.getElementById("monthBody"),
+  monthCount: document.getElementById("monthCount"),
+
+  // settings
+  sUnits: document.getElementById("sUnits"),
+  sGoalSteps: document.getElementById("sGoalSteps"),
+  sLat: document.getElementById("sLat"),
+  sLon: document.getElementById("sLon"),
+  sTz: document.getElementById("sTz"),
+  sAutoWeather: document.getElementById("sAutoWeather"),
+  btnGeo: document.getElementById("btnGeo"),
+  btnSaveSettings: document.getElementById("btnSaveSettings"),
+  btnWipe: document.getElementById("btnWipe"),
+
+  // import
+  importJSON: document.getElementById("importJSON"),
+  btnImportJSON: document.getElementById("btnImportJSON"),
+  importStepsCSV: document.getElementById("importStepsCSV"),
+  btnImportSteps: document.getElementById("btnImportSteps"),
+  importAppsCSV: document.getElementById("importAppsCSV"),
+  btnImportApps: document.getElementById("btnImportApps"),
+};
+
+let state = loadState();
+let editingDate = null;
+
+// charts
+let chHappy=null, chWeight=null, chSteps=null, chScreen=null, chTopApps=null, chWeatherHappy=null;
+
+/* ---------------------------
+   Tabs
+--------------------------- */
+function showTab(name){
+  for(const t of els.tabs) t.classList.toggle("active", t.dataset.tab === name);
+  for(const [k,sec] of Object.entries(els.sections)){
+    sec.classList.toggle("hide", k !== name);
+  }
+  if(name === "dash") renderDashboard();
+  if(name === "month") renderMonthly();
+  if(name === "settings") renderSettings();
+}
+els.tabs.forEach(btn => btn.addEventListener("click", ()=> showTab(btn.dataset.tab)));
+
+/* ---------------------------
+   Form
+--------------------------- */
+function setFormDefaults(){
+  els.fDate.value = todayISO();
+  els.fHappy.value = 6;
+  els.hVal.textContent = `(6.0)`;
+  els.fWeight.value = "";
+  els.fSteps.value = "";
+  els.fScreen.value = "";
+  els.fApps.value = "";
+  els.fTopApp.value = "";
+  els.fNotes.value = "";
+  editingDate = null;
+  els.btnDelete.disabled = true;
+  els.editHint.textContent = "Click a row to edit it.";
+}
+els.fHappy.addEventListener("input", ()=>{
+  els.hVal.textContent = `(${Number(els.fHappy.value).toFixed(1)})`;
+});
+
+function upsertEntry(entry){
+  const idx = state.entries.findIndex(e => e.date === entry.date);
+  if(idx >= 0) state.entries[idx] = entry;
+  else state.entries.push(entry);
+  saveState();
+}
+function deleteEntry(date){
+  state.entries = state.entries.filter(e => e.date !== date);
+  saveState();
+}
+
+async function onSave(){
+  const date = els.fDate.value;
+  if(!date) return alert("Pick a date.");
+  const happiness = clamp(Number(els.fHappy.value), 0, 10);
+  const weight = toNum(els.fWeight.value);
+  const steps = toNum(els.fSteps.value);
+  const screenHours = toNum(els.fScreen.value);
+  const apps = parseAppsTextarea(els.fApps.value);
+  const notes = (els.fNotes.value || "").trim();
+
+  const existing = state.entries.find(e => e.date === date);
+  const entry = existing ? {...existing} : {date, weather:null};
+
+  entry.happiness = happiness;
+  entry.weight = weight;
+  entry.steps = steps;
+  entry.screenHours = screenHours;
+  entry.apps = apps;
+  entry.notes = notes;
+
+  // top app display helper
+  const top = getTopApp(apps);
+  els.fTopApp.value = top ? `${top.app} (${top.minutes}m)` : "";
+
+  upsertEntry(entry);
+
+  if(state.settings.autoWeather){
+    try{
+      const map = await fetchWeatherRange(date, date);
+      const w = map[date];
+      if(w){
+        entry.weather = w;
+        upsertEntry(entry);
+      }
+    }catch(e){
+      console.warn(e);
+    }
+  }
+
+  renderLog();
+  setFormDefaults();
+}
+function onClear(){ setFormDefaults(); }
+function onDelete(){
+  if(!editingDate) return;
+  if(!confirm(`Delete entry for ${editingDate}?`)) return;
+  deleteEntry(editingDate);
+  renderLog();
+  setFormDefaults();
+}
+
+els.btnSave.addEventListener("click", onSave);
+els.btnClear.addEventListener("click", onClear);
+els.btnDelete.addEventListener("click", onDelete);
+
+els.btnWeatherMissing.addEventListener("click", async ()=>{
+  try{
+    await fillMissingWeather();
+    renderLog();
+    alert("Missing weather filled (where possible).");
+  }catch(e){
+    alert(e.message || "Weather fill failed.");
+  }
+});
+
+/* ---------------------------
+   Render: Log
+--------------------------- */
+function loadEntryIntoForm(date){
+  const e = state.entries.find(x => x.date === date);
+  if(!e) return;
+  editingDate = e.date;
+
+  els.fDate.value = e.date;
+  els.fHappy.value = e.happiness;
+  els.hVal.textContent = `(${Number(e.happiness).toFixed(1)})`;
+  els.fWeight.value = (e.weight == null ? "" : e.weight);
+  els.fSteps.value = (e.steps == null ? "" : e.steps);
+  els.fScreen.value = (e.screenHours == null ? "" : e.screenHours);
+  els.fApps.value = appsToTextarea(e.apps);
+  const top = getTopApp(e.apps);
+  els.fTopApp.value = top ? `${top.app} (${top.minutes}m)` : "";
+  els.fNotes.value = e.notes || "";
+
+  els.btnDelete.disabled = false;
+  els.editHint.textContent = `Editing ${e.date}.`;
+}
+
+function renderLog(){
+  const rows = sortEntriesDesc(state.entries);
+  els.logBody.innerHTML = "";
+
+  const units = state.settings.units;
+  const tUnit = (units === "Metric") ? "°C" : "°F";
+  const pUnit = (units === "Metric") ? "mm" : "in";
+
+  for(const e of rows){
+    const tr = document.createElement("tr");
+    tr.style.cursor = "pointer";
+    tr.addEventListener("click", ()=> loadEntryIntoForm(e.date));
+
+    const w = e.weather;
+    const weatherText = w ? w.summary : "—";
+    const tempText = w ? `${fmtNum(w.tmax)} / ${fmtNum(w.tmin)} ${tUnit}` : "—";
+    const precipText = w ? `${fmtNum(w.precip)} ${pUnit}` : "—";
+
+    const top = getTopApp(e.apps);
+    const topText = top ? `${escapeHtml(top.app)} (${top.minutes}m)` : "—";
+
+    tr.innerHTML = `
+      <td><strong>${e.date}</strong>${e.notes ? `<div class="small muted">${escapeHtml(e.notes).slice(0,70)}${e.notes.length>70?"…":""}</div>` : ""}</td>
+      <td>${fmtNum(e.happiness)}</td>
+      <td>${e.weight == null ? "—" : fmtNum(e.weight)}</td>
+      <td>${e.steps == null ? "—" : Math.round(e.steps).toLocaleString()}</td>
+      <td class="right">${e.screenHours == null ? "—" : fmtHours(e.screenHours)}</td>
+      <td>${topText}</td>
+      <td>${weatherText}</td>
+      <td class="right">${tempText}</td>
+      <td class="right">${precipText}</td>
+    `;
+    els.logBody.appendChild(tr);
+  }
+  els.countEntries.textContent = String(state.entries.length);
+}
+
+/* ---------------------------
+   Export
+--------------------------- */
+els.btnExportJSON.addEventListener("click", ()=>{
+  download(`tracker_export_${todayISO()}.json`, JSON.stringify(state, null, 2), "application/json");
+});
+
+els.btnExportCSV.addEventListener("click", ()=>{
+  const units = state.settings.units;
+  const tUnit = (units === "Metric") ? "C" : "F";
+  const pUnit = (units === "Metric") ? "mm" : "in";
+  const header = [
+    "date","happiness","weight","steps","screen_hours","top_app","top_app_minutes","apps_json",
+    "notes","weather","tmax_"+tUnit,"tmin_"+tUnit,"precip_"+pUnit
+  ].join(",");
+  const lines = [header];
+
+  for(const e of sortEntriesAsc(state.entries)){
+    const w = e.weather || {};
+    const top = getTopApp(e.apps);
+    lines.push([
+      e.date,
+      e.happiness ?? "",
+      e.weight ?? "",
+      e.steps ?? "",
+      e.screenHours ?? "",
+      csvSafe(top?.app || ""),
+      top?.minutes ?? "",
+      csvSafe(e.apps ? JSON.stringify(e.apps) : ""),
+      csvSafe(e.notes || ""),
+      csvSafe(w.summary || ""),
+      w.tmax ?? "",
+      w.tmin ?? "",
+      w.precip ?? ""
+    ].join(","));
+  }
+  download(`tracker_export_${todayISO()}.csv`, lines.join("\n"), "text/csv");
+});
+
+/* ---------------------------
+   Settings + Import
+--------------------------- */
+function renderSettings(){
+  const s = state.settings;
+  els.sUnits.value = s.units;
+  els.sGoalSteps.value = s.goalSteps;
+  els.sLat.value = (s.lat == null ? "" : s.lat);
+  els.sLon.value = (s.lon == null ? "" : s.lon);
+  els.sTz.value = s.tz;
+  els.sAutoWeather.checked = !!s.autoWeather;
+  els.goalStepsLabel.textContent = Number(s.goalSteps).toLocaleString();
+}
+
+els.btnGeo.addEventListener("click", ()=>{
+  if(!navigator.geolocation) return alert("Geolocation not supported.");
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      els.sLat.value = pos.coords.latitude.toFixed(4);
+      els.sLon.value = pos.coords.longitude.toFixed(4);
+    },
+    err => alert(err.message || "Could not get location."),
+    {enableHighAccuracy:false, timeout:12000}
+  );
+});
+
+els.btnSaveSettings.addEventListener("click", ()=>{
+  const units = els.sUnits.value;
+  const goalSteps = Number(els.sGoalSteps.value || 10000);
+  const lat = toNum(els.sLat.value);
+  const lon = toNum(els.sLon.value);
+  const tz = (els.sTz.value || "").trim() || "America/Chicago";
+  const autoWeather = els.sAutoWeather.checked;
+
+  state.settings.units = units;
+  state.settings.goalSteps = Number.isFinite(goalSteps) ? Math.max(0, Math.round(goalSteps)) : 10000;
+  state.settings.lat = lat;
+  state.settings.lon = lon;
+  state.settings.tz = tz;
+  state.settings.autoWeather = autoWeather;
+
+  saveState();
+  alert("Settings saved.");
+  renderLog();
+});
+
+els.btnWipe.addEventListener("click", ()=>{
+  if(!confirm("Wipe ALL entries + settings?")) return;
+  localStorage.removeItem(LS_KEY);
+  state = defaultState();
+  saveState();
+  setFormDefaults();
+  renderLog();
+  alert("Wiped.");
+});
+
+els.btnImportJSON.addEventListener("click", async ()=>{
+  const f = els.importJSON.files?.[0];
+  if(!f) return alert("Choose a JSON file.");
+  try{
+    const text = await f.text();
+    const parsed = JSON.parse(text);
+    if(!parsed.settings || !Array.isArray(parsed.entries)) throw new Error("Invalid file.");
+    state = parsed;
+    saveState();
+    renderLog();
+    alert("Imported JSON.");
+  }catch(e){
+    alert(e.message || "Import failed.");
+  }
+});
+
+els.btnImportSteps.addEventListener("click", async ()=>{
+  const f = els.importStepsCSV.files?.[0];
+  if(!f) return alert("Choose a CSV file.");
+  try{
+    const text = await f.text();
+    const rows = parseCSV(text);
+    if(rows.length < 2) throw new Error("CSV too short.");
+    const headers = rows[0].map(h => String(h).trim().toLowerCase());
+    const di = headers.indexOf("date");
+    const si = headers.indexOf("steps");
+    if(di === -1 || si === -1) throw new Error("CSV must have headers: date,steps");
+
+    let imported = 0;
+    for(let i=1;i<rows.length;i++){
+      const r = rows[i];
+      const date = String(r[di] || "").trim();
+      const steps = Number(r[si]);
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+      if(!Number.isFinite(steps)) continue;
+
+      const existing = state.entries.find(e => e.date === date);
+      const entry = existing ? {...existing} : {date, happiness: 6, weight: null, steps: null, screenHours:null, apps:null, notes: "", weather: null};
+      entry.steps = Math.max(0, Math.round(steps));
+      upsertEntry(entry);
+      imported++;
+    }
+    renderLog();
+    alert(`Imported steps for ${imported} day(s).`);
+  }catch(e){
+    alert(e.message || "Steps import failed.");
+  }
+});
+
+els.btnImportApps.addEventListener("click", async ()=>{
+  const f = els.importAppsCSV.files?.[0];
+  if(!f) return alert("Choose a CSV file.");
+  try{
+    const text = await f.text();
+    const rows = parseCSV(text);
+    if(rows.length < 2) throw new Error("CSV too short.");
+    const headers = rows[0].map(h => String(h).trim().toLowerCase());
+    const di = headers.indexOf("date");
+    const ai = headers.indexOf("app");
+    const mi = headers.indexOf("minutes");
+    if(di === -1 || ai === -1 || mi === -1) throw new Error("CSV must have headers: date,app,minutes");
+
+    let imported = 0;
+    for(let i=1;i<rows.length;i++){
+      const r = rows[i];
+      const date = String(r[di] || "").trim();
+      const app = String(r[ai] || "").trim();
+      const minutes = Number(r[mi]);
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+      if(!app) continue;
+      if(!Number.isFinite(minutes)) continue;
+
+      const existing = state.entries.find(e => e.date === date);
+      const entry = existing ? {...existing} : {date, happiness: 6, weight: null, steps: null, screenHours:null, apps:null, notes: "", weather: null};
+      if(!entry.apps) entry.apps = {};
+      entry.apps[app] = (entry.apps[app] || 0) + Math.max(0, Math.round(minutes));
+      upsertEntry(entry);
+      imported++;
+    }
+    renderLog();
+    alert(`Imported ${imported} app-usage row(s).`);
+  }catch(e){
+    alert(e.message || "App usage import failed.");
+  }
+});
+
+/* ---------------------------
+   Dashboard + Monthly
+--------------------------- */
+function calcStreak(entriesAsc){
+  if(entriesAsc.length === 0) return 0;
+  const set = new Set(entriesAsc.map(e=>e.date));
+  let d = entriesAsc[entriesAsc.length-1].date;
+  let streak = 0;
+  while(set.has(d)){
+    streak++;
+    const dt = new Date(d+"T00:00:00");
+    dt.setDate(dt.getDate()-1);
+    d = dt.toISOString().slice(0,10);
+  }
+  return streak;
+}
+
+function renderDashboard(){
+  const entries = sortEntriesAsc(state.entries);
+  const labels = entries.map(e => e.date);
+
+  const happy = entries.map(e => e.happiness ?? null);
+  const weight = entries.map(e => e.weight ?? null);
+  const steps = entries.map(e => e.steps ?? null);
+  const screen = entries.map(e => e.screenHours ?? null);
+
+  const happyMA = movingAverage(happy, 7);
+  const weightMA = movingAverage(weight, 7);
+  const stepsMA = movingAverage(steps, 7);
+  const screenMA = movingAverage(screen, 7);
+
+  const last = entries[entries.length-1];
+
+  const avgHappy = mean(happy);
+  const avgSteps = mean(steps);
+  const avgWeight = mean(weight);
+  const avgScreen = mean(screen);
+  const streak = calcStreak(entries);
+
+  els.kpis.innerHTML = "";
+  els.kpis.appendChild(kpi("Avg happy", avgHappy == null ? "—" : fmtNum(avgHappy)));
+  els.kpis.appendChild(kpi("Avg steps", avgSteps == null ? "—" : Math.round(avgSteps).toLocaleString()));
+  els.kpis.appendChild(kpi("Avg weight", avgWeight == null ? "—" : fmtNum(avgWeight)));
+  els.kpis.appendChild(kpi("Avg screen", avgScreen == null ? "—" : fmtHours(avgScreen)));
+  els.kpis.appendChild(kpi("Streak", streak + " days"));
+  els.kpis.appendChild(kpi("Last weather", last?.weather?.summary || "—"));
+
+  const rHS = pearson(happy, steps);
+  const rHSc = pearson(happy, screen);
+  els.corr.textContent =
+    `Correlations (Pearson r): happiness↔steps = ${rHS==null?"—":rHS.toFixed(2)}, happiness↔screen = ${rHSc==null?"—":rHSc.toFixed(2)}.`;
+
+  els.goalStepsLabel.textContent = Number(state.settings.goalSteps).toLocaleString();
+
+  chHappy = renderLineChart(chHappy, "chartHappy", labels,
+    [{label:"Happiness", data:happy},{label:"Happiness (7d avg)", data:happyMA}],
+    {yMin:0, yMax:10}
+  );
+  chWeight = renderLineChart(chWeight, "chartWeight", labels,
+    [{label:"Weight", data:weight},{label:"Weight (7d avg)", data:weightMA}],
+    {}
+  );
+  chSteps = renderLineChart(chSteps, "chartSteps", labels,
+    [{label:"Steps", data:steps},{label:"Steps (7d avg)", data:stepsMA}],
+    {}
+  );
+  chScreen = renderLineChart(chScreen, "chartScreen", labels,
+    [{label:"Screen time (hours)", data:screen},{label:"Screen (7d avg)", data:screenMA}],
+    {}
+  );
+
+  // Top apps (last 14 days)
+  const last14 = entries.slice(Math.max(0, entries.length-14));
+  const totals = {};
+  for(const e of last14){
+    if(!e.apps) continue;
+    for(const [app, mins] of Object.entries(e.apps)){
+      totals[app] = (totals[app] || 0) + (Number(mins) || 0);
+    }
+  }
+  const appPairs = Object.entries(totals).sort((a,b)=> b[1]-a[1]).slice(0, 10);
+  const appLabels = appPairs.map(x=>x[0]);
+  const appVals = appPairs.map(x=>x[1]); // minutes
+
+  chTopApps = renderBarChart(chTopApps, "chartTopApps", appLabels, appVals, "Minutes");
+
+  // Weather bin vs happiness
+  const bins = {};
+  for(const e of entries){
+    if(e.happiness == null || !e.weather?.summary) continue;
+    const k = e.weather.summary;
+    if(!bins[k]) bins[k] = [];
+    bins[k].push(e.happiness);
+  }
+  const wLabels = Object.keys(bins).sort();
+  const wVals = wLabels.map(k => mean(bins[k]));
+  chWeatherHappy = renderBarChart(chWeatherHappy, "chartWeatherHappy", wLabels, wVals, "Avg happiness", {yMin:0, yMax:10});
+}
+
+function renderMonthly(){
+  const entries = sortEntriesAsc(state.entries);
+  const byMonth = {};
+  for(const e of entries){
+    const m = e.date.slice(0,7);
+    if(!byMonth[m]) byMonth[m] = [];
+    byMonth[m].push(e);
+  }
+  const months = Object.keys(byMonth).sort().reverse();
+  els.monthCount.textContent = String(months.length);
+  els.monthBody.innerHTML = "";
+
+  for(const m of months){
+    const arr = byMonth[m];
+    const days = arr.length;
+    const avgHappy = mean(arr.map(x=>x.happiness));
+    const avgWeight = mean(arr.map(x=>x.weight));
+    const totalSteps = arr.map(x=>x.steps).filter(x=>x!=null).reduce((a,b)=>a+b,0);
+    const avgScreen = mean(arr.map(x=>x.screenHours));
+
+    const clearDays = arr.filter(x=>x.weather?.summary==="Clear").length;
+    const rainDays = arr.filter(x=>["Rain","Showers","Drizzle"].includes(x.weather?.summary)).length;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${m}</strong></td>
+      <td class="right">${days}</td>
+      <td class="right">${avgHappy==null?"—":fmtNum(avgHappy)}</td>
+      <td class="right">${avgWeight==null?"—":fmtNum(avgWeight)}</td>
+      <td class="right">${totalSteps ? Math.round(totalSteps).toLocaleString() : "—"}</td>
+      <td class="right">${avgScreen==null?"—":fmtNum(avgScreen)}</td>
+      <td class="right">${clearDays}</td>
+      <td class="right">${rainDays}</td>
+    `;
+    els.monthBody.appendChild(tr);
+  }
+}
+
+/* ---------------------------
+   Charts
+--------------------------- */
+function renderLineChart(existing, canvasId, labels, series, opts){
+  const ctx = document.getElementById(canvasId);
+  if(existing) existing.destroy();
+
+  const datasets = series.map(s => ({
+    label: s.label,
+    data: s.data,
+    spanGaps: true,
+    borderWidth: 2,
+    pointRadius: 0,
+    tension: 0.25
+  }));
+
+  return new Chart(ctx, {
+    type: "line",
+    data: { labels, datasets },
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins: {
+        legend: { labels: { color: "#e5e7eb" } },
+        tooltip: { mode:"index", intersect:false }
+      },
+      scales: {
+        x: { ticks: { color:"#9ca3af" }, grid: { color:"rgba(31,41,55,.6)" } },
+        y: {
+          ticks: { color:"#9ca3af" },
+          grid: { color:"rgba(31,41,55,.6)" },
+          suggestedMin: opts?.yMin ?? undefined,
+          suggestedMax: opts?.yMax ?? undefined
+        }
+      }
+    }
+  });
+}
+
+function renderBarChart(existing, canvasId, labels, values, label="Value", yOpts){
+  const ctx = document.getElementById(canvasId);
+  if(existing) existing.destroy();
+  return new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label,
+        data: values,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins: { legend: { labels: { color:"#e5e7eb" } } },
+      scales: {
+        x: { ticks: { color:"#9ca3af" }, grid: { color:"rgba(31,41,55,.6)" } },
+        y: {
+          ticks: { color:"#9ca3af" },
+          grid: { color:"rgba(31,41,55,.6)" },
+          suggestedMin: yOpts?.yMin ?? undefined,
+          suggestedMax: yOpts?.yMax ?? undefined
+        }
+      }
+    }
+  });
+}
+
+/* ---------------------------
+   Init
+--------------------------- */
+function init(){
+  setFormDefaults();
+  renderSettings();
+  renderLog();
+  els.hVal.textContent = `(${Number(els.fHappy.value).toFixed(1)})`;
+}
+init();
+</script>
+
+</body>
+</html>
