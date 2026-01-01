@@ -3,129 +3,296 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Happiness + Weight + Steps + Weather + Screen Time</title>
+  <meta name="color-scheme" content="dark light" />
+  <title>Life Ops Tracker — Happiness • Weight • Steps • Weather • Screen Time</title>
+
   <style>
     :root{
-      --bg:#0b0f17; --card:#111827; --muted:#9ca3af; --text:#e5e7eb;
-      --accent:#60a5fa; --accent2:#34d399; --danger:#f87171; --border:#1f2937;
+      --bg:#0b0f17;
+      --bg2:#070a10;
+      --card:#111827;
+      --muted:#9ca3af;
+      --text:#e5e7eb;
+      --accent:#60a5fa;
+      --accent2:#34d399;
+      --warn:#fbbf24;
+      --danger:#fb7185;
+      --border:#1f2937;
       --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --ring: 0 0 0 3px rgba(96,165,250,.20);
+      --radius: 16px;
+      --radius2: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    [data-theme="light"]{
+      --bg:#f5f7fb;
+      --bg2:#eef2ff;
+      --card:#ffffff;
+      --muted:#475569;
+      --text:#0b1220;
+      --border:#e2e8f0;
+      --shadow: 0 12px 26px rgba(2,6,23,.10);
+      --ring: 0 0 0 3px rgba(37,99,235,.20);
     }
     *{box-sizing:border-box}
+    html, body{height:100%}
     body{
-      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      background: radial-gradient(1000px 600px at 20% 0%, rgba(96,165,250,.15), transparent 60%),
-                  radial-gradient(900px 500px at 80% 10%, rgba(52,211,153,.12), transparent 55%),
-                  var(--bg);
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:
+        radial-gradient(1100px 700px at 18% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 65%),
+        radial-gradient(1000px 640px at 82% 10%, color-mix(in srgb, var(--accent2) 14%, transparent), transparent 65%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
       color:var(--text);
     }
+    a{color:inherit}
+    .wrap{max-width:1180px; margin:0 auto; padding:0 14px;}
     header{
-      padding:18px 16px 10px;
+      padding:14px 0 10px;
       border-bottom:1px solid var(--border);
-      position:sticky; top:0; background:rgba(11,15,23,.78); backdrop-filter: blur(10px);
-      z-index:10;
+      position:sticky; top:0; z-index:50;
+      background: color-mix(in srgb, var(--bg) 78%, transparent);
+      backdrop-filter: blur(10px);
     }
-    .wrap{max-width:1100px; margin:0 auto; padding:0 14px;}
-    .top{display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;}
-    h1{margin:0; font-size:18px; font-weight:700; letter-spacing:.2px}
-    .sub{color:var(--muted); font-size:12px; margin-top:3px}
-    nav{display:flex; gap:8px; flex-wrap:wrap}
+    .top{
+      display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+    }
+    h1{margin:0; font-size:16px; font-weight:750; letter-spacing:.2px}
+    .sub{color:var(--muted); font-size:12px; margin-top:4px; line-height:1.35}
+    nav{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
     .tab{
       border:1px solid var(--border);
-      background:rgba(17,24,39,.6);
+      background: color-mix(in srgb, var(--card) 68%, transparent);
       color:var(--text);
       padding:8px 10px;
-      border-radius:12px;
+      border-radius:999px;
       cursor:pointer;
       font-size:13px;
+      user-select:none;
+      transition: .12s transform ease, .12s background ease, .12s border-color ease;
     }
-    .tab.active{border-color:rgba(96,165,250,.55); box-shadow: 0 0 0 2px rgba(96,165,250,.15) inset}
-    main{padding:18px 0 42px}
+    .tab:active{transform: translateY(1px)}
+    .tab.active{border-color: color-mix(in srgb, var(--accent) 60%, var(--border)); box-shadow: var(--ring) inset}
+    .tab.icon{
+      width:40px; display:grid; place-items:center; padding:8px 0;
+      border-radius:999px;
+    }
+
+    main{padding:16px 0 44px}
     .grid{display:grid; grid-template-columns: 1fr; gap:14px}
     @media (min-width: 980px){
-      .grid.two{grid-template-columns: 420px 1fr}
+      .grid.two{grid-template-columns: 430px 1fr}
       .grid.three{grid-template-columns: 1fr 1fr 1fr}
+      .grid.twoWide{grid-template-columns: 1fr 1fr}
+      .grid.sidebar{grid-template-columns: 380px 1fr}
     }
+
     .card{
-      background: linear-gradient(180deg, rgba(17,24,39,.85), rgba(17,24,39,.62));
+      background: linear-gradient(180deg, color-mix(in srgb, var(--card) 92%, transparent), color-mix(in srgb, var(--card) 76%, transparent));
       border:1px solid var(--border);
-      border-radius:16px;
+      border-radius:var(--radius);
       box-shadow: var(--shadow);
       padding:14px;
     }
-    .card h2{margin:0 0 8px; font-size:14px}
+    .card h2{margin:0 0 10px; font-size:13px; letter-spacing:.2px}
+    .split{display:flex; gap:10px; justify-content:space-between; align-items:center; flex-wrap:wrap}
     .row{display:flex; gap:10px; flex-wrap:wrap}
     .field{flex: 1 1 160px}
     label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px}
     input, select, textarea{
       width:100%;
-      background: rgba(11,15,23,.6);
-      border:1px solid rgba(31,41,55,.9);
+      background: color-mix(in srgb, var(--bg) 55%, transparent);
+      border:1px solid color-mix(in srgb, var(--border) 92%, transparent);
       color:var(--text);
       padding:10px 10px;
       border-radius:12px;
       outline:none;
       font-size:14px;
     }
+    input:focus, select:focus, textarea:focus{box-shadow: var(--ring); border-color: color-mix(in srgb, var(--accent) 55%, var(--border))}
     textarea{min-height:78px; resize:vertical}
     input[type="range"]{padding:0; height:34px}
+    input[type="search"]{appearance:none}
     .btn{
       border:1px solid var(--border);
-      background: rgba(96,165,250,.16);
+      background: color-mix(in srgb, var(--accent) 18%, transparent);
       color:var(--text);
       padding:9px 11px;
       border-radius:12px;
       cursor:pointer;
       font-size:13px;
-      transition:.12s transform ease;
+      transition:.12s transform ease, .12s background ease, .12s border-color ease;
     }
     .btn:active{transform: translateY(1px)}
-    .btn.secondary{background: rgba(156,163,175,.12)}
-    .btn.danger{background: rgba(248,113,113,.14)}
+    .btn.secondary{background: color-mix(in srgb, var(--muted) 10%, transparent)}
+    .btn.danger{background: color-mix(in srgb, var(--danger) 14%, transparent)}
+    .btn.warn{background: color-mix(in srgb, var(--warn) 14%, transparent)}
     .btn.small{padding:7px 9px; font-size:12px}
+    .btn:focus{outline:none; box-shadow: var(--ring)}
     .pill{
       display:inline-flex; gap:8px; align-items:center;
       padding:6px 10px; border-radius:999px;
-      background: rgba(156,163,175,.10); border:1px solid rgba(31,41,55,.9);
+      background: color-mix(in srgb, var(--muted) 10%, transparent);
+      border:1px solid color-mix(in srgb, var(--border) 92%, transparent);
       color:var(--muted); font-size:12px;
+      user-select:none;
     }
-    .pill strong{color:var(--text); font-weight:700}
+    .pill strong{color:var(--text); font-weight:750}
     .muted{color:var(--muted)}
-    table{width:100%; border-collapse:collapse; overflow:hidden; border-radius:14px;}
+    .note{font-size:12px; color:var(--muted); line-height:1.45}
+    .mono{font-family: var(--mono)}
+    .hide{display:none !important}
+
+    .toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end}
+    .toolbar .field{flex:1 1 180px}
+    .toolbar .btn{height:42px}
+
+    table{width:100%; border-collapse:collapse; overflow:hidden; border-radius:var(--radius2);}
     th, td{
-      border-bottom:1px solid rgba(31,41,55,.85);
+      border-bottom:1px solid color-mix(in srgb, var(--border) 85%, transparent);
       padding:10px 8px;
       font-size:13px;
       text-align:left;
       vertical-align:top;
     }
-    th{color:var(--muted); font-weight:600; font-size:12px}
-    tr:hover td{background: rgba(96,165,250,.05)}
+    th{color:var(--muted); font-weight:650; font-size:12px}
+    tr:hover td{background: color-mix(in srgb, var(--accent) 6%, transparent)}
     .right{text-align:right}
     .small{font-size:12px}
-    .kpis{display:flex; gap:10px; flex-wrap:wrap}
-    .kpis .pill{flex: 1 1 auto}
-    .split{display:flex; gap:10px; justify-content:space-between; align-items:center; flex-wrap:wrap}
-    .hide{display:none !important}
-    .note{font-size:12px; color:var(--muted); line-height:1.4}
-    canvas{max-height:300px}
     .footer-note{color:var(--muted); font-size:12px; margin-top:10px}
-    .file{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-    code.inline{background:rgba(11,15,23,.6); border:1px solid rgba(31,41,55,.9); padding:2px 6px; border-radius:8px}
-  </style>
+
+    .badge{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:3px 7px; border-radius:999px;
+      font-size:12px; border:1px solid var(--border);
+      background: color-mix(in srgb, var(--bg) 55%, transparent);
+    }
+    .badge.ok{border-color: color-mix(in srgb, var(--accent2) 60%, var(--border))}
+    .badge.warn{border-color: color-mix(in srgb, var(--warn) 65%, var(--border))}
+    .badge.bad{border-color: color-mix(in srgb, var(--danger) 60%, var(--border))}
+
+    canvas{max-height:310px}
+    .hr{border:0; border-top:1px solid color-mix(in srgb, var(--border) 85%, transparent); margin:14px 0}
+
+    /* Heatmap */
+    .heatWrap{display:flex; gap:14px; flex-wrap:wrap; align-items:flex-start}
+    .heat{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:6px;
+      width: min(440px, 100%);
+    }
+    .heat .cell{
+      border:1px solid color-mix(in srgb, var(--border) 75%, transparent);
+      border-radius:10px;
+      height:34px;
+      display:grid;
+      place-items:center;
+      font-size:12px;
+      color: color-mix(in srgb, var(--text) 90%, transparent);
+      background: color-mix(in srgb, var(--muted) 10%, transparent);
+      cursor:pointer;
+      user-select:none;
+    }
+    .heat .cell:hover{box-shadow: var(--ring)}
+    .heatHead{
+      display:flex; gap:6px; width:min(440px,100%);
+      color:var(--muted); font-size:11px;
+    }
+    .heatHead span{flex:1 1 0; text-align:center}
+
+    /* Mobile: bottom nav */
+    .bottomNav{
+      position:fixed; left:0; right:0; bottom:0;
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      border-top:1px solid var(--border);
+      backdrop-filter: blur(10px);
+      padding:8px 10px;
+      display:flex;
+      gap:8px;
+      justify-content:space-around;
+      z-index:60;
+    }
+    .bottomNav .tab{
+      flex:1 1 auto;
+      text-align:center;
+      padding:10px 8px;
+      border-radius:14px;
+    }
+    @media (min-width: 980px){
+      .bottomNav{display:none}
+    }
+  
+
+    /* ---------- Lab + Cmd Palette (extreme mode) ---------- */
+    .twoWide{ }
+    .modal{
+      position: fixed; inset:0;
+      background: color-mix(in srgb, #000 55%, transparent);
+      display:flex; align-items:flex-start; justify-content:center;
+      padding: 72px 16px 16px;
+      z-index: 9999;
+    }
+    .modal.hide{display:none}
+    .modalCard{
+      width: min(860px, 100%);
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.35);
+      padding: 14px;
+    }
+    .cmdkList{
+      max-height: 340px;
+      overflow:auto;
+      border:1px solid var(--border);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--bg) 55%, transparent);
+    }
+    .cmdkItem{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
+      padding: 10px 12px;
+      border-bottom:1px solid color-mix(in srgb, var(--border) 70%, transparent);
+      cursor:pointer;
+    }
+    .cmdkItem:last-child{border-bottom:none}
+    .cmdkItem.active{
+      background: color-mix(in srgb, var(--accent) 18%, transparent);
+    }
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 2px 8px;
+      border:1px solid var(--border);
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--card) 70%, transparent);
+      color: var(--text);
+      white-space:nowrap;
+    }
+
+</style>
 </head>
+
 <body>
 <header>
   <div class="wrap">
     <div class="top">
       <div>
-        <h1>Happiness + Weight + Steps + Weather + Screen Time</h1>
-        <div class="sub">Local-first tracker (browser storage). Weather via Open-Meteo (no key). App usage is manual/import because OSes aren’t generous.</div>
+        <h1>Life Ops Tracker</h1>
+        <div class="sub">
+          Local-first tracker (browser storage). Weather via Open‑Meteo (no key). Steps/screen time can’t be auto-read by a static site, so you import or type them. Humans: still stuck in OS permissions jail.
+        </div>
       </div>
-      <nav>
-        <button class="tab active" data-tab="log">Daily Log</button>
+
+      <nav aria-label="Primary">
+        <button class="tab active" data-tab="log">Daily</button>
         <button class="tab" data-tab="dash">Dashboard</button>
+        <button class="tab" data-tab="insights">Insights</button>
         <button class="tab" data-tab="month">Monthly</button>
+        <button class="tab" data-tab="lab">Lab</button>
         <button class="tab" data-tab="settings">Settings</button>
+        <button class="tab icon" id="btnTheme" title="Toggle theme" aria-label="Toggle theme">☾</button>
       </nav>
     </div>
   </div>
@@ -155,7 +322,7 @@
 
         <div class="row">
           <div class="field">
-            <label>Weight</label>
+            <label>Weight <span class="muted" id="weightUnitLabel"></span></label>
             <input id="fWeight" type="number" step="0.1" placeholder="e.g., 170.5" />
           </div>
           <div class="field">
@@ -167,10 +334,10 @@
         <div class="row">
           <div class="field">
             <label>Screen time (hours)</label>
-            <input id="fScreen" type="number" step="0.1" placeholder="e.g., 4.2" />
+            <input id="fScreen" type="number" step="0.1" placeholder="e.g., 4.2 (leave blank to auto-total apps)" />
           </div>
           <div class="field">
-            <label>Top app (auto-filled from list)</label>
+            <label>Top app (derived)</label>
             <input id="fTopApp" type="text" disabled placeholder="—" />
           </div>
         </div>
@@ -178,13 +345,12 @@
         <div class="row">
           <div class="field" style="flex:1 1 100%">
             <label>App usage (one per line)</label>
-            <textarea id="fApps" placeholder="Examples:
-Instagram=45m
+            <textarea id="fApps" placeholder="Instagram=45m
 YouTube=1.5h
 Safari=1h 10m"></textarea>
             <div class="note" style="margin-top:6px">
-              Accepted formats per line: <code class="inline">App=minutes</code>, <code class="inline">App=45m</code>,
-              <code class="inline">App=1.5h</code>, <code class="inline">App=1h 10m</code>, <code class="inline">App=1:10</code>.
+              Accepted per line: <span class="mono">App=minutes</span>, <span class="mono">App=45m</span>, <span class="mono">App=1.5h</span>, <span class="mono">App=1h 10m</span>, <span class="mono">App=1:10</span>.
+              If screen time is blank and “Auto total screen time from apps” is on, it’ll auto-fill.
             </div>
           </div>
         </div>
@@ -192,7 +358,10 @@ Safari=1h 10m"></textarea>
         <div class="row">
           <div class="field" style="flex:1 1 100%">
             <label>Notes (optional)</label>
-            <textarea id="fNotes" placeholder="sleep, stress, wins, chaos, etc."></textarea>
+            <textarea id="fNotes" placeholder="sleep, stress, wins, chaos, etc. #tags optional"></textarea>
+            <div class="note" style="margin-top:6px">
+              Tip: add tags like <span class="mono">#gym</span> <span class="mono">#study</span> <span class="mono">#social</span> and you’ll get tag stats in Insights.
+            </div>
           </div>
         </div>
 
@@ -200,9 +369,10 @@ Safari=1h 10m"></textarea>
           <button class="btn" id="btnSave">Save / Update</button>
           <button class="btn secondary" id="btnClear">Clear</button>
           <button class="btn danger" id="btnDelete" disabled>Delete</button>
+          <span class="note" id="saveStatus" style="margin-left:auto"></span>
         </div>
 
-        <div class="footer-note" id="editHint">Click a row to edit it.</div>
+        <div class="footer-note" id="editHint">Click a row to edit it. Keyboard: <span class="mono">Ctrl/⌘+S</span> saves.</div>
       </div>
 
       <div class="card">
@@ -215,7 +385,26 @@ Safari=1h 10m"></textarea>
           </div>
         </div>
 
-        <div style="overflow:auto; margin-top:10px; max-height:560px">
+        <div class="toolbar" style="margin-top:10px">
+          <div class="field">
+            <label>Search</label>
+            <input id="logSearch" type="search" placeholder="date, notes, app, weather…" />
+          </div>
+          <div class="field">
+            <label>Filter</label>
+            <select id="logFilter">
+              <option value="all">All</option>
+              <option value="missingWeather">Missing weather</option>
+              <option value="missingSteps">Missing steps</option>
+              <option value="missingWeight">Missing weight</option>
+              <option value="missingScreen">Missing screen time</option>
+              <option value="hasTags">Has #tags in notes</option>
+            </select>
+          </div>
+          <button class="btn secondary" id="btnTodayJump" title="Jump to today">Today</button>
+        </div>
+
+        <div style="overflow:auto; margin-top:10px; max-height:540px">
           <table>
             <thead>
               <tr>
@@ -235,30 +424,71 @@ Safari=1h 10m"></textarea>
         </div>
 
         <div class="note" style="margin-top:10px">
-          Pure static sites can’t read iOS/Android usage stats directly. Import CSV or type the top apps. Bureaucracy: undefeated.
+          Static sites can’t read iOS/Android health + screen-time data directly. Import CSV or type. Bureaucracy remains the dominant life-form.
         </div>
       </div>
     </section>
 
     <!-- DASHBOARD -->
     <section id="tab-dash" class="hide">
-      <div class="grid three">
+      <div class="card">
+        <div class="split">
+          <h2>Dashboard</h2>
+          <div class="row" style="align-items:center">
+            <span class="pill"><span class="muted">Range:</span> <strong id="rangeLabel">All</strong></span>
+            <button class="btn small secondary" id="btnDownloadCharts">Download charts (PNG)</button>
+          </div>
+        </div>
+
+        <div class="toolbar" style="margin-top:10px">
+          <div class="field">
+            <label>Date range</label>
+            <select id="rangePreset">
+              <option value="all">All time</option>
+              <option value="14d">Last 14 days</option>
+              <option value="30d" selected>Last 30 days</option>
+              <option value="90d">Last 90 days</option>
+              <option value="ytd">Year to date</option>
+              <option value="month">This month</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div class="field" id="rangeCustomWrap" style="display:none">
+            <label>From</label>
+            <input id="rangeFrom" type="date" />
+          </div>
+          <div class="field" id="rangeCustomWrap2" style="display:none">
+            <label>To</label>
+            <input id="rangeTo" type="date" />
+          </div>
+          <button class="btn" id="btnApplyRange">Apply</button>
+          <button class="btn secondary" id="btnFillWeatherRange">Fetch weather for range</button>
+        </div>
+        <div class="note" style="margin-top:8px" id="dashNote"></div>
+      </div>
+
+      <div class="grid three" style="margin-top:14px">
         <div class="card">
           <h2>KPIs</h2>
-          <div class="kpis" id="kpis"></div>
+          <div class="row" id="kpis" style="gap:8px"></div>
           <div class="note" style="margin-top:10px" id="corr"></div>
+          <div class="hr"></div>
+          <div class="note" id="quality"></div>
         </div>
+
         <div class="card">
           <h2>Happiness</h2>
           <canvas id="chartHappy"></canvas>
+          <div class="note" style="margin-top:10px" id="happyTrend"></div>
         </div>
+
         <div class="card">
           <h2>Weight</h2>
           <canvas id="chartWeight"></canvas>
         </div>
       </div>
 
-      <div class="grid two" style="margin-top:14px">
+      <div class="grid twoWide" style="margin-top:14px">
         <div class="card">
           <div class="split">
             <h2>Steps</h2>
@@ -266,28 +496,131 @@ Safari=1h 10m"></textarea>
           </div>
           <canvas id="chartSteps"></canvas>
         </div>
+
         <div class="card">
           <h2>Screen time</h2>
           <canvas id="chartScreen"></canvas>
           <div class="note" style="margin-top:10px">
-            If screen time and happiness correlate, it doesn’t mean “TikTok caused sadness.” It might mean “Tuesday happened.”
+            Correlation isn’t causation. It’s just your brain begging for a narrative.
           </div>
         </div>
       </div>
 
-      <div class="grid two" style="margin-top:14px">
+      <div class="grid twoWide" style="margin-top:14px">
         <div class="card">
-          <h2>Top apps (last 14 days)</h2>
+          <h2>Top apps (range)</h2>
           <canvas id="chartTopApps"></canvas>
           <div class="note" style="margin-top:10px">
-            Totals are minutes summed across the last 14 logged days that include app usage entries.
+            Totals are minutes summed across the selected range that include app usage entries.
           </div>
         </div>
+
         <div class="card">
           <h2>Weather vs Happiness (quick look)</h2>
           <canvas id="chartWeatherHappy"></canvas>
           <div class="note" style="margin-top:10px">
-            This bins by weather summary and averages happiness. Not causal. Humans love myth-making.
+            Binned by weather summary, averaging happiness. Not causal; just a map of your habits in disguise.
+          </div>
+        </div>
+      </div>
+
+      <div class="grid twoWide" style="margin-top:14px">
+        <div class="card">
+          <h2>Scatter: Steps vs Happiness</h2>
+          <canvas id="chartScatterSteps"></canvas>
+        </div>
+        <div class="card">
+          <h2>Scatter: Screen vs Happiness</h2>
+          <canvas id="chartScatterScreen"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSIGHTS -->
+    <section id="tab-insights" class="hide">
+      <div class="grid sidebar">
+        <div class="card">
+          <div class="split">
+            <h2>Insights</h2>
+            <span class="pill"><span class="muted">Using:</span> <strong id="insightRangeLabel">range</strong></span>
+          </div>
+
+          <div class="note" style="margin-top:8px">
+            This tab does three things: (1) tells you what changed, (2) flags weird days, (3) gives a minimalist model of what correlates with your mood. It will not solve life. It will annoy you into noticing patterns.
+          </div>
+
+          <div class="hr"></div>
+
+          <div id="insightCards" class="row" style="gap:8px"></div>
+
+          <div class="hr"></div>
+
+          <h2>Tags</h2>
+          <div class="note" style="margin-top:6px">Tags come from <span class="mono">#likeThis</span> in Notes.</div>
+          <div style="overflow:auto; margin-top:10px; max-height:280px">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tag</th>
+                  <th class="right">Days</th>
+                  <th class="right">Avg Happy</th>
+                  <th class="right">Avg Steps</th>
+                  <th class="right">Avg Screen</th>
+                </tr>
+              </thead>
+              <tbody id="tagBody"></tbody>
+            </table>
+          </div>
+
+          <div class="hr"></div>
+
+          <h2>Model</h2>
+          <div class="note" id="modelText"></div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="split">
+              <h2>Happiness calendar (last 12 weeks)</h2>
+              <span class="pill"><span class="muted">Click a day</span> <strong>to edit</strong></span>
+            </div>
+            <div class="heatHead" style="margin-top:10px">
+              <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+            </div>
+            <div class="heatWrap" style="margin-top:8px">
+              <div>
+                <div class="heat" id="heat"></div>
+                <div class="note" style="margin-top:10px" id="heatLegend"></div>
+              </div>
+              <div style="flex:1 1 260px">
+                <h2 style="margin-top:0">Anomalies</h2>
+                <div class="note">Days where happiness deviates sharply from your local baseline.</div>
+                <div style="overflow:auto; margin-top:10px; max-height:300px">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th class="right">Happy</th>
+                        <th class="right">Δ vs 7d avg</th>
+                        <th>Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody id="anomBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid twoWide" style="margin-top:14px">
+            <div class="card">
+              <h2>Distribution: Happiness</h2>
+              <canvas id="chartHistHappy"></canvas>
+            </div>
+            <div class="card">
+              <h2>Distribution: Screen time</h2>
+              <canvas id="chartHistScreen"></canvas>
+            </div>
           </div>
         </div>
       </div>
@@ -317,21 +650,270 @@ Safari=1h 10m"></textarea>
             <tbody id="monthBody"></tbody>
           </table>
         </div>
+        <div class="note" style="margin-top:10px">
+          Monthly summaries use whatever you logged. If you didn’t log it, it didn’t exist. This is also how history works.
+        </div>
       </div>
     </section>
 
     <!-- SETTINGS -->
-    <section id="tab-settings" class="hide">
-      <div class="grid two">
+    
+    <!-- LAB -->
+    <section id="tab-lab" class="hide grid twoWide">
+      <div class="card">
+        <div class="split">
+          <h2>Forecast</h2>
+          <span class="pill"><span class="muted">Model:</span> <strong id="fcModelLabel">auto</strong></span>
+        </div>
+
+        <div class="row" style="margin-top:10px; align-items:flex-end">
+          <div class="field" style="flex:1 1 140px">
+            <label>Horizon</label>
+            <select id="fcHorizon">
+              <option value="7">7 days</option>
+              <option value="14">14 days</option>
+              <option value="30">30 days</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1 1 180px">
+            <label>Training window</label>
+            <select id="fcWindow">
+              <option value="30">Last 30 days</option>
+              <option value="60" selected>Last 60 days</option>
+              <option value="120">Last 120 days</option>
+            </select>
+          </div>
+          <div class="field" style="flex:1 1 220px">
+            <label>Forecast metric</label>
+            <select id="fcMetric">
+              <option value="happiness" selected>Happiness (0–10)</option>
+              <option value="weight">Weight</option>
+              <option value="steps">Steps</option>
+              <option value="screen">Screen hours</option>
+            </select>
+          </div>
+          <button class="btn secondary" id="btnFcRun">Recompute</button>
+        </div>
+
+        <div class="chartWrap" style="height:260px; margin-top:12px">
+          <canvas id="chForecast"></canvas>
+        </div>
+
+        <div class="note" style="margin-top:10px" id="fcNote"></div>
+      </div>
+
+      <div class="card">
+        <div class="split">
+          <h2>What-if (predict happiness)</h2>
+          <span class="pill"><span class="muted">Uses:</span> <strong>recent patterns</strong></span>
+        </div>
+        <div class="note" style="margin-top:8px">
+          Adjust the sliders. This runs a small regression on your last ~60 days (when available).
+          If you haven’t logged enough, it falls back to trend + averages.
+        </div>
+
+        <div class="row" style="margin-top:10px; gap:12px">
+          <div class="field" style="flex:1 1 220px">
+            <label>Expected steps</label>
+            <input id="wiSteps" type="range" min="0" max="25000" step="250" value="8000"/>
+            <div class="small muted"><span class="mono" id="wiStepsVal">8,000</span> steps/day</div>
+          </div>
+          <div class="field" style="flex:1 1 220px">
+            <label>Expected screen time</label>
+            <input id="wiScreen" type="range" min="0" max="16" step="0.5" value="4"/>
+            <div class="small muted"><span class="mono" id="wiScreenVal">4.0</span> hours/day</div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row" style="align-items:baseline; gap:12px">
+          <div style="flex:1 1 auto">
+            <div class="small muted">Predicted happiness</div>
+            <div style="font-size:42px; font-weight:800; line-height:1.0">
+              <span id="wiPred">—</span><span class="muted" style="font-size:18px"> / 10</span>
+            </div>
+            <div class="small muted" id="wiPredNote"></div>
+          </div>
+          <div class="pill" style="justify-content:center; padding:12px 14px">
+            <div class="small muted" style="text-align:center">
+              <div class="mono">Ctrl/⌘+K</div>
+              <div>command palette</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="note" id="wiDrivers"></div>
+      </div>
+
+      <div class="card">
+        <div class="split">
+          <h2>Experiments</h2>
+          <span class="pill"><span class="muted">Compare:</span> <strong>baseline vs active</strong></span>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="field" style="flex:2 1 220px">
+            <label>Name</label>
+            <input id="expName" placeholder="e.g., No phone after 10pm"/>
+          </div>
+          <div class="field" style="flex:1 1 160px">
+            <label>Start</label>
+            <input id="expStart" type="date"/>
+          </div>
+          <div class="field" style="flex:1 1 160px">
+            <label>End</label>
+            <input id="expEnd" type="date"/>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px; align-items:flex-end">
+          <div class="field" style="flex:2 1 260px">
+            <label>Notes (optional)</label>
+            <input id="expNotes" placeholder="hypothesis, rules, confounders…"/>
+          </div>
+          <div class="field" style="flex:1 1 200px">
+            <label>Baseline window</label>
+            <select id="expBaseline">
+              <option value="7">7 days before</option>
+              <option value="14" selected>14 days before</option>
+              <option value="30">30 days before</option>
+            </select>
+          </div>
+          <button class="btn" id="btnExpAdd">Add</button>
+        </div>
+
+        <div class="hr"></div>
+
+        <div style="overflow:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Experiment</th>
+                <th class="right">Days</th>
+                <th class="right">Δ Happy</th>
+                <th class="right">Δ Steps</th>
+                <th class="right">Δ Screen</th>
+                <th class="right">Effect (d)</th>
+                <th class="right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="expBody"></tbody>
+          </table>
+        </div>
+
+        <div class="note" style="margin-top:10px" id="expNote"></div>
+
+        <div class="chartWrap" style="height:220px; margin-top:12px">
+          <canvas id="chExp"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="split">
+          <h2>Import Wizard</h2>
+          <span class="pill"><span class="muted">Maps:</span> <strong>your CSV columns</strong></span>
+        </div>
+
+        <div class="row" style="margin-top:10px; align-items:flex-end">
+          <div class="field" style="flex:1 1 220px">
+            <label>Type</label>
+            <select id="wizType">
+              <option value="steps" selected>Steps</option>
+              <option value="apps">App usage</option>
+            </select>
+          </div>
+          <div class="field" style="flex:2 1 360px">
+            <label>CSV file</label>
+            <input id="wizFile" type="file" accept=".csv,text/csv"/>
+          </div>
+          <button class="btn secondary" id="btnWizLoad">Load</button>
+        </div>
+
+        <div id="wizMap" class="hide" style="margin-top:12px">
+          <div class="row" style="align-items:flex-end">
+            <div class="field" style="flex:1 1 220px">
+              <label>Date column</label>
+              <select id="wizDate"></select>
+            </div>
+
+            <div class="field" style="flex:1 1 220px" id="wizColAWrap">
+              <label id="wizColALabel">Value column</label>
+              <select id="wizColA"></select>
+            </div>
+
+            <div class="field hide" style="flex:1 1 220px" id="wizColBWrap">
+              <label id="wizColBLabel">Second column</label>
+              <select id="wizColB"></select>
+            </div>
+
+            <div class="field hide" style="flex:1 1 220px" id="wizUnitWrap">
+              <label>Unit</label>
+              <select id="wizUnit">
+                <option value="minutes" selected>Minutes</option>
+                <option value="hours">Hours</option>
+              </select>
+            </div>
+
+            <button class="btn secondary" id="btnWizPreview">Preview</button>
+            <label class="check" style="margin:0 6px 6px 0"><input type="checkbox" id="wizCreate"/> Create missing dates</label>
+            <button class="btn" id="btnWizImport">Import</button>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="note" id="wizHint"></div>
+          <div style="overflow:auto; margin-top:10px">
+            <table>
+              <thead><tr id="wizPrevHead"></tr></thead>
+              <tbody id="wizPrevBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="split">
+          <h2>Weekly review (autogenerated)</h2>
+          <span class="pill"><span class="muted">Windows:</span> <strong>7d vs prior 7d</strong></span>
+        </div>
+        <div class="note" style="margin-top:10px" id="weekReview"></div>
+        <div class="hr"></div>
+        <div class="note" id="weekActions"></div>
+      </div>
+    </section>
+
+<section id="tab-settings" class="hide">
+      <div class="grid twoWide">
         <div class="card">
           <h2>Settings</h2>
 
           <div class="row">
             <div class="field">
-              <label>Units</label>
+              <label>Theme</label>
+              <select id="sTheme">
+                <option value="system">System</option>
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Units (weather)</label>
               <select id="sUnits">
-                <option value="Imperial">Imperial (°F, in, lbs)</option>
-                <option value="Metric">Metric (°C, mm, kg)</option>
+                <option value="Imperial">Imperial (°F, in)</option>
+                <option value="Metric">Metric (°C, mm)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Weight unit</label>
+              <select id="sWeightUnit">
+                <option value="lb">lb</option>
+                <option value="kg">kg</option>
               </select>
             </div>
             <div class="field">
@@ -366,30 +948,42 @@ Safari=1h 10m"></textarea>
             </label>
           </div>
 
+          <div class="row" style="align-items:center">
+            <label style="display:flex; gap:8px; align-items:center; margin:8px 0 0; color:var(--muted)">
+              <input id="sAutoScreenFromApps" type="checkbox" />
+              Auto total screen time from app usage (when Screen time is blank)
+            </label>
+          </div>
+
           <div class="row" style="margin-top:12px">
             <button class="btn" id="btnSaveSettings">Save settings</button>
+            <button class="btn warn" id="btnRecalcScreen">Recalculate screen time from apps</button>
             <button class="btn danger" id="btnWipe">Wipe all data</button>
           </div>
 
           <div class="note" style="margin-top:10px">
-            Weather uses Open-Meteo archive/forecast endpoints and your lat/lon. GitHub Pages is HTTPS, so geolocation works.
+            Weather uses Open‑Meteo archive/forecast endpoints and your lat/lon. GitHub Pages is HTTPS, so geolocation works.
           </div>
         </div>
 
         <div class="card">
-          <h2>Import</h2>
+          <h2>Import / Backup</h2>
 
-          <div class="file">
+          <div class="row">
             <div class="field" style="flex:1 1 260px">
-              <label>Import Tracker JSON (from Export JSON)</label>
+              <label>Import Tracker JSON</label>
               <input id="importJSON" type="file" accept=".json,application/json" />
             </div>
             <button class="btn secondary" id="btnImportJSON">Import JSON</button>
           </div>
 
-          <hr style="border:0; border-top:1px solid rgba(31,41,55,.85); margin:14px 0">
+          <div class="note" style="margin-top:8px">
+            Export JSON is the canonical backup format. CSV is for spreadsheets.
+          </div>
 
-          <div class="file">
+          <div class="hr"></div>
+
+          <div class="row">
             <div class="field" style="flex:1 1 260px">
               <label>Import Steps CSV (headers: date,steps)</label>
               <input id="importStepsCSV" type="file" accept=".csv,text/csv" />
@@ -397,9 +991,9 @@ Safari=1h 10m"></textarea>
             <button class="btn secondary" id="btnImportSteps">Import Steps CSV</button>
           </div>
 
-          <hr style="border:0; border-top:1px solid rgba(31,41,55,.85); margin:14px 0">
+          <div class="hr"></div>
 
-          <div class="file">
+          <div class="row">
             <div class="field" style="flex:1 1 260px">
               <label>Import App Usage CSV (headers: date,app,minutes)</label>
               <input id="importAppsCSV" type="file" accept=".csv,text/csv" />
@@ -409,7 +1003,7 @@ Safari=1h 10m"></textarea>
 
           <div class="note" style="margin-top:10px">
             App usage CSV example:
-            <div class="small" style="margin-top:6px; padding:8px; border:1px solid rgba(31,41,55,.85); border-radius:12px; background:rgba(11,15,23,.6)">
+            <div class="small mono" style="margin-top:6px; padding:10px; border:1px solid color-mix(in srgb, var(--border) 85%, transparent); border-radius:12px; background: color-mix(in srgb, var(--bg) 55%, transparent)">
               date,app,minutes<br/>
               2026-01-01,Instagram,42<br/>
               2026-01-01,YouTube,68<br/>
@@ -417,8 +1011,15 @@ Safari=1h 10m"></textarea>
             </div>
           </div>
 
-          <div class="note" style="margin-top:12px">
-            iOS export isn’t officially “nice.” Some people extract from backups (knowledgeC.db) with tools like ScreenTime2CSV. :contentReference[oaicite:3]{index=3}
+          <div class="hr"></div>
+
+          <h2>Advanced</h2>
+          <div class="row">
+            <button class="btn secondary" id="btnRepair">Repair / migrate storage</button>
+            <button class="btn secondary" id="btnNukeCharts">Reset charts</button>
+          </div>
+          <div class="note" style="margin-top:8px">
+            “Repair” keeps your data but fills missing fields when the schema changes.
           </div>
         </div>
       </div>
@@ -427,41 +1028,74 @@ Safari=1h 10m"></textarea>
   </div>
 </main>
 
+<!-- Mobile bottom nav -->
+<div class="bottomNav" aria-label="Bottom navigation">
+  <button class="tab active" data-tab="log">Daily</button>
+  <button class="tab" data-tab="dash">Dash</button>
+  <button class="tab" data-tab="insights">Insights</button>
+  <button class="tab" data-tab="month">Month</button>
+  <button class="tab" data-tab="lab">Lab</button>
+  <button class="tab" data-tab="settings">Settings</button>
+</div>
+
+
+<!-- Command Palette -->
+<div id="cmdk" class="modal hide" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="modalCard">
+    <div class="split" style="margin-bottom:8px">
+      <strong>Command</strong>
+      <span class="pill"><span class="muted">Shortcut:</span> <strong class="mono">Ctrl/⌘+K</strong></span>
+    </div>
+    <input id="cmdkInput" class="mono" placeholder="Type a command… (e.g., “export”, “weather”, “today”, “lab”)" autocomplete="off" />
+    <div id="cmdkList" class="cmdkList" style="margin-top:10px"></div>
+    <div class="small muted" style="margin-top:10px">↑/↓ to select • Enter to run • Esc to close</div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
+/* ============================================================
+   Life Ops Tracker — single-file, local-first.
+   Version: 3 (schema-migrated from tracker_v2)
+============================================================ */
+
 /* ---------------------------
-   Storage + Utilities
+   Storage + State
 --------------------------- */
-const LS_KEY = "tracker_v2";
-const defaultState = () => ({
-  settings: {
-    units: "Imperial",
-    goalSteps: 10000,
-    lat: null,
-    lon: null,
-    tz: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Chicago",
-    autoWeather: true
-  },
-  // entry:
-  // {date:"YYYY-MM-DD", happiness:number, weight:number|null, steps:number|null, screenHours:number|null,
-  //  apps:{[appName]: minutes} | null, notes:"", weather:{summary,tmax,tmin,precip,code}|null}
-  entries: []
-});
+const LS_KEY = "tracker_v3";
 
-function loadState(){
-  try{
-    const raw = localStorage.getItem(LS_KEY);
-    if(!raw) return defaultState();
-    const parsed = JSON.parse(raw);
-    if(!parsed.settings || !Array.isArray(parsed.entries)) return defaultState();
-    // soft-migrate from older key if needed
-    return parsed;
-  }catch(e){
-    return defaultState();
-  }
+function defaultState(){
+  return {
+    schema: 3,
+    settings: {
+      theme: "system",          // system | dark | light
+      units: "Imperial",        // weather units only
+      weightUnit: "lb",         // lb | kg
+      goalSteps: 10000,
+      lat: null,
+      lon: null,
+      tz: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Chicago",
+      autoWeather: true,
+      autoScreenFromApps: true,
+      dashRange: { preset: "30d", from: null, to: null },
+    },
+    entries: [],
+    experiments: []
+  };
 }
-function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
+let state = loadState();
+let editingDate = null;
+
+/* ---------------------------
+   Utilities
+--------------------------- */
+const clamp = (n,a,b) => Math.max(a, Math.min(b,n));
+const toNum = (v) => {
+  if(v === "" || v == null) return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
 function todayISO(){
   const d = new Date();
   const y = d.getFullYear();
@@ -469,15 +1103,20 @@ function todayISO(){
   const day = String(d.getDate()).padStart(2,"0");
   return `${y}-${m}-${day}`;
 }
-function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
-function toNum(v){
-  if(v === "" || v === null || v === undefined) return null;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : null;
+const sortAsc = (arr) => [...arr].sort((a,b)=> a.date.localeCompare(b.date));
+const sortDesc = (arr) => [...arr].sort((a,b)=> b.date.localeCompare(a.date));
+function mean(arr){
+  const xs = arr.filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+  if(xs.length === 0) return null;
+  return xs.reduce((a,b)=>a+b,0)/xs.length;
 }
-function sortEntriesAsc(arr){ return [...arr].sort((a,b)=> a.date.localeCompare(b.date)); }
-function sortEntriesDesc(arr){ return [...arr].sort((a,b)=> b.date.localeCompare(a.date)); }
-
+function stddev(arr){
+  const xs = arr.filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+  if(xs.length < 2) return null;
+  const m = mean(xs);
+  const v = xs.reduce((a,b)=> a + (b-m)*(b-m), 0) / (xs.length-1);
+  return Math.sqrt(v);
+}
 function movingAverage(values, window=7){
   const out = [];
   for(let i=0;i<values.length;i++){
@@ -492,7 +1131,6 @@ function movingAverage(values, window=7){
   }
   return out;
 }
-
 function pearson(x, y){
   let xs=[], ys=[];
   for(let i=0;i<x.length;i++){
@@ -514,7 +1152,19 @@ function pearson(x, y){
   const den = Math.sqrt(dx*dy);
   return den === 0 ? null : (num/den);
 }
-
+function fmtNum(x){
+  if(x == null) return "—";
+  const n = Number(x);
+  if(!Number.isFinite(n)) return "—";
+  return (Math.round(n*10)/10).toFixed(1).replace(".0","");
+}
+function fmtHours(h){
+  if(h == null) return "—";
+  return fmtNum(h) + "h";
+}
+function escapeHtml(s){
+  return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+}
 function download(filename, content, mime="application/octet-stream"){
   const blob = new Blob([content], {type:mime});
   const url = URL.createObjectURL(blob);
@@ -523,38 +1173,167 @@ function download(filename, content, mime="application/octet-stream"){
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(url), 500);
 }
-
-function mean(arr){
-  const xs = arr.filter(v => v != null && Number.isFinite(Number(v))).map(Number);
-  if(xs.length === 0) return null;
-  return xs.reduce((a,b)=>a+b,0)/xs.length;
-}
-
-function escapeHtml(s){
-  return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-}
-
-function fmtNum(x){
-  if(x == null) return "—";
-  const n = Number(x);
-  if(!Number.isFinite(n)) return "—";
-  return (Math.round(n*10)/10).toFixed(1).replace(".0","");
-}
-
-function hoursFromMinutes(min){
-  if(min == null) return null;
-  return min/60;
-}
-function fmtHours(h){
-  if(h == null) return "—";
-  return fmtNum(h) + "h";
-}
-
-function kpi(label, value){
+function kpi(label, value, cls=""){
   const el = document.createElement("span");
   el.className = "pill";
+  if(cls) el.classList.add(cls);
   el.innerHTML = `<span class="muted">${label}:</span> <strong>${value}</strong>`;
   return el;
+}
+function badge(text, variant="ok"){
+  const el = document.createElement("span");
+  el.className = `badge ${variant}`;
+  el.textContent = text;
+  return el;
+}
+function parseTags(notes){
+  const s = String(notes || "");
+  const tags = new Set();
+  for(const m of s.matchAll(/(^|\s)#([a-z0-9_][\w-]{0,30})/ig)){
+    tags.add(m[2].toLowerCase());
+  }
+  return [...tags];
+}
+function dateAddDays(iso, days){
+  const dt = new Date(iso + "T00:00:00");
+  dt.setDate(dt.getDate() + days);
+  return dt.toISOString().slice(0,10);
+}
+function dateDiffDays(a, b){ // b - a
+  const da = new Date(a+"T00:00:00");
+  const db = new Date(b+"T00:00:00");
+  return Math.round((db-da)/(1000*60*60*24));
+}
+function getRangeLabel(r){
+  if(r.preset === "all") return "All time";
+  if(r.preset === "14d") return "Last 14 days";
+  if(r.preset === "30d") return "Last 30 days";
+  if(r.preset === "90d") return "Last 90 days";
+  if(r.preset === "ytd") return "Year to date";
+  if(r.preset === "month") return "This month";
+  if(r.preset === "custom") return `${r.from || "?"} → ${r.to || "?"}`;
+  return "Range";
+}
+function entriesInRange(entriesAsc, r){
+  if(entriesAsc.length === 0) return [];
+  if(!r || r.preset === "all") return entriesAsc;
+  const lastDate = entriesAsc[entriesAsc.length-1].date;
+  let from = null, to = null;
+
+  if(r.preset === "custom"){
+    from = r.from; to = r.to;
+  }else if(r.preset === "14d"){
+    to = lastDate; from = dateAddDays(lastDate, -13);
+  }else if(r.preset === "30d"){
+    to = lastDate; from = dateAddDays(lastDate, -29);
+  }else if(r.preset === "90d"){
+    to = lastDate; from = dateAddDays(lastDate, -89);
+  }else if(r.preset === "ytd"){
+    const y = lastDate.slice(0,4);
+    from = `${y}-01-01`; to = lastDate;
+  }else if(r.preset === "month"){
+    const y = lastDate.slice(0,4);
+    const m = lastDate.slice(5,7);
+    from = `${y}-${m}-01`;
+    to = lastDate;
+  }
+
+  if(!from || !to) return entriesAsc;
+  return entriesAsc.filter(e => e.date >= from && e.date <= to);
+}
+
+/* ---------------------------
+   App usage parsing
+--------------------------- */
+function parseTimeToMinutes(str){
+  const s = String(str || "").trim().toLowerCase();
+  if(!s) return null;
+
+  const colon = s.match(/^(\d+)\s*:\s*(\d{1,2})$/);
+  if(colon){
+    const h = Number(colon[1]), m = Number(colon[2]);
+    if(Number.isFinite(h) && Number.isFinite(m)) return h*60 + m;
+  }
+
+  const hm = s.match(/^(?:(\d+(?:\.\d+)?)\s*h)?\s*(?:(\d+(?:\.\d+)?)\s*m)?$/);
+  if(hm && (hm[1] || hm[2])){
+    const h = hm[1] ? Number(hm[1]) : 0;
+    const m = hm[2] ? Number(hm[2]) : 0;
+    const mins = h*60 + m;
+    return Number.isFinite(mins) ? mins : null;
+  }
+
+  const n = Number(s);
+  if(Number.isFinite(n)) return n;
+
+  return null;
+}
+function parseAppsTextarea(text){
+  const lines = String(text || "").split("\n").map(l => l.trim()).filter(Boolean);
+  if(lines.length === 0) return null;
+
+  const apps = {};
+  for(const line of lines){
+    const parts = line.split(/[=,]/);
+    if(parts.length < 2) continue;
+    const app = parts[0].trim();
+    const val = parts.slice(1).join("=").trim();
+    if(!app) continue;
+    const mins = parseTimeToMinutes(val);
+    if(mins == null) continue;
+    apps[app] = Math.max(0, Math.round(mins));
+  }
+  return Object.keys(apps).length ? apps : null;
+}
+function appsToTextarea(apps){
+  if(!apps) return "";
+  const entries = Object.entries(apps).sort((a,b)=> b[1]-a[1]);
+  return entries.map(([app, mins]) => `${app}=${mins}m`).join("\n");
+}
+function getTopApp(apps){
+  if(!apps) return null;
+  let best = null, bestMin = -1;
+  for(const [app, mins] of Object.entries(apps)){
+    if(mins > bestMin){ best = app; bestMin = mins; }
+  }
+  if(!best) return null;
+  return {app: best, minutes: bestMin};
+}
+function totalAppMinutes(apps){
+  if(!apps) return null;
+  return Object.values(apps).reduce((a,b)=> a + (Number(b)||0), 0);
+}
+
+/* ---------------------------
+   CSV parsing
+--------------------------- */
+function parseCSV(text){
+  const rows = [];
+  let row = [], cur = "", inQ = false;
+  for(let i=0;i<text.length;i++){
+    const c = text[i];
+    const n = text[i+1];
+    if(inQ){
+      if(c === '"' && n === '"'){ cur += '"'; i++; continue; }
+      if(c === '"'){ inQ = false; continue; }
+      cur += c; continue;
+    }else{
+      if(c === '"'){ inQ = true; continue; }
+      if(c === ','){ row.push(cur); cur=""; continue; }
+      if(c === '\r') continue;
+      if(c === '\n'){ row.push(cur); rows.push(row); row=[]; cur=""; continue; }
+      cur += c;
+    }
+  }
+  row.push(cur); rows.push(row);
+  return rows.filter(r => !(r.length===1 && String(r[0]).trim()===""));
+}
+function csvSafe(s){
+  const str = String(s ?? "");
+  if(str.includes(",") || str.includes('"') || str.includes("\n")){
+    return `"${str.replaceAll('"','""')}"`;
+  }
+  return str;
 }
 
 /* ---------------------------
@@ -572,7 +1351,18 @@ function weatherCodeToText(code){
   if(code >= 95 && code <= 99) return "Thunderstorm";
   return "Other";
 }
-
+function weatherEmoji(summary){
+  const s = String(summary || "");
+  if(s === "Clear") return "☀️";
+  if(s === "Cloudy") return "☁️";
+  if(s === "Fog") return "🌫️";
+  if(s === "Drizzle") return "🌦️";
+  if(s === "Rain") return "🌧️";
+  if(s === "Showers") return "🌧️";
+  if(s === "Snow") return "❄️";
+  if(s === "Thunderstorm") return "⛈️";
+  return "🌡️";
+}
 async function fetchWeatherRange(startDate, endDate){
   const {lat, lon, tz, units} = state.settings;
   if(lat == null || lon == null) throw new Error("Set latitude/longitude in Settings.");
@@ -608,10 +1398,9 @@ async function fetchWeatherRange(startDate, endDate){
   }
   return map;
 }
-
 async function fillMissingWeather(){
   const missing = state.entries.filter(e => !e.weather);
-  if(missing.length === 0) return;
+  if(missing.length === 0) return 0;
 
   const dates = missing.map(e => e.date).sort();
   const start = dates[0];
@@ -626,115 +1415,129 @@ async function fillMissingWeather(){
     }
   }
   if(changed) saveState();
+  return changed;
 }
 
 /* ---------------------------
-   App usage parsing
+   Storage load + migration
 --------------------------- */
-function parseTimeToMinutes(str){
-  // accepts: "45" (minutes), "45m", "1.5h", "1h 10m", "1:10"
-  const s = String(str || "").trim().toLowerCase();
-  if(!s) return null;
+function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+function loadState(){
+  // New key first
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      return repairState(parsed);
+    }
+  }catch(e){ /* ignore */ }
 
-  // 1:10 -> 70 minutes
-  const colon = s.match(/^(\d+)\s*:\s*(\d{1,2})$/);
-  if(colon){
-    const h = Number(colon[1]), m = Number(colon[2]);
-    if(Number.isFinite(h) && Number.isFinite(m)) return h*60 + m;
-  }
+  // Migrate from tracker_v2 if present
+  try{
+    const raw2 = localStorage.getItem("tracker_v2");
+    if(raw2){
+      const old = JSON.parse(raw2);
+      const migrated = defaultState();
+      // settings
+      migrated.settings.units = old?.settings?.units || migrated.settings.units;
+      migrated.settings.goalSteps = Number.isFinite(Number(old?.settings?.goalSteps)) ? Math.max(0, Math.round(old.settings.goalSteps)) : migrated.settings.goalSteps;
+      migrated.settings.lat = old?.settings?.lat ?? migrated.settings.lat;
+      migrated.settings.lon = old?.settings?.lon ?? migrated.settings.lon;
+      migrated.settings.tz = old?.settings?.tz || migrated.settings.tz;
+      migrated.settings.autoWeather = (old?.settings?.autoWeather ?? migrated.settings.autoWeather);
+      migrated.settings.weightUnit = (migrated.settings.units === "Metric") ? "kg" : "lb";
+      // entries
+      migrated.entries = Array.isArray(old?.entries) ? old.entries.map(e => ({
+        date: e.date,
+        happiness: Number(e.happiness ?? 6),
+        weight: (e.weight == null ? null : Number(e.weight)),
+        steps: (e.steps == null ? null : Number(e.steps)),
+        screenHours: (e.screenHours == null ? null : Number(e.screenHours)),
+        apps: e.apps || null,
+        notes: e.notes || "",
+        weather: e.weather || null
+      })) : [];
+      return repairState(migrated);
+    }
+  }catch(e){ /* ignore */ }
 
-  // 1h 10m
-  const hm = s.match(/^(?:(\d+(?:\.\d+)?)\s*h)?\s*(?:(\d+(?:\.\d+)?)\s*m)?$/);
-  if(hm && (hm[1] || hm[2])){
-    const h = hm[1] ? Number(hm[1]) : 0;
-    const m = hm[2] ? Number(hm[2]) : 0;
-    const mins = h*60 + m;
-    return Number.isFinite(mins) ? mins : null;
-  }
-
-  // plain number -> minutes
-  const n = Number(s);
-  if(Number.isFinite(n)) return n;
-
-  return null;
+  return defaultState();
 }
 
-function parseAppsTextarea(text){
-  const lines = String(text || "").split("\n").map(l => l.trim()).filter(Boolean);
-  if(lines.length === 0) return null;
+function repairState(obj){
+  const d = defaultState();
+  const out = {
+    schema: 3,
+    settings: {...d.settings, ...(obj?.settings || {})},
+    entries: Array.isArray(obj?.entries) ? obj.entries : [],
+    experiments: Array.isArray(obj?.experiments) ? obj.experiments : []
+  };
 
-  const apps = {};
-  for(const line of lines){
-    const parts = line.split(/[=,]/); // allow "App=10m" or "App,10m"
-    if(parts.length < 2) continue;
-    const app = parts[0].trim();
-    const val = parts.slice(1).join("=").trim();
-    if(!app) continue;
-    const mins = parseTimeToMinutes(val);
-    if(mins == null) continue;
-    apps[app] = Math.max(0, Math.round(mins));
-  }
-  return Object.keys(apps).length ? apps : null;
-}
+  // sanitize settings
+  if(!["system","dark","light"].includes(out.settings.theme)) out.settings.theme = "system";
+  if(!["Imperial","Metric"].includes(out.settings.units)) out.settings.units = "Imperial";
+  if(!["lb","kg"].includes(out.settings.weightUnit)) out.settings.weightUnit = (out.settings.units === "Metric") ? "kg" : "lb";
+  out.settings.goalSteps = Number.isFinite(Number(out.settings.goalSteps)) ? Math.max(0, Math.round(Number(out.settings.goalSteps))) : d.settings.goalSteps;
+  out.settings.tz = String(out.settings.tz || d.settings.tz);
+  out.settings.autoWeather = !!out.settings.autoWeather;
+  out.settings.autoScreenFromApps = !!out.settings.autoScreenFromApps;
+  out.settings.dashRange = out.settings.dashRange || d.settings.dashRange;
+  if(!out.settings.dashRange.preset) out.settings.dashRange.preset = d.settings.dashRange.preset;
 
-function appsToTextarea(apps){
-  if(!apps) return "";
-  const entries = Object.entries(apps).sort((a,b)=> b[1]-a[1]);
-  return entries.map(([app, mins]) => `${app}=${mins}m`).join("\n");
-}
+  // sanitize entries
+  out.entries = out.entries
+    .filter(e => e && typeof e.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(e.date))
+    .map(e => ({
+      date: e.date,
+      happiness: clamp(Number(e.happiness ?? 6), 0, 10),
+      weight: (e.weight == null ? null : Number(e.weight)),
+      steps: (e.steps == null ? null : Math.max(0, Math.round(Number(e.steps)))),
+      screenHours: (e.screenHours == null ? null : Number(e.screenHours)),
+      apps: (e.apps && typeof e.apps === "object") ? e.apps : null,
+      notes: String(e.notes || ""),
+      weather: e.weather || null
+    }));
 
-function getTopApp(apps){
-  if(!apps) return null;
-  let best = null, bestMin = -1;
-  for(const [app, mins] of Object.entries(apps)){
-    if(mins > bestMin){ best = app; bestMin = mins; }
-  }
-  if(!best) return null;
-  return {app: best, minutes: bestMin};
-}
-
-/* ---------------------------
-   CSV parsing
---------------------------- */
-function parseCSV(text){
-  const rows = [];
-  let row = [], cur = "", inQ = false;
-  for(let i=0;i<text.length;i++){
-    const c = text[i];
-    const n = text[i+1];
-    if(inQ){
-      if(c === '"' && n === '"'){ cur += '"'; i++; continue; }
-      if(c === '"'){ inQ = false; continue; }
-      cur += c; continue;
-    }else{
-      if(c === '"'){ inQ = true; continue; }
-      if(c === ','){ row.push(cur); cur=""; continue; }
-      if(c === '\r') continue;
-      if(c === '\n'){ row.push(cur); rows.push(row); row=[]; cur=""; continue; }
-      cur += c;
+  // auto-fill screenHours (optional)
+  if(out.settings.autoScreenFromApps){
+    for(const e of out.entries){
+      if(e.screenHours == null && e.apps){
+        const mins = totalAppMinutes(e.apps);
+        if(mins != null && mins > 0) e.screenHours = Math.round((mins/60)*10)/10;
+      }
     }
   }
-  row.push(cur); rows.push(row);
-  return rows.filter(r => !(r.length===1 && String(r[0]).trim()===""));
-}
 
-function csvSafe(s){
-  const str = String(s);
-  if(str.includes(",") || str.includes('"') || str.includes("\n")){
-    return `"${str.replaceAll('"','""')}"`;
-  }
-  return str;
+  return out;
 }
 
 /* ---------------------------
-   UI elements
+   Theme
+--------------------------- */
+function applyTheme(){
+  const pref = state.settings.theme;
+  const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const theme = (pref === "system") ? (systemDark ? "dark" : "light") : pref;
+  document.documentElement.dataset.theme = theme;
+  document.getElementById("btnTheme").textContent = (theme === "dark") ? "☾" : "☀";
+}
+if(window.matchMedia){
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", ()=> {
+    if(state.settings.theme === "system") applyTheme();
+  });
+}
+
+/* ---------------------------
+   DOM Elements
 --------------------------- */
 const els = {
-  tabs: [...document.querySelectorAll(".tab")],
+  tabs: [...document.querySelectorAll("button.tab[data-tab]")],
   sections: {
     log: document.getElementById("tab-log"),
     dash: document.getElementById("tab-dash"),
+    insights: document.getElementById("tab-insights"),
     month: document.getElementById("tab-month"),
+    lab: document.getElementById("tab-lab"),
     settings: document.getElementById("tab-settings"),
   },
 
@@ -748,38 +1551,69 @@ const els = {
   fApps: document.getElementById("fApps"),
   fTopApp: document.getElementById("fTopApp"),
   fNotes: document.getElementById("fNotes"),
+  weightUnitLabel: document.getElementById("weightUnitLabel"),
 
   btnSave: document.getElementById("btnSave"),
   btnClear: document.getElementById("btnClear"),
   btnDelete: document.getElementById("btnDelete"),
   editHint: document.getElementById("editHint"),
+  saveStatus: document.getElementById("saveStatus"),
 
   logBody: document.getElementById("logBody"),
   countEntries: document.getElementById("countEntries"),
+  logSearch: document.getElementById("logSearch"),
+  logFilter: document.getElementById("logFilter"),
+  btnTodayJump: document.getElementById("btnTodayJump"),
 
-  // actions
   btnWeatherMissing: document.getElementById("btnWeatherMissing"),
   btnExportJSON: document.getElementById("btnExportJSON"),
   btnExportCSV: document.getElementById("btnExportCSV"),
 
-  // dashboard
+  // dashboard range
+  rangeLabel: document.getElementById("rangeLabel"),
+  rangePreset: document.getElementById("rangePreset"),
+  rangeFrom: document.getElementById("rangeFrom"),
+  rangeTo: document.getElementById("rangeTo"),
+  rangeCustomWrap: document.getElementById("rangeCustomWrap"),
+  rangeCustomWrap2: document.getElementById("rangeCustomWrap2"),
+  btnApplyRange: document.getElementById("btnApplyRange"),
+  btnFillWeatherRange: document.getElementById("btnFillWeatherRange"),
+  dashNote: document.getElementById("dashNote"),
+  btnDownloadCharts: document.getElementById("btnDownloadCharts"),
+
+  // dashboard content
   kpis: document.getElementById("kpis"),
   corr: document.getElementById("corr"),
+  quality: document.getElementById("quality"),
   goalStepsLabel: document.getElementById("goalStepsLabel"),
+  happyTrend: document.getElementById("happyTrend"),
+
+  // insights
+  insightRangeLabel: document.getElementById("insightRangeLabel"),
+  insightCards: document.getElementById("insightCards"),
+  tagBody: document.getElementById("tagBody"),
+  modelText: document.getElementById("modelText"),
+  heat: document.getElementById("heat"),
+  heatLegend: document.getElementById("heatLegend"),
+  anomBody: document.getElementById("anomBody"),
 
   // monthly
   monthBody: document.getElementById("monthBody"),
   monthCount: document.getElementById("monthCount"),
 
   // settings
+  sTheme: document.getElementById("sTheme"),
   sUnits: document.getElementById("sUnits"),
+  sWeightUnit: document.getElementById("sWeightUnit"),
   sGoalSteps: document.getElementById("sGoalSteps"),
   sLat: document.getElementById("sLat"),
   sLon: document.getElementById("sLon"),
   sTz: document.getElementById("sTz"),
   sAutoWeather: document.getElementById("sAutoWeather"),
+  sAutoScreenFromApps: document.getElementById("sAutoScreenFromApps"),
   btnGeo: document.getElementById("btnGeo"),
   btnSaveSettings: document.getElementById("btnSaveSettings"),
+  btnRecalcScreen: document.getElementById("btnRecalcScreen"),
   btnWipe: document.getElementById("btnWipe"),
 
   // import
@@ -789,13 +1623,14 @@ const els = {
   btnImportSteps: document.getElementById("btnImportSteps"),
   importAppsCSV: document.getElementById("importAppsCSV"),
   btnImportApps: document.getElementById("btnImportApps"),
+
+  // advanced
+  btnRepair: document.getElementById("btnRepair"),
+  btnNukeCharts: document.getElementById("btnNukeCharts"),
+
+  // theme button
+  btnTheme: document.getElementById("btnTheme"),
 };
-
-let state = loadState();
-let editingDate = null;
-
-// charts
-let chHappy=null, chWeight=null, chSteps=null, chScreen=null, chTopApps=null, chWeatherHappy=null;
 
 /* ---------------------------
    Tabs
@@ -806,7 +1641,9 @@ function showTab(name){
     sec.classList.toggle("hide", k !== name);
   }
   if(name === "dash") renderDashboard();
+  if(name === "insights") renderInsights();
   if(name === "month") renderMonthly();
+  if(name === "lab") renderLab();
   if(name === "settings") renderSettings();
 }
 els.tabs.forEach(btn => btn.addEventListener("click", ()=> showTab(btn.dataset.tab)));
@@ -826,16 +1663,26 @@ function setFormDefaults(){
   els.fNotes.value = "";
   editingDate = null;
   els.btnDelete.disabled = true;
-  els.editHint.textContent = "Click a row to edit it.";
+  els.editHint.textContent = "Click a row to edit it. Keyboard: Ctrl/⌘+S saves.";
+  els.saveStatus.textContent = "";
 }
+
 els.fHappy.addEventListener("input", ()=>{
   els.hVal.textContent = `(${Number(els.fHappy.value).toFixed(1)})`;
+});
+document.addEventListener("keydown", (e)=>{
+  const isSave = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s";
+  if(isSave){
+    e.preventDefault();
+    onSave();
+  }
 });
 
 function upsertEntry(entry){
   const idx = state.entries.findIndex(e => e.date === entry.date);
   if(idx >= 0) state.entries[idx] = entry;
   else state.entries.push(entry);
+  state = repairState(state);
   saveState();
 }
 function deleteEntry(date){
@@ -846,12 +1693,18 @@ function deleteEntry(date){
 async function onSave(){
   const date = els.fDate.value;
   if(!date) return alert("Pick a date.");
+
   const happiness = clamp(Number(els.fHappy.value), 0, 10);
   const weight = toNum(els.fWeight.value);
   const steps = toNum(els.fSteps.value);
-  const screenHours = toNum(els.fScreen.value);
+  let screenHours = toNum(els.fScreen.value);
   const apps = parseAppsTextarea(els.fApps.value);
   const notes = (els.fNotes.value || "").trim();
+
+  if(screenHours == null && state.settings.autoScreenFromApps && apps){
+    const mins = totalAppMinutes(apps);
+    if(mins != null && mins > 0) screenHours = Math.round((mins/60)*10)/10;
+  }
 
   const existing = state.entries.find(e => e.date === date);
   const entry = existing ? {...existing} : {date, weather:null};
@@ -863,7 +1716,6 @@ async function onSave(){
   entry.apps = apps;
   entry.notes = notes;
 
-  // top app display helper
   const top = getTopApp(apps);
   els.fTopApp.value = top ? `${top.app} (${top.minutes}m)` : "";
 
@@ -881,6 +1733,9 @@ async function onSave(){
       console.warn(e);
     }
   }
+
+  els.saveStatus.textContent = "Saved.";
+  setTimeout(()=> els.saveStatus.textContent="", 1200);
 
   renderLog();
   setFormDefaults();
@@ -900,12 +1755,17 @@ els.btnDelete.addEventListener("click", onDelete);
 
 els.btnWeatherMissing.addEventListener("click", async ()=>{
   try{
-    await fillMissingWeather();
+    const changed = await fillMissingWeather();
     renderLog();
-    alert("Missing weather filled (where possible).");
+    alert(changed ? `Filled weather for ${changed} day(s).` : "No missing weather.");
   }catch(e){
     alert(e.message || "Weather fill failed.");
   }
+});
+
+els.btnTodayJump.addEventListener("click", ()=>{
+  els.logSearch.value = todayISO();
+  renderLog();
 });
 
 /* ---------------------------
@@ -931,31 +1791,63 @@ function loadEntryIntoForm(date){
   els.editHint.textContent = `Editing ${e.date}.`;
 }
 
+function entryMatchesFilter(e, filter){
+  if(filter === "missingWeather") return !e.weather;
+  if(filter === "missingSteps") return e.steps == null;
+  if(filter === "missingWeight") return e.weight == null;
+  if(filter === "missingScreen") return e.screenHours == null;
+  if(filter === "hasTags") return parseTags(e.notes).length > 0;
+  return true;
+}
+
+function entryMatchesSearch(e, q){
+  const s = (q || "").trim().toLowerCase();
+  if(!s) return true;
+  const parts = [
+    e.date,
+    String(e.happiness),
+    e.notes || "",
+    e.weather?.summary || "",
+    e.apps ? Object.keys(e.apps).join(" ") : ""
+  ].join(" ").toLowerCase();
+  return parts.includes(s);
+}
+
 function renderLog(){
-  const rows = sortEntriesDesc(state.entries);
+  const rows = sortDesc(state.entries);
   els.logBody.innerHTML = "";
 
   const units = state.settings.units;
   const tUnit = (units === "Metric") ? "°C" : "°F";
   const pUnit = (units === "Metric") ? "mm" : "in";
+  const wUnit = state.settings.weightUnit;
+
+  const q = els.logSearch.value || "";
+  const filter = els.logFilter.value || "all";
 
   for(const e of rows){
+    if(!entryMatchesFilter(e, filter)) continue;
+    if(!entryMatchesSearch(e, q)) continue;
+
     const tr = document.createElement("tr");
     tr.style.cursor = "pointer";
     tr.addEventListener("click", ()=> loadEntryIntoForm(e.date));
 
     const w = e.weather;
-    const weatherText = w ? w.summary : "—";
+    const weatherText = w ? `${weatherEmoji(w.summary)} ${w.summary}` : "—";
     const tempText = w ? `${fmtNum(w.tmax)} / ${fmtNum(w.tmin)} ${tUnit}` : "—";
     const precipText = w ? `${fmtNum(w.precip)} ${pUnit}` : "—";
 
     const top = getTopApp(e.apps);
     const topText = top ? `${escapeHtml(top.app)} (${top.minutes}m)` : "—";
 
+    const tags = parseTags(e.notes);
+    const tagText = tags.length ? ` <span class="badge ok">#${tags[0]}</span>${tags.length>1?` <span class="badge">${tags.length-1}+</span>`:""}` : "";
+
     tr.innerHTML = `
-      <td><strong>${e.date}</strong>${e.notes ? `<div class="small muted">${escapeHtml(e.notes).slice(0,70)}${e.notes.length>70?"…":""}</div>` : ""}</td>
+      <td><strong>${e.date}</strong>${tagText}${e.notes ? `<div class="small muted">${escapeHtml(e.notes).slice(0,70)}${e.notes.length>70?"…":""}</div>` : ""}</td>
       <td>${fmtNum(e.happiness)}</td>
-      <td>${e.weight == null ? "—" : fmtNum(e.weight)}</td>
+      <td>${e.weight == null ? "—" : `${fmtNum(e.weight)} ${wUnit}`}</td>
       <td>${e.steps == null ? "—" : Math.round(e.steps).toLocaleString()}</td>
       <td class="right">${e.screenHours == null ? "—" : fmtHours(e.screenHours)}</td>
       <td>${topText}</td>
@@ -968,26 +1860,34 @@ function renderLog(){
   els.countEntries.textContent = String(state.entries.length);
 }
 
+els.logSearch.addEventListener("input", ()=> renderLog());
+els.logFilter.addEventListener("change", ()=> renderLog());
+
 /* ---------------------------
    Export
 --------------------------- */
 els.btnExportJSON.addEventListener("click", ()=>{
-  download(`tracker_export_${todayISO()}.json`, JSON.stringify(state, null, 2), "application/json");
+  download(`lifeops_export_${todayISO()}.json`, JSON.stringify(state, null, 2), "application/json");
 });
-
 els.btnExportCSV.addEventListener("click", ()=>{
   const units = state.settings.units;
   const tUnit = (units === "Metric") ? "C" : "F";
   const pUnit = (units === "Metric") ? "mm" : "in";
+  const wUnit = state.settings.weightUnit;
+
   const header = [
-    "date","happiness","weight","steps","screen_hours","top_app","top_app_minutes","apps_json",
-    "notes","weather","tmax_"+tUnit,"tmin_"+tUnit,"precip_"+pUnit
+    "date","happiness",
+    `weight_${wUnit}`,"steps","screen_hours",
+    "top_app","top_app_minutes",
+    "apps_json","notes","tags_json",
+    "weather",`tmax_${tUnit}`,`tmin_${tUnit}`,`precip_${pUnit}`
   ].join(",");
   const lines = [header];
 
-  for(const e of sortEntriesAsc(state.entries)){
+  for(const e of sortAsc(state.entries)){
     const w = e.weather || {};
     const top = getTopApp(e.apps);
+    const tags = parseTags(e.notes);
     lines.push([
       e.date,
       e.happiness ?? "",
@@ -998,13 +1898,14 @@ els.btnExportCSV.addEventListener("click", ()=>{
       top?.minutes ?? "",
       csvSafe(e.apps ? JSON.stringify(e.apps) : ""),
       csvSafe(e.notes || ""),
+      csvSafe(tags.length ? JSON.stringify(tags) : ""),
       csvSafe(w.summary || ""),
       w.tmax ?? "",
       w.tmin ?? "",
       w.precip ?? ""
     ].join(","));
   }
-  download(`tracker_export_${todayISO()}.csv`, lines.join("\n"), "text/csv");
+  download(`lifeops_export_${todayISO()}.csv`, lines.join("\n"), "text/csv");
 });
 
 /* ---------------------------
@@ -1012,14 +1913,80 @@ els.btnExportCSV.addEventListener("click", ()=>{
 --------------------------- */
 function renderSettings(){
   const s = state.settings;
+  els.sTheme.value = s.theme;
   els.sUnits.value = s.units;
+  els.sWeightUnit.value = s.weightUnit;
   els.sGoalSteps.value = s.goalSteps;
   els.sLat.value = (s.lat == null ? "" : s.lat);
   els.sLon.value = (s.lon == null ? "" : s.lon);
   els.sTz.value = s.tz;
   els.sAutoWeather.checked = !!s.autoWeather;
+  els.sAutoScreenFromApps.checked = !!s.autoScreenFromApps;
+
   els.goalStepsLabel.textContent = Number(s.goalSteps).toLocaleString();
+  els.weightUnitLabel.textContent = `(${s.weightUnit})`;
+
+  // dashboard range UI
+  els.rangePreset.value = s.dashRange?.preset || "30d";
+  els.rangeFrom.value = s.dashRange?.from || "";
+  els.rangeTo.value = s.dashRange?.to || "";
+  updateRangeUI();
 }
+
+els.btnTheme.addEventListener("click", ()=>{
+  const cur = state.settings.theme;
+  const next = (cur === "system") ? "dark" : (cur === "dark" ? "light" : "system");
+  state.settings.theme = next;
+  saveState();
+  applyTheme();
+  renderSettings();
+});
+
+function updateRangeUI(){
+  const p = els.rangePreset.value;
+  const show = (p === "custom");
+  els.rangeCustomWrap.style.display = show ? "" : "none";
+  els.rangeCustomWrap2.style.display = show ? "" : "none";
+}
+
+els.rangePreset.addEventListener("change", updateRangeUI);
+
+els.btnApplyRange.addEventListener("click", ()=>{
+  const preset = els.rangePreset.value;
+  const from = els.rangeFrom.value || null;
+  const to = els.rangeTo.value || null;
+
+  state.settings.dashRange = { preset, from, to };
+  saveState();
+  renderDashboard();
+  renderInsights();
+});
+
+els.btnFillWeatherRange.addEventListener("click", async ()=>{
+  try{
+    const entries = sortAsc(state.entries);
+    const r = state.settings.dashRange || {preset:"all"};
+    const filtered = entriesInRange(entries, r);
+    if(filtered.length === 0) return alert("No entries in range.");
+    const start = filtered[0].date, end = filtered[filtered.length-1].date;
+
+    const map = await fetchWeatherRange(start, end);
+    let changed = 0;
+    for(const e of state.entries){
+      if(e.date >= start && e.date <= end && map[e.date]){
+        if(!e.weather){ changed++; }
+        e.weather = map[e.date];
+      }
+    }
+    saveState();
+    renderLog();
+    renderDashboard();
+    renderInsights();
+    alert(`Weather fetched for range. Updated ${changed} missing day(s).`);
+  }catch(e){
+    alert(e.message || "Weather fetch failed.");
+  }
+});
 
 els.btnGeo.addEventListener("click", ()=>{
   if(!navigator.geolocation) return alert("Geolocation not supported.");
@@ -1034,31 +2001,67 @@ els.btnGeo.addEventListener("click", ()=>{
 });
 
 els.btnSaveSettings.addEventListener("click", ()=>{
+  const theme = els.sTheme.value;
   const units = els.sUnits.value;
+  const weightUnit = els.sWeightUnit.value;
   const goalSteps = Number(els.sGoalSteps.value || 10000);
   const lat = toNum(els.sLat.value);
   const lon = toNum(els.sLon.value);
   const tz = (els.sTz.value || "").trim() || "America/Chicago";
   const autoWeather = els.sAutoWeather.checked;
+  const autoScreenFromApps = els.sAutoScreenFromApps.checked;
 
-  state.settings.units = units;
+  state.settings.theme = ["system","dark","light"].includes(theme) ? theme : "system";
+  state.settings.units = ["Imperial","Metric"].includes(units) ? units : "Imperial";
+  state.settings.weightUnit = ["lb","kg"].includes(weightUnit) ? weightUnit : (state.settings.units==="Metric"?"kg":"lb");
   state.settings.goalSteps = Number.isFinite(goalSteps) ? Math.max(0, Math.round(goalSteps)) : 10000;
   state.settings.lat = lat;
   state.settings.lon = lon;
   state.settings.tz = tz;
   state.settings.autoWeather = autoWeather;
+  state.settings.autoScreenFromApps = autoScreenFromApps;
 
+  state = repairState(state);
   saveState();
+  applyTheme();
+
   alert("Settings saved.");
   renderLog();
+  renderDashboard();
+  renderInsights();
+  renderSettings();
+});
+
+els.btnRecalcScreen.addEventListener("click", ()=>{
+  let changed = 0;
+  for(const e of state.entries){
+    if(e.apps){
+      const mins = totalAppMinutes(e.apps);
+      if(mins != null && mins > 0){
+        const next = Math.round((mins/60)*10)/10;
+        if(e.screenHours !== next){
+          e.screenHours = next;
+          changed++;
+        }
+      }
+    }
+  }
+  saveState();
+  renderLog();
+  renderDashboard();
+  renderInsights();
+  alert(`Recalculated screen time for ${changed} day(s).`);
 });
 
 els.btnWipe.addEventListener("click", ()=>{
   if(!confirm("Wipe ALL entries + settings?")) return;
   localStorage.removeItem(LS_KEY);
+  localStorage.removeItem("tracker_v2");
   state = defaultState();
   saveState();
+  destroyCharts();
   setFormDefaults();
+  renderSettings();
   renderLog();
   alert("Wiped.");
 });
@@ -1069,10 +2072,12 @@ els.btnImportJSON.addEventListener("click", async ()=>{
   try{
     const text = await f.text();
     const parsed = JSON.parse(text);
-    if(!parsed.settings || !Array.isArray(parsed.entries)) throw new Error("Invalid file.");
-    state = parsed;
+    state = repairState(parsed);
     saveState();
+    destroyCharts();
     renderLog();
+    renderDashboard();
+    renderInsights();
     alert("Imported JSON.");
   }catch(e){
     alert(e.message || "Import failed.");
@@ -1105,7 +2110,10 @@ els.btnImportSteps.addEventListener("click", async ()=>{
       upsertEntry(entry);
       imported++;
     }
+    destroyCharts();
     renderLog();
+    renderDashboard();
+    renderInsights();
     alert(`Imported steps for ${imported} day(s).`);
   }catch(e){
     alert(e.message || "Steps import failed.");
@@ -1139,10 +2147,17 @@ els.btnImportApps.addEventListener("click", async ()=>{
       const entry = existing ? {...existing} : {date, happiness: 6, weight: null, steps: null, screenHours:null, apps:null, notes: "", weather: null};
       if(!entry.apps) entry.apps = {};
       entry.apps[app] = (entry.apps[app] || 0) + Math.max(0, Math.round(minutes));
+      if(state.settings.autoScreenFromApps && (entry.screenHours == null)){
+        const mins = totalAppMinutes(entry.apps);
+        if(mins != null && mins > 0) entry.screenHours = Math.round((mins/60)*10)/10;
+      }
       upsertEntry(entry);
       imported++;
     }
+    destroyCharts();
     renderLog();
+    renderDashboard();
+    renderInsights();
     alert(`Imported ${imported} app-usage row(s).`);
   }catch(e){
     alert(e.message || "App usage import failed.");
@@ -1150,7 +2165,25 @@ els.btnImportApps.addEventListener("click", async ()=>{
 });
 
 /* ---------------------------
-   Dashboard + Monthly
+   Advanced
+--------------------------- */
+els.btnRepair.addEventListener("click", ()=>{
+  state = repairState(state);
+  saveState();
+  destroyCharts();
+  renderLog();
+  renderDashboard();
+  renderInsights();
+  renderSettings();
+  alert("Repaired / migrated.");
+});
+els.btnNukeCharts.addEventListener("click", ()=>{
+  destroyCharts();
+  alert("Charts reset (data unchanged).");
+});
+
+/* ---------------------------
+   Dashboard + Insights + Monthly
 --------------------------- */
 function calcStreak(entriesAsc){
   if(entriesAsc.length === 0) return 0;
@@ -1159,17 +2192,230 @@ function calcStreak(entriesAsc){
   let streak = 0;
   while(set.has(d)){
     streak++;
-    const dt = new Date(d+"T00:00:00");
-    dt.setDate(dt.getDate()-1);
-    d = dt.toISOString().slice(0,10);
+    d = dateAddDays(d, -1);
   }
   return streak;
 }
+function slopeSimple(y){ // slope per day using least squares over index
+  const xs=[], ys=[];
+  for(let i=0;i<y.length;i++){
+    if(y[i] == null) continue;
+    xs.push(i); ys.push(Number(y[i]));
+  }
+  const n = xs.length;
+  if(n < 3) return null;
+  const mx = xs.reduce((a,b)=>a+b,0)/n;
+  const my = ys.reduce((a,b)=>a+b,0)/n;
+  let num=0, den=0;
+  for(let i=0;i<n;i++){
+    num += (xs[i]-mx)*(ys[i]-my);
+    den += (xs[i]-mx)*(xs[i]-mx);
+  }
+  return den === 0 ? null : num/den;
+}
 
+/* ---- Linear regression (multiple predictors) ---- */
+function regressMulti(rows){
+  // rows: [{y:number, x:[...]}], includes intercept internally
+  const n = rows.length;
+  if(n < 8) return null;
+  const p = rows[0].x.length + 1; // +1 intercept
+
+  // Build X and y
+  const X = Array.from({length:n}, ()=> Array(p).fill(1));
+  const Y = Array(n).fill(0);
+  for(let i=0;i<n;i++){
+    Y[i] = rows[i].y;
+    for(let j=1;j<p;j++) X[i][j] = rows[i].x[j-1];
+  }
+
+  // Compute XtX and XtY
+  const XtX = Array.from({length:p}, ()=> Array(p).fill(0));
+  const XtY = Array(p).fill(0);
+
+  for(let i=0;i<n;i++){
+    for(let j=0;j<p;j++){
+      XtY[j] += X[i][j] * Y[i];
+      for(let k=0;k<p;k++){
+        XtX[j][k] += X[i][j] * X[i][k];
+      }
+    }
+  }
+
+  // Solve (XtX) b = XtY via Gauss-Jordan
+  const A = XtX.map((row, i)=> row.concat([XtY[i]]));
+  for(let col=0; col<p; col++){
+    // pivot
+    let pivot = col;
+    for(let r=col+1;r<p;r++){
+      if(Math.abs(A[r][col]) > Math.abs(A[pivot][col])) pivot = r;
+    }
+    if(Math.abs(A[pivot][col]) < 1e-9) return null;
+    [A[col], A[pivot]] = [A[pivot], A[col]];
+
+    const div = A[col][col];
+    for(let c=col; c<=p; c++) A[col][c] /= div;
+
+    for(let r=0;r<p;r++){
+      if(r === col) continue;
+      const factor = A[r][col];
+      for(let c=col; c<=p; c++){
+        A[r][c] -= factor * A[col][c];
+      }
+    }
+  }
+  const b = A.map(row => row[p]);
+
+  // Predictions + R^2
+  const yhat = [];
+  for(let i=0;i<n;i++){
+    let pred = b[0];
+    for(let j=1;j<p;j++) pred += b[j]*X[i][j];
+    yhat.push(pred);
+  }
+  const ymean = Y.reduce((a,b)=>a+b,0)/n;
+  let ssTot=0, ssRes=0;
+  for(let i=0;i<n;i++){
+    ssTot += (Y[i]-ymean)*(Y[i]-ymean);
+    ssRes += (Y[i]-yhat[i])*(Y[i]-yhat[i]);
+  }
+  const r2 = ssTot === 0 ? null : 1 - (ssRes/ssTot);
+  return {b, r2, n, p};
+}
+
+/* ---------------------------
+   Charts
+--------------------------- */
+let chHappy=null, chWeight=null, chSteps=null, chScreen=null, chTopApps=null, chWeatherHappy=null;
+let chScatterSteps=null, chScatterScreen=null;
+let chHistHappy=null, chHistScreen=null;
+let chForecast=null, chExp=null;
+
+function destroyCharts(){
+  [chHappy,chWeight,chSteps,chScreen,chTopApps,chWeatherHappy,chScatterSteps,chScatterScreen,chHistHappy,chHistScreen,chForecast,chExp]
+    .forEach(ch => { try{ ch?.destroy(); }catch(e){} });
+  chHappy=chWeight=chSteps=chScreen=chTopApps=chWeatherHappy=chScatterSteps=chScatterScreen=chHistHappy=chHistScreen=chForecast=chExp=null;
+}
+
+function makeChart(canvasId, cfg, existing){
+  const ctx = document.getElementById(canvasId);
+  if(existing) existing.destroy();
+  return new Chart(ctx, cfg);
+}
+
+function renderLineChart(existing, canvasId, labels, series, opts){
+  const datasets = series.map(s => ({
+    label: s.label,
+    data: s.data,
+    spanGaps: true,
+    borderWidth: 2,
+    pointRadius: 0,
+    tension: 0.25
+  }));
+
+  return makeChart(canvasId, {
+    type: "line",
+    data: { labels, datasets },
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins: {
+        legend: { labels: { color: getComputedStyle(document.body).getPropertyValue("--text").trim() } },
+        tooltip: { mode:"index", intersect:false }
+      },
+      scales: {
+        x: { ticks: { color:getComputedStyle(document.body).getPropertyValue("--muted").trim() }, grid: { color:"rgba(31,41,55,.35)" } },
+        y: {
+          ticks: { color:getComputedStyle(document.body).getPropertyValue("--muted").trim() },
+          grid: { color:"rgba(31,41,55,.35)" },
+          suggestedMin: opts?.yMin ?? undefined,
+          suggestedMax: opts?.yMax ?? undefined
+        }
+      }
+    }
+  }, existing);
+}
+
+function renderBarChart(existing, canvasId, labels, values, label="Value", yOpts){
+  return makeChart(canvasId, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{ label, data: values, borderWidth: 1 }]
+    },
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins: { legend: { labels: { color: getComputedStyle(document.body).getPropertyValue("--text").trim() } } },
+      scales: {
+        x: { ticks: { color:getComputedStyle(document.body).getPropertyValue("--muted").trim() }, grid: { color:"rgba(31,41,55,.35)" } },
+        y: {
+          ticks: { color:getComputedStyle(document.body).getPropertyValue("--muted").trim() },
+          grid: { color:"rgba(31,41,55,.35)" },
+          suggestedMin: yOpts?.yMin ?? undefined,
+          suggestedMax: yOpts?.yMax ?? undefined
+        }
+      }
+    }
+  }, existing);
+}
+
+function renderScatter(existing, canvasId, points, xLabel, yLabel, yMin=0, yMax=10){
+  return makeChart(canvasId, {
+    type: "scatter",
+    data: {
+      datasets: [{
+        label: `${yLabel} vs ${xLabel}`,
+        data: points,
+        pointRadius: 4
+      }]
+    },
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins: { legend: { labels: { color: getComputedStyle(document.body).getPropertyValue("--text").trim() } } },
+      scales: {
+        x: { title: { display:true, text:xLabel, color:getComputedStyle(document.body).getPropertyValue("--muted").trim() },
+             ticks:{ color:getComputedStyle(document.body).getPropertyValue("--muted").trim() }, grid:{ color:"rgba(31,41,55,.35)" } },
+        y: { title: { display:true, text:yLabel, color:getComputedStyle(document.body).getPropertyValue("--muted").trim() },
+             ticks:{ color:getComputedStyle(document.body).getPropertyValue("--muted").trim() }, grid:{ color:"rgba(31,41,55,.35)" },
+             suggestedMin:yMin, suggestedMax:yMax }
+      }
+    }
+  }, existing);
+}
+
+function histogram(values, bins=10, min=0, max=10){
+  const counts = Array(bins).fill(0);
+  const width = (max-min)/bins;
+  for(const v of values){
+    if(v == null || !Number.isFinite(Number(v))) continue;
+    const x = Number(v);
+    if(x < min || x > max) continue;
+    let i = Math.floor((x-min)/width);
+    if(i === bins) i = bins-1;
+    counts[i]++;
+  }
+  const labels = counts.map((_,i)=>{
+    const a = min + i*width;
+    const b = min + (i+1)*width;
+    return `${fmtNum(a)}–${fmtNum(b)}`;
+  });
+  return {labels, counts};
+}
+
+/* ---------------------------
+   Render: Dashboard
+--------------------------- */
 function renderDashboard(){
-  const entries = sortEntriesAsc(state.entries);
-  const labels = entries.map(e => e.date);
+  const entriesAll = sortAsc(state.entries);
+  const range = state.settings.dashRange || {preset:"all"};
+  const entries = entriesInRange(entriesAll, range);
 
+  els.rangeLabel.textContent = getRangeLabel(range);
+  els.dashNote.textContent = entries.length ? `Showing ${entries.length} day(s) from ${entries[0].date} to ${entries[entries.length-1].date}.` : "No entries yet.";
+
+  const labels = entries.map(e => e.date);
   const happy = entries.map(e => e.happiness ?? null);
   const weight = entries.map(e => e.weight ?? null);
   const steps = entries.map(e => e.steps ?? null);
@@ -1186,7 +2432,12 @@ function renderDashboard(){
   const avgSteps = mean(steps);
   const avgWeight = mean(weight);
   const avgScreen = mean(screen);
-  const streak = calcStreak(entries);
+  const streak = calcStreak(entriesAll);
+
+  // Goal hit rate
+  const goal = state.settings.goalSteps;
+  const stepDays = entries.filter(e => e.steps != null);
+  const hit = stepDays.length ? stepDays.filter(e => e.steps >= goal).length / stepDays.length : null;
 
   els.kpis.innerHTML = "";
   els.kpis.appendChild(kpi("Avg happy", avgHappy == null ? "—" : fmtNum(avgHappy)));
@@ -1194,21 +2445,44 @@ function renderDashboard(){
   els.kpis.appendChild(kpi("Avg weight", avgWeight == null ? "—" : fmtNum(avgWeight)));
   els.kpis.appendChild(kpi("Avg screen", avgScreen == null ? "—" : fmtHours(avgScreen)));
   els.kpis.appendChild(kpi("Streak", streak + " days"));
-  els.kpis.appendChild(kpi("Last weather", last?.weather?.summary || "—"));
+  els.kpis.appendChild(kpi("Step goal hit", hit==null ? "—" : Math.round(hit*100) + "%"));
+  els.kpis.appendChild(kpi("Last weather", last?.weather?.summary ? `${weatherEmoji(last.weather.summary)} ${last.weather.summary}` : "—"));
 
   const rHS = pearson(happy, steps);
   const rHSc = pearson(happy, screen);
-  els.corr.textContent =
-    `Correlations (Pearson r): happiness↔steps = ${rHS==null?"—":rHS.toFixed(2)}, happiness↔screen = ${rHSc==null?"—":rHSc.toFixed(2)}.`;
+  els.corr.textContent = `Correlations (Pearson r): happiness↔steps = ${rHS==null?"—":rHS.toFixed(2)}, happiness↔screen = ${rHSc==null?"—":rHSc.toFixed(2)}.`;
 
-  els.goalStepsLabel.textContent = Number(state.settings.goalSteps).toLocaleString();
+  // Data quality
+  const missingW = entries.filter(e => !e.weather).length;
+  const missingSteps = entries.filter(e => e.steps == null).length;
+  const missingScreen = entries.filter(e => e.screenHours == null).length;
+  const missingWeight = entries.filter(e => e.weight == null).length;
+  const qBits = [];
+  qBits.push(`${entries.length ? Math.round((1-missingW/entries.length)*100) : 0}% weather coverage`);
+  qBits.push(`${entries.length ? Math.round((1-missingSteps/entries.length)*100) : 0}% steps coverage`);
+  qBits.push(`${entries.length ? Math.round((1-missingScreen/entries.length)*100) : 0}% screen coverage`);
+  qBits.push(`${entries.length ? Math.round((1-missingWeight/entries.length)*100) : 0}% weight coverage`);
+  els.quality.textContent = `Data quality: ${qBits.join(" • ")}.`;
 
+  // Trend note
+  const sl = slopeSimple(happyMA);
+  if(sl == null){
+    els.happyTrend.textContent = "Add a few days to get trend detection.";
+  }else{
+    const perWeek = sl * 7;
+    const dir = perWeek > 0.02 ? "up" : (perWeek < -0.02 ? "down" : "flat");
+    els.happyTrend.textContent = `7‑day avg trend: ${dir} (${perWeek>=0?"+":""}${perWeek.toFixed(2)} happiness / week, in this range).`;
+  }
+
+  els.goalStepsLabel.textContent = Number(goal).toLocaleString();
+
+  // Charts
   chHappy = renderLineChart(chHappy, "chartHappy", labels,
     [{label:"Happiness", data:happy},{label:"Happiness (7d avg)", data:happyMA}],
     {yMin:0, yMax:10}
   );
   chWeight = renderLineChart(chWeight, "chartWeight", labels,
-    [{label:"Weight", data:weight},{label:"Weight (7d avg)", data:weightMA}],
+    [{label:`Weight (${state.settings.weightUnit})`, data:weight},{label:"Weight (7d avg)", data:weightMA}],
     {}
   );
   chSteps = renderLineChart(chSteps, "chartSteps", labels,
@@ -1220,10 +2494,9 @@ function renderDashboard(){
     {}
   );
 
-  // Top apps (last 14 days)
-  const last14 = entries.slice(Math.max(0, entries.length-14));
+  // Top apps (range)
   const totals = {};
-  for(const e of last14){
+  for(const e of entries){
     if(!e.apps) continue;
     for(const [app, mins] of Object.entries(e.apps)){
       totals[app] = (totals[app] || 0) + (Number(mins) || 0);
@@ -1232,7 +2505,6 @@ function renderDashboard(){
   const appPairs = Object.entries(totals).sort((a,b)=> b[1]-a[1]).slice(0, 10);
   const appLabels = appPairs.map(x=>x[0]);
   const appVals = appPairs.map(x=>x[1]); // minutes
-
   chTopApps = renderBarChart(chTopApps, "chartTopApps", appLabels, appVals, "Minutes");
 
   // Weather bin vs happiness
@@ -1246,10 +2518,1160 @@ function renderDashboard(){
   const wLabels = Object.keys(bins).sort();
   const wVals = wLabels.map(k => mean(bins[k]));
   chWeatherHappy = renderBarChart(chWeatherHappy, "chartWeatherHappy", wLabels, wVals, "Avg happiness", {yMin:0, yMax:10});
+
+  // Scatter points
+  const ptsSteps = [];
+  const ptsScreen = [];
+  for(const e of entries){
+    if(e.steps != null && e.happiness != null) ptsSteps.push({x:e.steps, y:e.happiness});
+    if(e.screenHours != null && e.happiness != null) ptsScreen.push({x:e.screenHours, y:e.happiness});
+  }
+  chScatterSteps = renderScatter(chScatterSteps, "chartScatterSteps", ptsSteps, "Steps", "Happiness");
+  chScatterScreen = renderScatter(chScatterScreen, "chartScatterScreen", ptsScreen, "Screen time (hours)", "Happiness");
+}
+
+els.btnDownloadCharts.addEventListener("click", ()=>{
+  const ids = ["chartHappy","chartWeight","chartSteps","chartScreen","chartTopApps","chartWeatherHappy","chartScatterSteps","chartScatterScreen"];
+  let count = 0;
+  for(const id of ids){
+    const c = document.getElementById(id);
+    if(!c) continue;
+    const url = c.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `lifeops_${id}_${todayISO()}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    count++;
+  }
+  alert(`Downloaded ${count} chart(s).`);
+});
+
+/* ---------------------------
+   Render: Insights
+--------------------------- */
+function renderInsights(){
+  const entriesAll = sortAsc(state.entries);
+  const range = state.settings.dashRange || {preset:"all"};
+  const entries = entriesInRange(entriesAll, range);
+
+  els.insightRangeLabel.textContent = getRangeLabel(range);
+
+  // cards: best/worst day, most active, lowest screen, rain vs clear
+  els.insightCards.innerHTML = "";
+  if(entries.length === 0){
+    els.insightCards.appendChild(kpi("Status", "No data yet"));
+    els.tagBody.innerHTML = "";
+    els.modelText.textContent = "Log some days first.";
+    els.heat.innerHTML = "";
+    els.anomBody.innerHTML = "";
+    return;
+  }
+
+  let best = null, worst = null;
+  let bestSteps = null, lowScreen = null;
+  for(const e of entries){
+    if(best == null || e.happiness > best.happiness) best = e;
+    if(worst == null || e.happiness < worst.happiness) worst = e;
+    if(e.steps != null && (bestSteps == null || e.steps > bestSteps.steps)) bestSteps = e;
+    if(e.screenHours != null && (lowScreen == null || e.screenHours < lowScreen.screenHours)) lowScreen = e;
+  }
+
+  const avgH = mean(entries.map(e=>e.happiness));
+  const sdH = stddev(entries.map(e=>e.happiness));
+  els.insightCards.appendChild(kpi("Avg happiness", avgH==null?"—":fmtNum(avgH)));
+  els.insightCards.appendChild(kpi("Std dev", sdH==null?"—":fmtNum(sdH)));
+  els.insightCards.appendChild(kpi("Best day", best ? `${best.date} (${fmtNum(best.happiness)})` : "—"));
+  els.insightCards.appendChild(kpi("Worst day", worst ? `${worst.date} (${fmtNum(worst.happiness)})` : "—"));
+  els.insightCards.appendChild(kpi("Most steps", bestSteps ? `${bestSteps.date} (${Math.round(bestSteps.steps).toLocaleString()})` : "—"));
+  els.insightCards.appendChild(kpi("Lowest screen", lowScreen ? `${lowScreen.date} (${fmtHours(lowScreen.screenHours)})` : "—"));
+
+  // Tag table
+  const tagMap = {};
+  for(const e of entries){
+    const tags = parseTags(e.notes);
+    for(const t of tags){
+      if(!tagMap[t]) tagMap[t] = [];
+      tagMap[t].push(e);
+    }
+  }
+  const tags = Object.keys(tagMap).sort((a,b)=> tagMap[b].length - tagMap[a].length);
+  els.tagBody.innerHTML = "";
+  for(const t of tags){
+    const arr = tagMap[t];
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>#${escapeHtml(t)}</strong></td>
+      <td class="right">${arr.length}</td>
+      <td class="right">${fmtNum(mean(arr.map(x=>x.happiness)))}</td>
+      <td class="right">${mean(arr.map(x=>x.steps))==null?"—":Math.round(mean(arr.map(x=>x.steps))).toLocaleString()}</td>
+      <td class="right">${fmtHours(mean(arr.map(x=>x.screenHours)))}</td>
+    `;
+    els.tagBody.appendChild(tr);
+  }
+  if(tags.length === 0){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="5" class="muted">No tags found. Add tags like <span class="mono">#gym</span> in Notes.</td>`;
+    els.tagBody.appendChild(tr);
+  }
+
+  // Model: happiness ~ steps(k) + screen + precip + temp
+  const rows = [];
+  for(const e of entries){
+    const stepsK = (e.steps == null) ? null : (e.steps/1000);
+    const screen = e.screenHours;
+    const precip = e.weather?.precip;
+    const temp = e.weather?.tmax;
+    if([e.happiness, stepsK, screen, precip, temp].some(v => v == null)) continue;
+    rows.push({y:e.happiness, x:[stepsK, screen, precip, temp]});
+  }
+  const model = regressMulti(rows);
+  if(!model){
+    els.modelText.textContent = "Not enough complete rows for a model yet. You need ~8+ days with happiness + steps + screen + weather filled.";
+  }else{
+    const [b0,bSteps,bScreen,bPrecip,bTemp] = model.b;
+    const r2 = (model.r2 == null ? "—" : model.r2.toFixed(2));
+    els.modelText.innerHTML = `
+      Built on <strong>${model.n}</strong> day(s) with complete data in range.<br/>
+      <span class="mono">happiness ≈ ${b0.toFixed(2)} + (${bSteps.toFixed(2)} × steps_k) + (${bScreen.toFixed(2)} × screen_h) + (${bPrecip.toFixed(2)} × precip) + (${bTemp.toFixed(2)} × tmax)</span><br/>
+      R² ≈ <strong>${r2}</strong> (higher is better; 0 means “noise”).<br/>
+      Interpretation: coefficients show direction, not destiny. If the model says “screen hurts mood,” it might just mean “bad days cause doomscrolling.”
+    `;
+  }
+
+  // Heatmap: last 12 weeks relative to today (or last entry)
+  const lastDate = entriesAll.length ? entriesAll[entriesAll.length-1].date : todayISO();
+  const end = lastDate;
+  const start = dateAddDays(end, -83); // 12 weeks
+  const map = new Map(entriesAll.map(e => [e.date, e]));
+
+  // Build heat: align to Monday
+  const endDt = new Date(end + "T00:00:00");
+  const endDow = (endDt.getDay() + 6) % 7; // Mon=0..Sun=6
+  const alignedEnd = dateAddDays(end, (6 - endDow)); // next Sunday
+  const startDt = new Date(start + "T00:00:00");
+  const startDow = (startDt.getDay() + 6) % 7;
+  const alignedStart = dateAddDays(start, -startDow); // previous Monday
+
+  const days = dateDiffDays(alignedStart, alignedEnd) + 1;
+  const cells = [];
+  for(let i=0;i<days;i++){
+    const d = dateAddDays(alignedStart, i);
+    cells.push(d);
+  }
+
+  const values = entriesAll.filter(e => e.date >= start && e.date <= end).map(e=>e.happiness);
+  const vmin = 0, vmax = 10;
+
+  function heatColor(val){
+    if(val == null) return `color-mix(in srgb, var(--muted) 10%, transparent)`;
+    const t = clamp((val - vmin) / (vmax - vmin), 0, 1);
+    // map to accent2->accent->danger-ish by t (low->high green)
+    // low = danger, mid = accent, high = accent2
+    const low = getComputedStyle(document.body).getPropertyValue("--danger").trim() || "#fb7185";
+    const mid = getComputedStyle(document.body).getPropertyValue("--accent").trim() || "#60a5fa";
+    const high = getComputedStyle(document.body).getPropertyValue("--accent2").trim() || "#34d399";
+    const blend = (a,b,tt)=> `color-mix(in srgb, ${a} ${Math.round((1-tt)*100)}%, ${b} ${Math.round(tt*100)}%)`;
+    return t < 0.5 ? blend(low, mid, t*2) : blend(mid, high, (t-0.5)*2);
+  }
+
+  els.heat.innerHTML = "";
+  for(const d of cells){
+    const e = map.get(d);
+    const val = e?.happiness ?? null;
+
+    const div = document.createElement("div");
+    div.className = "cell";
+    div.title = e ? `${d}: happiness ${fmtNum(val)}${e.notes ? ` — ${e.notes}` : ""}` : `${d}: no entry`;
+    div.style.background = heatColor(val);
+    div.style.opacity = e ? "1" : "0.55";
+    div.textContent = d.slice(8,10);
+    div.addEventListener("click", ()=>{
+      if(e){
+        showTab("log");
+        loadEntryIntoForm(d);
+        window.scrollTo({top:0, behavior:"smooth"});
+      }
+    });
+    els.heat.appendChild(div);
+  }
+  els.heatLegend.textContent = `Heatmap covers ${start} → ${end}. Color: low happiness → high happiness.`;
+
+  // Anomalies: compare to 7d avg (within all entries)
+  const allAsc = entriesAll;
+  const happyAll = allAsc.map(e => e.happiness);
+  const maAll = movingAverage(happyAll, 7);
+
+  const anomalies = [];
+  for(let i=0;i<allAsc.length;i++){
+    const e = allAsc[i];
+    if(e.date < start || e.date > end) continue;
+    const base = maAll[i];
+    if(base == null) continue;
+    const delta = e.happiness - base;
+    if(Math.abs(delta) >= 2.0){
+      anomalies.push({date:e.date, happy:e.happiness, delta, notes:e.notes || ""});
+    }
+  }
+  anomalies.sort((a,b)=> Math.abs(b.delta)-Math.abs(a.delta));
+  els.anomBody.innerHTML = "";
+  for(const a of anomalies.slice(0, 12)){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${a.date}</strong></td>
+      <td class="right">${fmtNum(a.happy)}</td>
+      <td class="right">${a.delta>=0?"+":""}${a.delta.toFixed(1)}</td>
+      <td class="muted">${escapeHtml(a.notes).slice(0,60)}${a.notes.length>60?"…":""}</td>
+    `;
+    els.anomBody.appendChild(tr);
+  }
+  if(anomalies.length === 0){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="4" class="muted">No anomalies in the last 12 weeks (or you’re logging too little data).</td>`;
+    els.anomBody.appendChild(tr);
+  }
+
+  // Distributions
+  const {labels:hl, counts:hc} = histogram(entries.map(e=>e.happiness), 10, 0, 10);
+  chHistHappy = renderBarChart(chHistHappy, "chartHistHappy", hl, hc, "Days", {yMin:0});
+
+  const screens = entries.map(e=>e.screenHours).filter(v=>v!=null);
+  // For screen hist, auto-range
+  if(screens.length){
+    const smin = Math.min(...screens);
+    const smax = Math.max(...screens);
+    const bins = 10;
+    const width = (smax - smin) / bins || 1;
+    const counts = Array(bins).fill(0);
+    for(const v of screens){
+      let i = Math.floor((v - smin)/width);
+      if(i >= bins) i = bins-1;
+      if(i < 0) i = 0;
+      counts[i]++;
+    }
+    const labels = counts.map((_,i)=>{
+      const a = smin + i*width;
+      const b = smin + (i+1)*width;
+      return `${fmtNum(a)}–${fmtNum(b)}`;
+    });
+    chHistScreen = renderBarChart(chHistScreen, "chartHistScreen", labels, counts, "Days", {yMin:0});
+  }else{
+    chHistScreen = renderBarChart(chHistScreen, "chartHistScreen", ["—"], [0], "Days", {yMin:0});
+  }
+}
+
+/* ---------------------------
+   Render: Monthly
+--------------------------- */
+
+
+/* ---------------------------
+   Lab (Forecast + Experiments + Import Wizard)
+--------------------------- */
+let LAB_WIRED = false;
+let WIZ = { rows:null, headers:null, rawRows:null };
+let selectedExpId = null;
+
+function parseDateFlexible(s){
+  const str = String(s||"").trim();
+  if(!str) return null;
+  // ISO
+  if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  // YYYY/MM/DD
+  let m = str.match(/^(\d{4})[\/\.](\d{1,2})[\/\.](\d{1,2})$/);
+  if(m){
+    const y = m[1], mo = String(Number(m[2])).padStart(2,"0"), d = String(Number(m[3])).padStart(2,"0");
+    return `${y}-${mo}-${d}`;
+  }
+  // MM/DD/YYYY or M/D/YYYY
+  m = str.match(/^(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})$/);
+  if(m){
+    const y = m[3], mo = String(Number(m[1])).padStart(2,"0"), d = String(Number(m[2])).padStart(2,"0");
+    return `${y}-${mo}-${d}`;
+  }
+  // Excel-ish date-time: YYYY-MM-DD hh:mm:ss
+  m = str.match(/^(\d{4}-\d{2}-\d{2})[T\s].+$/);
+  if(m) return m[1];
+  return null;
+}
+
+function dateInRange(date, a, b){
+  if(!date || !a || !b) return false;
+  return (date >= a && date <= b);
+}
+
+function sliceByDate(entries, a, b){
+  return entries.filter(e => e.date >= a && e.date <= b);
+}
+
+function std(arr){
+  const xs = arr.filter(v => v != null && Number.isFinite(Number(v))).map(Number);
+  if(xs.length < 2) return null;
+  const m = xs.reduce((a,b)=>a+b,0)/xs.length;
+  const v = xs.reduce((a,b)=> a + (b-m)*(b-m), 0) / (xs.length-1);
+  return Math.sqrt(v);
+}
+
+function cohensD(a1, a2){
+  const x1 = a1.filter(v=>v!=null).map(Number);
+  const x2 = a2.filter(v=>v!=null).map(Number);
+  if(x1.length < 2 || x2.length < 2) return null;
+  const m1 = mean(x1), m2 = mean(x2);
+  const s1 = std(x1), s2 = std(x2);
+  if(s1 == null || s2 == null) return null;
+  const sp = Math.sqrt(((x1.length-1)*s1*s1 + (x2.length-1)*s2*s2) / (x1.length + x2.length - 2));
+  if(!sp) return null;
+  return (m2 - m1) / sp;
+}
+
+function gaussSolve(A, b){
+  // Solve A x = b (A: n×n, b: n). Returns x or null.
+  const n = A.length;
+  const M = A.map((row,i)=> row.map(Number).concat([Number(b[i])]));
+  for(let col=0; col<n; col++){
+    // pivot
+    let piv = col;
+    for(let r=col+1; r<n; r++){
+      if(Math.abs(M[r][col]) > Math.abs(M[piv][col])) piv = r;
+    }
+    if(Math.abs(M[piv][col]) < 1e-12) return null;
+    if(piv !== col){
+      const tmp = M[col]; M[col] = M[piv]; M[piv] = tmp;
+    }
+    // normalize
+    const div = M[col][col];
+    for(let c=col; c<=n; c++) M[col][c] /= div;
+    // eliminate
+    for(let r=0; r<n; r++){
+      if(r === col) continue;
+      const f = M[r][col];
+      if(!f) continue;
+      for(let c=col; c<=n; c++) M[r][c] -= f*M[col][c];
+    }
+  }
+  return M.map(r => r[n]);
+}
+
+function fitMultiLinear(entries, yFn, xFns){
+  // Returns {coef, n, r2, means, keys} or null
+  const X = [], Y = [];
+  const means = new Array(xFns.length).fill(0);
+  const counts = new Array(xFns.length).fill(0);
+
+  for(const e of entries){
+    const y = yFn(e);
+    if(y == null) continue;
+    const xs = xFns.map(fn => fn(e));
+    if(xs.some(v => v == null || !Number.isFinite(Number(v)))) continue;
+    const row = [1, ...xs.map(Number)];
+    X.push(row);
+    Y.push(Number(y));
+    xs.forEach((v,i)=>{ means[i] += Number(v); counts[i]++; });
+  }
+  const n = Y.length;
+  const p = xFns.length + 1;
+  if(n < Math.max(8, p*3)) return null;
+
+  for(let i=0;i<means.length;i++){
+    means[i] = counts[i] ? means[i]/counts[i] : 0;
+  }
+
+  // XtX and Xty
+  const XtX = Array.from({length:p}, ()=> Array(p).fill(0));
+  const Xty = Array(p).fill(0);
+
+  for(let i=0;i<n;i++){
+    const xi = X[i];
+    for(let a=0;a<p;a++){
+      Xty[a] += xi[a]*Y[i];
+      for(let b=0;b<p;b++){
+        XtX[a][b] += xi[a]*xi[b];
+      }
+    }
+  }
+  const coef = gaussSolve(XtX, Xty);
+  if(!coef) return null;
+
+  // r2
+  const yhat = Y.map((_,i)=>{
+    const xi = X[i];
+    let s = 0;
+    for(let j=0;j<p;j++) s += coef[j]*xi[j];
+    return s;
+  });
+  const my = mean(Y);
+  let ssTot=0, ssRes=0;
+  for(let i=0;i<n;i++){
+    ssTot += (Y[i]-my)*(Y[i]-my);
+    ssRes += (Y[i]-yhat[i])*(Y[i]-yhat[i]);
+  }
+  const r2 = ssTot === 0 ? null : 1 - (ssRes/ssTot);
+
+  return {coef, n, r2, means};
+}
+
+function fitTrendWithWeekday(entries, yFn){
+  const pts = [];
+  for(const e of sortAsc(entries)){
+    const y = yFn(e);
+    if(y == null || !Number.isFinite(Number(y))) continue;
+    pts.push({date:e.date, y:Number(y)});
+  }
+  if(pts.length < 6) return null;
+
+  // regression y = a + b*t (t = days since first data point)
+  const firstDate = pts[0].date;
+  const xs = pts.map(p=>dateDiffDays(firstDate, p.date));
+  const ys = pts.map(p=>p.y);
+  const n = xs.length;
+  const mx = xs.reduce((a,b)=>a+b,0)/n;
+  const my = ys.reduce((a,b)=>a+b,0)/n;
+  let num=0, den=0;
+  for(let i=0;i<n;i++){
+    num += (xs[i]-mx)*(ys[i]-my);
+    den += (xs[i]-mx)*(xs[i]-mx);
+  }
+  const b = den ? num/den : 0;
+  const a = my - b*mx;
+
+  // weekday residuals
+  const wdSum = Array(7).fill(0), wdN = Array(7).fill(0);
+  for(let i=0;i<n;i++){
+    const pred = a + b*xs[i];
+    const dt = new Date(pts[i].date + "T00:00:00");
+    const wd = dt.getDay(); // Sun=0
+    wdSum[wd] += (ys[i]-pred);
+    wdN[wd] += 1;
+  }
+  const wdAdj = wdSum.map((s,i)=> wdN[i] ? s/wdN[i] : 0);
+
+  return {a,b, n, firstDate, lastDate: pts[pts.length-1].date, wdAdj, pts};
+}
+
+function renderForecast(){
+  const metric = document.getElementById("fcMetric").value;
+  const horizon = Number(document.getElementById("fcHorizon").value);
+  const win = Number(document.getElementById("fcWindow").value);
+
+  const entriesAll = sortAsc(state.entries);
+  const endDate = entriesAll.length ? entriesAll[entriesAll.length-1].date : todayISO();
+  const startDate = dateAddDays(endDate, -(win-1));
+  const train = sliceByDate(entriesAll, startDate, endDate);
+
+  const yFn = (e)=>{
+    if(metric === "happiness") return e.happiness;
+    if(metric === "weight") return e.weight;
+    if(metric === "steps") return e.steps;
+    if(metric === "screen") return e.screenHours;
+    return null;
+  };
+
+  const trend = fitTrendWithWeekday(train, yFn);
+  const noteEl = document.getElementById("fcNote");
+  const modelLabel = document.getElementById("fcModelLabel");
+
+  if(!trend){
+    modelLabel.textContent = "insufficient data";
+    noteEl.innerHTML = `Need a bit more logged data in the last ${win} days to forecast <strong>${escapeHtml(metric)}</strong>.`;
+    // clear chart
+    chForecast = makeChart("chForecast", {type:"line", data:{labels:[], datasets:[]}, options:{responsive:true, maintainAspectRatio:false}}, chForecast);
+    return;
+  }
+
+  modelLabel.textContent = "trend + weekday";
+  const labels = [];
+  const actual = [];
+  const forecast = [];
+  const allMap = new Map(entriesAll.map(e=>[e.date,e]));
+  const last = trend.lastDate;
+
+  // build from startDate..endDate+horizon
+  const totalDays = win + horizon;
+  for(let i=0;i<totalDays;i++){
+    const d = dateAddDays(startDate, i);
+    labels.push(d);
+    const e = allMap.get(d);
+    const y = e ? yFn(e) : null;
+    actual.push(y == null ? null : Number(y));
+
+    // forecast only for > endDate
+    if(d > endDate){
+      const t = (d >= startDate) ? i : i; // i from startDate
+      const dt = new Date(d + "T00:00:00");
+      const wd = dt.getDay();
+      const t = dateDiffDays(trend.firstDate, d);
+      const pred = trend.a + trend.b*(t) + (trend.wdAdj[wd] || 0);
+      forecast.push(pred);
+    }else{
+      forecast.push(null);
+    }
+  }
+
+  // clamp some metrics
+  if(metric === "happiness"){
+    for(let i=0;i<forecast.length;i++){
+      if(forecast[i] == null) continue;
+      forecast[i] = clamp(forecast[i], 0, 10);
+    }
+  }
+  if(metric === "screen"){
+    for(let i=0;i<forecast.length;i++){
+      if(forecast[i] == null) continue;
+      forecast[i] = Math.max(0, forecast[i]);
+    }
+  }
+  if(metric === "steps"){
+    for(let i=0;i<forecast.length;i++){
+      if(forecast[i] == null) continue;
+      forecast[i] = Math.max(0, forecast[i]);
+    }
+  }
+
+  const slopePerDay = trend.b;
+  const dir = slopePerDay > 0 ? "up" : (slopePerDay < 0 ? "down" : "flat");
+  const fmtSlope = (metric === "steps") ? `${Math.round(slopePerDay).toLocaleString()} steps/day` :
+                   (metric === "screen") ? `${(slopePerDay).toFixed(2)} h/day` :
+                   (metric === "weight") ? `${(slopePerDay).toFixed(3)} ${state.settings.weightUnit}/day` :
+                   `${(slopePerDay).toFixed(3)} /day`;
+
+  noteEl.innerHTML = `Training window: <strong>${startDate}</strong> → <strong>${endDate}</strong>. Trend is <strong>${dir}</strong> at <strong>${fmtSlope}</strong>. Weekday adjustments are applied when your data supports them.`;
+
+  const ds = [
+    {
+      label: `Actual (${metric})`,
+      data: actual,
+      spanGaps: true,
+      borderWidth: 2,
+      pointRadius: 0,
+      tension: 0.25
+    },
+    {
+      label: `Forecast (+${horizon}d)`,
+      data: forecast,
+      spanGaps: true,
+      borderWidth: 2,
+      pointRadius: 0,
+      borderDash: [6,6],
+      tension: 0.25
+    }
+  ];
+
+  chForecast = makeChart("chForecast", {
+    type: "line",
+    data: { labels, datasets: ds },
+    options: {
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins: {
+        legend: { labels: { color: getComputedStyle(document.body).getPropertyValue("--text") } },
+        tooltip: { callbacks: {
+          label: (ctx)=>{
+            const v = ctx.parsed.y;
+            if(v == null) return `${ctx.dataset.label}: —`;
+            if(metric === "steps") return `${ctx.dataset.label}: ${Math.round(v).toLocaleString()}`;
+            if(metric === "screen") return `${ctx.dataset.label}: ${v.toFixed(1)} h`;
+            if(metric === "happiness") return `${ctx.dataset.label}: ${v.toFixed(2)}`;
+            if(metric === "weight") return `${ctx.dataset.label}: ${v.toFixed(2)} ${state.settings.weightUnit}`;
+            return `${ctx.dataset.label}: ${v}`;
+          }
+        }}
+      },
+      scales: {
+        x: { ticks: { color: getComputedStyle(document.body).getPropertyValue("--muted") } },
+        y: { ticks: { color: getComputedStyle(document.body).getPropertyValue("--muted") }, beginAtZero: metric !== "weight" }
+      }
+    }
+  }, chForecast);
+}
+
+function renderWhatIf(){
+  const steps = Number(document.getElementById("wiSteps").value);
+  const screen = Number(document.getElementById("wiScreen").value);
+
+  document.getElementById("wiStepsVal").textContent = steps.toLocaleString();
+  document.getElementById("wiScreenVal").textContent = screen.toFixed(1);
+
+  const entries = sortAsc(state.entries).slice(-120); // enough context
+  const model = fitMultiLinear(
+    entries,
+    (e)=> e.happiness,
+    [
+      (e)=> (e.steps==null?null:Number(e.steps)/1000),
+      (e)=> e.screenHours,
+      (e)=> (e.weather && e.weather.tmax!=null && e.weather.tmin!=null) ? (Number(e.weather.tmax)+Number(e.weather.tmin))/2 : null,
+      (e)=> (e.weather && e.weather.precip!=null) ? Number(e.weather.precip) : null
+    ]
+  );
+
+  const predEl = document.getElementById("wiPred");
+  const noteEl = document.getElementById("wiPredNote");
+  const driversEl = document.getElementById("wiDrivers");
+
+  if(!model){
+    // fallback: average happiness and a tiny heuristic
+    const recent = entries.slice(-30);
+    const base = mean(recent.map(e=>e.happiness));
+    if(base == null){
+      predEl.textContent = "—";
+      noteEl.textContent = "Log some data first. I can’t hallucinate your life with statistical confidence.";
+      driversEl.textContent = "";
+      return;
+    }
+    const stepAdj = (steps-8000)/4000 * 0.15;
+    const screenAdj = (4-screen) * 0.10;
+    const pred = clamp(base + stepAdj + screenAdj, 0, 10);
+    predEl.textContent = pred.toFixed(2);
+    noteEl.textContent = "Fallback mode: average + tiny heuristic (not a real model).";
+    driversEl.innerHTML = `Heuristic drivers: +0.15 per ~4k steps above 8k, and +0.10 per hour under 4h screen time.`;
+    return;
+  }
+
+  const coef = model.coef; // [b0, bStepsK, bScreen, bTemp, bPrecip]
+  const means = model.means;
+
+  const x = [1, steps/1000, screen, means[2], means[3]];
+  let y = 0;
+  for(let i=0;i<coef.length;i++) y += coef[i]*x[i];
+  y = clamp(y, 0, 10);
+
+  predEl.textContent = y.toFixed(2);
+  const r2txt = (model.r2 == null) ? "?" : model.r2.toFixed(2);
+  noteEl.textContent = `Model: happiness ~ steps(k) + screen + temp + precip (n=${model.n}, R²=${r2txt}). Temp/precip held at recent averages.`;
+
+  // Drivers (rough)
+  const bSteps = coef[1], bScreen = coef[2];
+  const msg = [];
+  msg.push(`<strong>Estimated effects</strong> (in your data):`);
+  msg.push(`Steps: <span class="mono">${(bSteps*1).toFixed(2)}</span> happiness per +1k steps`);
+  msg.push(`Screen: <span class="mono">${(bScreen*1).toFixed(2)}</span> happiness per +1 hour`);
+  msg.push(`<span class="muted">Interpretation warning:</span> correlation isn’t causation, and your sample size is still a squishy human artifact.`);
+  driversEl.innerHTML = msg.join("<br/>");
+}
+
+function renderExperiments(){
+  const tbody = document.getElementById("expBody");
+  const note = document.getElementById("expNote");
+  tbody.innerHTML = "";
+
+  const exps = Array.isArray(state.experiments) ? state.experiments : [];
+  if(exps.length === 0){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="7" class="muted">No experiments yet. Add one above. (Yes, you're running science on yourself.)</td>`;
+    tbody.appendChild(tr);
+    note.textContent = "";
+    // clear chart
+    chExp = makeChart("chExp", {type:"bar", data:{labels:[], datasets:[]}, options:{responsive:true, maintainAspectRatio:false}}, chExp);
+    return;
+  }
+
+  const entriesAll = sortAsc(state.entries);
+
+  // choose selected
+  if(!selectedExpId) selectedExpId = exps[exps.length-1].id;
+  let selected = exps.find(x=>x.id===selectedExpId) || exps[exps.length-1];
+
+  for(const exp of exps.slice().reverse()){
+    const baseDays = Number(exp.baselineDays || 14);
+    const start = exp.start;
+    const end = exp.end || exp.start;
+    const baseA = dateAddDays(start, -baseDays);
+    const baseB = dateAddDays(start, -1);
+
+    const baseline = sliceByDate(entriesAll, baseA, baseB);
+    const active = sliceByDate(entriesAll, start, end);
+
+    const bh = mean(baseline.map(e=>e.happiness));
+    const ah = mean(active.map(e=>e.happiness));
+    const bs = mean(baseline.map(e=>e.steps));
+    const as_ = mean(active.map(e=>e.steps));
+    const bsc = mean(baseline.map(e=>e.screenHours));
+    const asc = mean(active.map(e=>e.screenHours));
+
+    const dH = (bh==null||ah==null) ? null : ah-bh;
+    const dS = (bs==null||as_==null) ? null : as_-bs;
+    const dSc = (bsc==null||asc==null) ? null : asc-bsc;
+
+    const d = cohensD(baseline.map(e=>e.happiness), active.map(e=>e.happiness));
+    const days = sliceByDate(entriesAll, start, end).length;
+
+    const tr = document.createElement("tr");
+    tr.style.cursor = "pointer";
+    tr.addEventListener("click", ()=>{
+      selectedExpId = exp.id;
+      renderExperiments();
+    });
+
+    tr.innerHTML = `
+      <td><strong>${escapeHtml(exp.name || "Experiment")}</strong><div class="small muted">${escapeHtml(start)} → ${escapeHtml(end)}${exp.notes ? ` • ${escapeHtml(exp.notes)}` : ""}</div></td>
+      <td class="right">${days}</td>
+      <td class="right">${dH==null?"—":(dH>=0?"+":"")+dH.toFixed(2)}</td>
+      <td class="right">${dS==null?"—":(dS>=0?"+":"")+Math.round(dS).toLocaleString()}</td>
+      <td class="right">${dSc==null?"—":(dSc>=0?"+":"")+dSc.toFixed(2)}</td>
+      <td class="right">${d==null?"—":d.toFixed(2)}</td>
+      <td class="right"><button class="btn danger small" data-del="${escapeHtml(exp.id)}">Delete</button></td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  tbody.querySelectorAll("button[data-del]").forEach(btn=>{
+    btn.addEventListener("click", (ev)=>{
+      ev.stopPropagation();
+      const id = btn.getAttribute("data-del");
+      state.experiments = (state.experiments||[]).filter(x=>x.id !== id);
+      saveState();
+      if(selectedExpId === id) selectedExpId = null;
+      renderExperiments();
+      renderLab(); // refresh review
+    });
+  });
+
+  // Note + chart for selected experiment
+  const baseDays = Number(selected.baselineDays || 14);
+  const start = selected.start;
+  const end = selected.end || selected.start;
+  const baseA = dateAddDays(start, -baseDays);
+  const baseB = dateAddDays(start, -1);
+  const baseline = sliceByDate(entriesAll, baseA, baseB);
+  const active = sliceByDate(entriesAll, start, end);
+
+  const bh = mean(baseline.map(e=>e.happiness));
+  const ah = mean(active.map(e=>e.happiness));
+  const delta = (bh==null||ah==null) ? null : (ah-bh);
+  const d = cohensD(baseline.map(e=>e.happiness), active.map(e=>e.happiness));
+  note.innerHTML = `Selected: <strong>${escapeHtml(selected.name)}</strong>. Baseline: <span class="mono">${escapeHtml(baseA)}→${escapeHtml(baseB)}</span>, Active: <span class="mono">${escapeHtml(start)}→${escapeHtml(end)}</span>. Δ happiness: <strong>${delta==null?"—":(delta>=0?"+":"")+delta.toFixed(2)}</strong>, effect size d: <strong>${d==null?"—":d.toFixed(2)}</strong>.`;
+
+  const labels = ["Baseline", "Active"];
+  const data = [bh, ah].map(v=> v==null ? null : Number(v));
+  chExp = makeChart("chExp", {
+    type:"bar",
+    data:{ labels, datasets:[{label:"Avg happiness", data}] },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ ticks:{ color:getComputedStyle(document.body).getPropertyValue("--muted") } },
+        y:{ ticks:{ color:getComputedStyle(document.body).getPropertyValue("--muted") }, beginAtZero:true, suggestedMax:10 }
+      }
+    }
+  }, chExp);
+}
+
+function renderWeeklyReview(){
+  const out = document.getElementById("weekReview");
+  const out2 = document.getElementById("weekActions");
+  const entries = sortAsc(state.entries);
+  if(entries.length < 8){
+    out.innerHTML = `Not enough data for a weekly review yet. Feed me at least ~8 days of logs.`;
+    out2.textContent = "";
+    return;
+  }
+  const end = entries[entries.length-1].date;
+  const a1 = dateAddDays(end, -6);
+  const b1 = end;
+  const a0 = dateAddDays(end, -13);
+  const b0 = dateAddDays(end, -7);
+
+  const w1 = sliceByDate(entries, a1, b1);
+  const w0 = sliceByDate(entries, a0, b0);
+
+  const mHappy1 = mean(w1.map(e=>e.happiness));
+  const mHappy0 = mean(w0.map(e=>e.happiness));
+  const mSteps1 = mean(w1.map(e=>e.steps));
+  const mSteps0 = mean(w0.map(e=>e.steps));
+  const mScreen1 = mean(w1.map(e=>e.screenHours));
+  const mScreen0 = mean(w0.map(e=>e.screenHours));
+
+  function deltaStr(a,b, fmt){
+    if(a==null||b==null) return "—";
+    const d = a-b;
+    const sign = d>=0?"+":"";
+    return sign + fmt(d);
+  }
+
+  const dh = (mHappy1==null||mHappy0==null) ? null : mHappy1-mHappy0;
+  const ds = (mSteps1==null||mSteps0==null) ? null : mSteps1-mSteps0;
+  const dsc = (mScreen1==null||mScreen0==null) ? null : mScreen1-mScreen0;
+
+  // top apps for week
+  const agg = {};
+  for(const e of w1){
+    if(!e.apps) continue;
+    for(const [k,v] of Object.entries(e.apps)){
+      agg[k] = (agg[k]||0) + Number(v||0);
+    }
+  }
+  const topApps = Object.entries(agg).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  const lines = [];
+  lines.push(`<strong>${escapeHtml(a1)} → ${escapeHtml(b1)}</strong> compared to prior week <span class="mono">${escapeHtml(a0)} → ${escapeHtml(b0)}</span>:`);
+
+  lines.push(`Happiness: <strong>${mHappy1==null?"—":mHappy1.toFixed(2)}</strong> (${deltaStr(mHappy1,mHappy0,(x)=>x.toFixed(2))})`);
+  lines.push(`Steps: <strong>${mSteps1==null?"—":Math.round(mSteps1).toLocaleString()}</strong> (${deltaStr(mSteps1,mSteps0,(x)=>Math.round(x).toLocaleString())})`);
+  lines.push(`Screen: <strong>${mScreen1==null?"—":mScreen1.toFixed(2)} h</strong> (${deltaStr(mScreen1,mScreen0,(x)=>x.toFixed(2)+" h")})`);
+
+  if(topApps.length){
+    const appsTxt = topApps.map(([k,v])=> `${escapeHtml(k)} (${Math.round(v)}m)`).join(", ");
+    lines.push(`Top apps (7d): ${appsTxt}`);
+  }
+
+  // tiny driver suggestions
+  const acts = [];
+  if(dh != null && dh < -0.25){
+    if(dsc != null && dsc > 0.2) acts.push("Screen time rose while happiness fell. Try a hard cutoff window (e.g., last 60–90 minutes before sleep).");
+    if(ds != null && ds < -500) acts.push("Steps dropped. Add a non-negotiable walk slot (10–20 min).");
+    if(acts.length === 0) acts.push("Happiness fell. Look for obvious confounders in notes (#stress, #sick, #deadline).");
+  }else if(dh != null && dh > 0.25){
+    acts.push("Happiness improved. Identify what you repeated (and keep doing that like it’s a cheat code).");
+  }else{
+    acts.push("Stable week. Stability is underrated; humans just don’t clap for it.");
+  }
+
+  out.innerHTML = lines.join("<br/>");
+  out2.innerHTML = `<strong>Actions</strong><br/>• ${acts.map(a=>escapeHtml(a)).join("<br/>• ")}`;
+}
+
+function wireLab(){
+  if(LAB_WIRED) return;
+  LAB_WIRED = true;
+
+  const t = todayISO();
+  if(!document.getElementById("expStart").value) document.getElementById("expStart").value = t;
+  if(!document.getElementById("expEnd").value) document.getElementById("expEnd").value = t;
+
+  const btnRun = document.getElementById("btnFcRun");
+  btnRun.addEventListener("click", ()=> renderForecast());
+  document.getElementById("fcMetric").addEventListener("change", ()=> renderForecast());
+  document.getElementById("fcHorizon").addEventListener("change", ()=> renderForecast());
+  document.getElementById("fcWindow").addEventListener("change", ()=> renderForecast());
+
+  const wiSteps = document.getElementById("wiSteps");
+  const wiScreen = document.getElementById("wiScreen");
+  wiSteps.addEventListener("input", ()=> renderWhatIf());
+  wiScreen.addEventListener("input", ()=> renderWhatIf());
+
+  document.getElementById("btnExpAdd").addEventListener("click", ()=>{
+    const name = (document.getElementById("expName").value || "").trim();
+    const start = document.getElementById("expStart").value;
+    const end = document.getElementById("expEnd").value || start;
+    const notes = (document.getElementById("expNotes").value || "").trim();
+    const baselineDays = Number(document.getElementById("expBaseline").value);
+
+    if(!name) return alert("Experiment needs a name.");
+    if(!start) return alert("Pick a start date.");
+    if(end && end < start) return alert("End date must be ≥ start date.");
+
+    const id = `exp_${Math.random().toString(36).slice(2,10)}_${Date.now().toString(36)}`;
+    state.experiments = state.experiments || [];
+    state.experiments.push({id, name, start, end, notes, baselineDays, createdAt: todayISO()});
+    saveState();
+    document.getElementById("expName").value = "";
+    document.getElementById("expNotes").value = "";
+    renderExperiments();
+    renderWeeklyReview();
+  });
+
+  // Import wizard
+  document.getElementById("btnWizLoad").addEventListener("click", async ()=>{
+    const f = document.getElementById("wizFile").files?.[0];
+    if(!f) return alert("Choose a CSV file.");
+    const raw = await f.text();
+    const rows = parseCSV(raw);
+    if(rows.length < 2) return alert("CSV looks empty.");
+    const headers = rows[0].map(h=>String(h||"").trim());
+    WIZ = { rows: rows.slice(1), headers, rawRows: rows };
+
+    const mapDiv = document.getElementById("wizMap");
+    mapDiv.classList.remove("hide");
+
+    // populate selects
+    const selDate = document.getElementById("wizDate");
+    const selA = document.getElementById("wizColA");
+    const selB = document.getElementById("wizColB");
+    selDate.innerHTML = ""; selA.innerHTML = ""; selB.innerHTML = "";
+    headers.forEach((h,idx)=>{
+      const opt = new Option(h || `(col ${idx+1})`, String(idx));
+      selDate.add(opt.cloneNode(true));
+      selA.add(opt.cloneNode(true));
+      selB.add(opt.cloneNode(true));
+    });
+
+    const type = document.getElementById("wizType").value;
+    const hdrLower = headers.map(h=>String(h).toLowerCase());
+    const guess = (needles)=>{
+      for(const n of needles){
+        const i = hdrLower.findIndex(h=>h.includes(n));
+        if(i !== -1) return i;
+      }
+      return 0;
+    };
+    selDate.value = String(guess(["date","day","time","timestamp"]));
+
+    const colAWrap = document.getElementById("wizColAWrap");
+    const colBWrap = document.getElementById("wizColBWrap");
+    const unitWrap = document.getElementById("wizUnitWrap");
+    const colALabel = document.getElementById("wizColALabel");
+    const colBLabel = document.getElementById("wizColBLabel");
+
+    if(type === "steps"){
+      colALabel.textContent = "Steps column";
+      colBWrap.classList.add("hide");
+      unitWrap.classList.add("hide");
+      selA.value = String(guess(["steps","step","count"]));
+    }else{
+      colALabel.textContent = "App column";
+      colBLabel.textContent = "Minutes/Hours column";
+      colBWrap.classList.remove("hide");
+      unitWrap.classList.remove("hide");
+      selA.value = String(guess(["app","application","package","bundle","name"]));
+      selB.value = String(guess(["minutes","minute","mins","duration","time","hours","hour","hrs"]));
+      // guess unit
+      const bName = hdrLower[Number(selB.value)] || "";
+      document.getElementById("wizUnit").value = bName.includes("hour") || bName.includes("hr") ? "hours" : "minutes";
+    }
+
+    document.getElementById("wizHint").innerHTML = `Loaded <strong>${rows.length-1}</strong> rows. Map columns then preview or import.`;
+  });
+
+  document.getElementById("btnWizPreview").addEventListener("click", ()=> renderWizardPreview());
+  document.getElementById("wizType").addEventListener("change", ()=> {
+    // reset mapping UI if already loaded
+    if(WIZ && WIZ.headers) document.getElementById("btnWizLoad").click();
+  });
+
+  document.getElementById("btnWizImport").addEventListener("click", ()=> runWizardImport());
+}
+
+function renderWizardPreview(){
+  if(!WIZ || !WIZ.headers) return;
+  const type = document.getElementById("wizType").value;
+  const di = Number(document.getElementById("wizDate").value);
+  const ai = Number(document.getElementById("wizColA").value);
+  const bi = Number(document.getElementById("wizColB").value);
+  const unit = document.getElementById("wizUnit").value;
+
+  const head = document.getElementById("wizPrevHead");
+  const body = document.getElementById("wizPrevBody");
+  head.innerHTML = ""; body.innerHTML = "";
+
+  const cols = (type === "steps") ? ["date","steps"] : ["date","app","minutes"];
+  cols.forEach(c=>{
+    const th = document.createElement("th");
+    th.textContent = c;
+    head.appendChild(th);
+  });
+
+  const preview = WIZ.rows.slice(0, 10);
+  for(const r of preview){
+    const tr = document.createElement("tr");
+    if(type === "steps"){
+      const date = parseDateFlexible(r[di]);
+      const steps = Number(r[ai]);
+      tr.innerHTML = `<td class="mono">${escapeHtml(date||"")}</td><td class="right">${Number.isFinite(steps)?steps:""}</td>`;
+    }else{
+      const date = parseDateFlexible(r[di]);
+      const app = String(r[ai]||"").trim();
+      let val = Number(r[bi]);
+      if(!Number.isFinite(val)) val = null;
+      const mins = val==null ? null : (unit==="hours" ? Math.round(val*60) : Math.round(val));
+      tr.innerHTML = `<td class="mono">${escapeHtml(date||"")}</td><td>${escapeHtml(app)}</td><td class="right">${mins==null?"":mins}</td>`;
+    }
+    body.appendChild(tr);
+  }
+}
+
+function runWizardImport(){
+  if(!WIZ || !WIZ.headers) return;
+  const type = document.getElementById("wizType").value;
+  const di = Number(document.getElementById("wizDate").value);
+  const ai = Number(document.getElementById("wizColA").value);
+  const bi = Number(document.getElementById("wizColB").value);
+  const unit = document.getElementById("wizUnit").value;
+  const createMissing = !!document.getElementById("wizCreate")?.checked;
+
+  const byDate = new Map(state.entries.map(e=>[e.date, e]));
+  const newEntries = [];
+
+  let imported = 0, created = 0, skipped = 0;
+
+  for(const r of WIZ.rows){
+    const date = parseDateFlexible(r[di]);
+    if(!date) { skipped++; continue; }
+
+    let entry = byDate.get(date);
+    if(!entry){
+      if(!createMissing){ skipped++; continue; }
+      // Create a minimal shell entry. User can fill happiness/weight later.
+      entry = {date, happiness: 6, weight:null, steps:null, screenHours:null, apps:null, notes:"", weather:null};
+      byDate.set(date, entry);
+      newEntries.push(entry);
+      created++;
+    }
+
+    if(type === "steps"){
+      const steps = Number(r[ai]);
+      if(!Number.isFinite(steps)) { skipped++; continue; }
+      entry.steps = Math.round(steps);
+      imported++;
+    }else{
+      const app = String(r[ai]||"").trim();
+      let val = Number(r[bi]);
+      if(!app || !Number.isFinite(val)) { skipped++; continue; }
+      const mins = unit==="hours" ? Math.round(val*60) : Math.round(val);
+      entry.apps = entry.apps || {};
+      entry.apps[app] = (entry.apps[app]||0) + mins;
+      if(state.settings.autoScreenFromApps){
+        const total = totalAppMinutes(entry.apps);
+        if(total != null && total > 0) entry.screenHours = Math.round((total/60)*10)/10;
+      }
+      imported++;
+    }
+  }
+
+  if(newEntries.length) state.entries.push(...newEntries);
+
+  saveState();
+  renderLog();
+  renderDashboard();
+  renderInsights();
+  renderMonthly();
+  renderLab();
+
+  alert(`Import complete.
+Imported rows: ${imported}
+New days created: ${created}
+Skipped: ${skipped}`);
+}
+
+function renderLab(){
+  wireLab();
+  renderForecast();
+  renderWhatIf();
+  renderExperiments();
+  renderWeeklyReview();
+}
+
+/* ---------------------------
+   Command Palette
+--------------------------- */
+let CMDK = { open:false, idx:0, items:[] };
+
+function cmdkCommands(){
+  const cmds = [
+    {name:"Go to: Daily", k:"d", run:()=>showTab("log")},
+    {name:"Go to: Dashboard", k:"g", run:()=>showTab("dash")},
+    {name:"Go to: Insights", k:"i", run:()=>showTab("insights")},
+    {name:"Go to: Monthly", k:"m", run:()=>showTab("month")},
+    {name:"Go to: Lab", k:"l", run:()=>showTab("lab")},
+    {name:"Go to: Settings", k:"s", run:()=>showTab("settings")},
+    {name:"New entry: today", k:"t", run:()=>{ els.fDate.value = todayISO(); showTab("log"); els.fHappy.focus(); }},
+    {name:"Fill missing weather (all saved days)", k:"w", run:async()=>{ await fillMissingWeather(); renderAll(); }},
+    {name:"Export: JSON backup", k:"e", run:()=>document.getElementById("btnExportJSON").click()},
+    {name:"Export: CSV (entries)", k:"c", run:()=>document.getElementById("btnExportCSV").click()},
+    {name:"Toggle theme", k:"p", run:()=>els.btnTheme.click()},
+  ];
+  return cmds;
+}
+
+function openCmdk(){
+  const modal = document.getElementById("cmdk");
+  const input = document.getElementById("cmdkInput");
+  modal.classList.remove("hide");
+  CMDK.open = true;
+  CMDK.idx = 0;
+  input.value = "";
+  input.focus();
+  updateCmdkList();
+}
+function closeCmdk(){
+  const modal = document.getElementById("cmdk");
+  modal.classList.add("hide");
+  CMDK.open = false;
+}
+function updateCmdkList(){
+  const input = document.getElementById("cmdkInput");
+  const list = document.getElementById("cmdkList");
+  const q = (input.value || "").trim().toLowerCase();
+
+  const base = cmdkCommands();
+  let items = base;
+
+  // "jump to date" intent
+  const iso = q.match(/\d{4}-\d{2}-\d{2}/);
+  if(iso){
+    items = [
+      {name:`Jump to date: ${iso[0]}`, k:"↵", run:()=>{ els.fDate.value = iso[0]; showTab("log"); renderLog(); }},
+      ...base
+    ];
+  }else if(q){
+    items = base.filter(c => c.name.toLowerCase().includes(q));
+  }
+
+  CMDK.items = items;
+  CMDK.idx = clamp(CMDK.idx, 0, Math.max(0, items.length-1));
+
+  list.innerHTML = "";
+  if(items.length === 0){
+    const div = document.createElement("div");
+    div.className = "cmdkItem";
+    div.innerHTML = `<div class="muted">No matches. Try typing “export” or a date like 2026-01-01.</div>`;
+    list.appendChild(div);
+    return;
+  }
+
+  items.forEach((c,i)=>{
+    const div = document.createElement("div");
+    div.className = "cmdkItem" + (i===CMDK.idx ? " active" : "");
+    div.innerHTML = `<div>${escapeHtml(c.name)}</div><div class="kbd">${escapeHtml(c.k||"")}</div>`;
+    div.addEventListener("click", ()=>{
+      closeCmdk();
+      Promise.resolve().then(()=>c.run()).catch(e=>alert(String(e?.message||e)));
+    });
+    list.appendChild(div);
+  });
+}
+
+document.addEventListener("keydown", (e)=>{
+  const isCmdK = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k";
+  if(isCmdK){
+    e.preventDefault();
+    if(CMDK.open) closeCmdk();
+    else openCmdk();
+    return;
+  }
+  if(!CMDK.open) return;
+
+  if(e.key === "Escape"){ e.preventDefault(); closeCmdk(); return; }
+  if(e.key === "ArrowDown"){ e.preventDefault(); CMDK.idx = clamp(CMDK.idx+1, 0, CMDK.items.length-1); updateCmdkList(); return; }
+  if(e.key === "ArrowUp"){ e.preventDefault(); CMDK.idx = clamp(CMDK.idx-1, 0, CMDK.items.length-1); updateCmdkList(); return; }
+  if(e.key === "Enter"){
+    e.preventDefault();
+    const item = CMDK.items[CMDK.idx];
+    if(item){
+      closeCmdk();
+      Promise.resolve().then(()=>item.run()).catch(err=>alert(String(err?.message||err)));
+    }
+    return;
+  }
+});
+
+document.getElementById("cmdk").addEventListener("click", (e)=>{
+  if(e.target && e.target.id === "cmdk") closeCmdk();
+});
+document.getElementById("cmdkInput").addEventListener("input", ()=> updateCmdkList());
+
+function renderAll(){
+  renderLog();
+  renderDashboard();
+  renderInsights();
+  renderMonthly();
+  // Lab is only rendered when opened, but safe:
+  // renderLab();
 }
 
 function renderMonthly(){
-  const entries = sortEntriesAsc(state.entries);
+  const entries = sortAsc(state.entries);
   const byMonth = {};
   for(const e of entries){
     const m = e.date.slice(0,7);
@@ -1287,85 +3709,24 @@ function renderMonthly(){
 }
 
 /* ---------------------------
-   Charts
---------------------------- */
-function renderLineChart(existing, canvasId, labels, series, opts){
-  const ctx = document.getElementById(canvasId);
-  if(existing) existing.destroy();
-
-  const datasets = series.map(s => ({
-    label: s.label,
-    data: s.data,
-    spanGaps: true,
-    borderWidth: 2,
-    pointRadius: 0,
-    tension: 0.25
-  }));
-
-  return new Chart(ctx, {
-    type: "line",
-    data: { labels, datasets },
-    options: {
-      responsive:true,
-      maintainAspectRatio:false,
-      plugins: {
-        legend: { labels: { color: "#e5e7eb" } },
-        tooltip: { mode:"index", intersect:false }
-      },
-      scales: {
-        x: { ticks: { color:"#9ca3af" }, grid: { color:"rgba(31,41,55,.6)" } },
-        y: {
-          ticks: { color:"#9ca3af" },
-          grid: { color:"rgba(31,41,55,.6)" },
-          suggestedMin: opts?.yMin ?? undefined,
-          suggestedMax: opts?.yMax ?? undefined
-        }
-      }
-    }
-  });
-}
-
-function renderBarChart(existing, canvasId, labels, values, label="Value", yOpts){
-  const ctx = document.getElementById(canvasId);
-  if(existing) existing.destroy();
-  return new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [{
-        label,
-        data: values,
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive:true,
-      maintainAspectRatio:false,
-      plugins: { legend: { labels: { color:"#e5e7eb" } } },
-      scales: {
-        x: { ticks: { color:"#9ca3af" }, grid: { color:"rgba(31,41,55,.6)" } },
-        y: {
-          ticks: { color:"#9ca3af" },
-          grid: { color:"rgba(31,41,55,.6)" },
-          suggestedMin: yOpts?.yMin ?? undefined,
-          suggestedMax: yOpts?.yMax ?? undefined
-        }
-      }
-    }
-  });
-}
-
-/* ---------------------------
    Init
 --------------------------- */
 function init(){
+  applyTheme();
+  state = repairState(state);
+  saveState();
+
   setFormDefaults();
   renderSettings();
   renderLog();
-  els.hVal.textContent = `(${Number(els.fHappy.value).toFixed(1)})`;
+
+  // Default dashboard range preset if empty
+  els.rangePreset.value = state.settings.dashRange?.preset || "30d";
+  els.rangeFrom.value = state.settings.dashRange?.from || "";
+  els.rangeTo.value = state.settings.dashRange?.to || "";
+  updateRangeUI();
 }
 init();
 </script>
-
 </body>
 </html>
