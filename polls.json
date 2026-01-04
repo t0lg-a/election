@@ -2,7 +2,7 @@
   "updated_at": "2026-01-04T10:58:55.280Z",
   "polls": [
     {
-      "id": "gen202cygjt8f4fjs",
+      "id": "gen202cygjt8f4fjs", 
       "poll_type": "generic-ballot",
       "sample_size": 1500,
       "population": "lv",
