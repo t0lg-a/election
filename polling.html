@@ -279,6 +279,34 @@
   <main>
     <div id="globalStatus" class="alert info">Initializing...</div>
 
+    <!-- Approval Card -->
+    <div class="card">
+      <h2>
+        Presidential Approval
+        <span class="small" style="font-weight: 400;">Approve vs Disapprove</span>
+      </h2>
+      
+      <div class="stats-row" id="approvalStats">
+        <div class="stat-box">
+          <div class="stat-label">Approve Avg</div>
+          <div class="stat-value">--</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Disapprove Avg</div>
+          <div class="stat-value">--</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total Polls</div>
+          <div class="stat-value">--</div>
+        </div>
+      </div>
+
+      <div id="approvalChart" class="plot-container"></div>
+      <div class="small" style="margin-top: 0.5rem">
+        Includes "Strongly" variations where available.
+      </div>
+    </div>
+    
     <!-- Generic Ballot Card -->
     <div class="card">
       <h2>
@@ -307,38 +335,12 @@
       </div>
     </div>
 
-    <!-- Approval Card -->
-    <div class="card">
-      <h2>
-        Presidential Approval
-        <span class="small" style="font-weight: 400;">Approve vs Disapprove</span>
-      </h2>
-      
-      <div class="stats-row" id="approvalStats">
-        <div class="stat-box">
-          <div class="stat-label">Approve Avg</div>
-          <div class="stat-value">--</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Disapprove Avg</div>
-          <div class="stat-value">--</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Total Polls</div>
-          <div class="stat-value">--</div>
-        </div>
-      </div>
 
-      <div id="approvalChart" class="plot-container"></div>
-      <div class="small" style="margin-top: 0.5rem">
-        Includes "Strongly" variations where available.
-      </div>
-    </div>
 
     <div class="card">
-      <h2>Pollster Inclusion</h2>
+      <h2>Trusted Pollsters</h2>
       <div class="small">
-        <strong>Current Mode:</strong> <span id="filterModeText">Strict Allowlist</span>
+        <strong>Current Mode:</strong> <span id="filterModeText">Filtered List</span>
         <br>
         Showing polls from the following sources:
       </div>
