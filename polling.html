@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VoteHub Polls Dashboard</title>
+  <title>Polls</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🇺🇸</text></svg>">
   
   <!-- Load Plotly from CDN -->
@@ -262,8 +262,8 @@
 
   <header>
     <div>
-      <h1>🇺🇸 VoteHub Dashboard</h1>
-      <div class="subtitle">Real-time Polling Aggregation & Trends</div>
+      <h1>Polls</h1>
+      <div class="subtitle">Polling Aggregation powered by VoteHub</div>
     </div>
     <div class="controls">
       <div id="loadingIndicator" style="display:none; color: var(--primary);">
@@ -271,13 +271,13 @@
       </div>
       <label class="toggle" title="Toggle between a strict quality filter and all data">
         <input type="checkbox" id="toggleFilter" checked onchange="app.refreshViews()">
-        <span>Strict Filter</span>
+        <span>Filter</span>
       </label>
     </div>
   </header>
 
   <main>
-    <div id="globalStatus" class="alert info">Initializing dashboard...</div>
+    <div id="globalStatus" class="alert info">Initializing...</div>
 
     <!-- Generic Ballot Card -->
     <div class="card">
@@ -288,7 +288,7 @@
       
       <div class="stats-row" id="gbStats">
         <div class="stat-box">
-          <div class="stat-label">Democrat Avg</div>
+          <div class="stat-label">Democratic Avg</div>
           <div class="stat-value">--</div>
         </div>
         <div class="stat-box">
