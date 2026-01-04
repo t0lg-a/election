@@ -4,7 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>VoteHub Polls Dashboard (Selected Pollsters)</title>
+
+  <!-- Plotly for charts -->
   <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
   <style>
     :root { color-scheme: light dark; }
     body { margin: 0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; line-height: 1.35; }
@@ -17,7 +20,7 @@
     #status { font-size: 12px; opacity: 0.92; margin-bottom: 10px; white-space: pre-wrap; }
     .plot { width: 100%; height: 520px; }
     .small { font-size: 12px; opacity: 0.85; white-space: pre-wrap; }
-    code.inline { padding: 1px 5px; border: 1px solid rgba(127,127,127,0.35); border-radius: 6px; font-size: 12px; }
+    code.inline { padding: 1px 6px; border: 1px solid rgba(127,127,127,0.35); border-radius: 6px; font-size: 12px; }
     #debugCard { display: none; }
   </style>
 </head>
@@ -26,8 +29,7 @@
   <header>
     <h1>Polling Dashboard (restricted pollster list)</h1>
     <div class="meta">
-      Static client-side dashboard. Rolling averages: 14d (approval), 30d (generic ballot).
-      Debug: add <code class="inline">?debug=1</code>.
+      VoteHub API + rolling averages. Debug: <code class="inline">?debug=1</code>
     </div>
   </header>
 
@@ -58,30 +60,38 @@
   </main>
 
 <script>
-/* -------------------- Config -------------------- */
+/* -------------------- CONFIG -------------------- */
 
-// Try both bases because deployments sometimes mount routes differently.
-const API_BASE_CANDIDATES = [
-  "https://api.votehub.com/polls",
-  "https://api.votehub.com/polls/polls"
-];
+const API_BASE = "https://api.votehub.com/polls";
 
-// If the browser blocks cross-origin requests to api.votehub.com, this fallback can still work on GitHub Pages.
-// Disable by adding ?proxy=0
-const PROXY_PREFIXES = (new URLSearchParams(location.search).get("proxy") === "0")
-  ? [""]
-  : ["", "https://r.jina.ai/http://"];
+// If direct browser fetch is blocked by CORS, we try these public CORS proxies.
+// Disable proxies with ?proxy=0
+const PROXY_TEMPLATES = (new URLSearchParams(location.search).get("proxy") === "0")
+  ? [
+      { name: "direct", make: (url) => url },
+    ]
+  : [
+      { name: "direct",     make: (url) => url },
+      { name: "allorigins", make: (url) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url) },
+      { name: "corsproxy",  make: (url) => "https://corsproxy.io/?" + encodeURIComponent(url) },
+      { name: "codetabs",   make: (url) => "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(url) },
+    ];
 
 const DEBUG = new URLSearchParams(location.search).has("debug");
 
 const APPROVAL_WINDOW_DAYS = 14;
 const GB_WINDOW_DAYS = 30;
-
-// How far back to request from VoteHub.
 const LOOKBACK_DAYS = 400;
 
-/* -------------------- Pollster allowlist -------------------- */
+// Subjects to try (VoteHub accepts dashes/spaces; we try a few to avoid “0 polls” from slug mismatch)
+const APPROVAL_SUBJECT_CANDIDATES = [
+  "donald-trump",
+  "donald trump",
+  "Donald Trump",
+  "trump",
+];
 
+// Your pollster allowlist. Implemented as robust string patterns.
 const ALLOWED_POLLSTERS = [
   { label: "YouGov", pattern: /yougov/ },
   { label: "Ipsos", pattern: /ipsos/ },
@@ -105,20 +115,33 @@ const ALLOWED_POLLSTERS = [
   { label: "University of Massachusetts Dept. of Political Science/YouGov", pattern: /massachusetts|umass|departmentofpoliticalscience/ }
 ];
 
-/* -------------------- Utilities -------------------- */
+/* -------------------- UI HELPERS -------------------- */
 
 const debugCard = document.getElementById("debugCard");
-const debugOut = document.getElementById("debugOut");
+const debugOut  = document.getElementById("debugOut");
 if (DEBUG) debugCard.style.display = "block";
+
+function setStatus(msg) {
+  document.getElementById("status").textContent = msg;
+}
 
 function logDebug(msg) {
   if (!DEBUG) return;
   debugOut.textContent += (debugOut.textContent ? "\n" : "") + String(msg);
 }
 
-function setStatus(msg) {
-  document.getElementById("status").textContent = msg;
-}
+window.addEventListener("error", (e) => {
+  setStatus(`Runtime error: ${e.message || e.type}\nOpen with ?debug=1`);
+  logDebug(`window.error: ${e.message}\n${e.filename}:${e.lineno}:${e.colno}`);
+});
+
+window.addEventListener("unhandledrejection", (e) => {
+  const msg = (e && e.reason && e.reason.message) ? e.reason.message : String(e.reason || e);
+  setStatus(`Unhandled promise rejection: ${msg}\nOpen with ?debug=1`);
+  logDebug(`unhandledrejection: ${msg}`);
+});
+
+/* -------------------- DATA / MATH HELPERS -------------------- */
 
 function ensurePlotly() {
   if (!window.Plotly || typeof Plotly.newPlot !== "function") {
@@ -170,9 +193,14 @@ function rollingMeanDaily(points, windowDays) {
   for (let t = minD.getTime(); t <= maxD.getTime(); t += msDay) {
     const day = new Date(t);
 
-    while (j < pts.length && pts[j].date.getTime() <= day.getTime()) { sum += pts[j].value; j++; }
+    while (j < pts.length && pts[j].date.getTime() <= day.getTime()) {
+      sum += pts[j].value; j++;
+    }
+
     const threshold = day.getTime() - windowMs;
-    while (i < j && pts[i].date.getTime() <= threshold) { sum -= pts[i].value; i++; }
+    while (i < j && pts[i].date.getTime() <= threshold) {
+      sum -= pts[i].value; i++;
+    }
 
     const n = j - i;
     if (n > 0) out.push({ date: day, value: sum / n, n });
@@ -190,7 +218,7 @@ function buildPollsterCounts(points) {
   return [...counts.entries()].sort((a,b) => b[1] - a[1]);
 }
 
-// Match answer labels loosely (VoteHub answers aren’t always identical across polls).
+// Match answer labels loosely
 function choiceMatches(choice, wanted) {
   const c = norm(choice);
   const w = norm(wanted);
@@ -208,8 +236,10 @@ function getAnswerPct(poll, wantedChoices) {
 }
 
 function parseJsonRobust(text) {
+  // Prefer direct parse
   try { return JSON.parse(text); } catch (_) {}
 
+  // Some proxies prepend junk; try slicing to the first JSON bracket/brace.
   const firstBrace = text.indexOf("{");
   const firstBracket = text.indexOf("[");
   let start = -1, end = -1;
@@ -226,20 +256,23 @@ function parseJsonRobust(text) {
     return JSON.parse(text.slice(start, end + 1));
   }
 
-  throw new Error("Could not parse JSON.");
+  throw new Error("Could not parse JSON from response text.");
 }
 
 function extractPollArray(json) {
-  if (Array.isArray(json)) return json;
+  // VoteHub docs show { polls: [...] }
   if (json && Array.isArray(json.polls)) return json.polls;
+
+  // Some APIs nest in "data"
+  if (json && json.data && Array.isArray(json.data.polls)) return json.data.polls;
+
+  // Some endpoints might return a raw array
+  if (Array.isArray(json)) return json;
+
   return null;
 }
 
-function proxyUrl(rawUrl, prefix) {
-  if (!prefix) return rawUrl;
-  // r.jina.ai/http://example.com/path... (no scheme in tail)
-  return prefix + rawUrl.replace(/^https?:\/\//, "");
-}
+/* -------------------- FETCHING -------------------- */
 
 async function fetchTextWithTimeout(url, timeoutMs = 20000) {
   const ctrl = new AbortController();
@@ -258,56 +291,72 @@ async function fetchTextWithTimeout(url, timeoutMs = 20000) {
   }
 }
 
-function renderPollsterList() {
-  document.getElementById("pollsterList").textContent =
-    ALLOWED_POLLSTERS.map(x => `• ${x.label}`).join("\n");
+function looksLikeProxyError(json) {
+  // Handle the specific “proxy wrapper” style errors (like the one you pasted).
+  // Example keys: code, status, data, meta; data.warning mentions target URL error
+  if (!json || typeof json !== "object") return false;
+  if (!("code" in json) || !("data" in json)) return false;
+  const d = json.data;
+  if (d && typeof d === "object" && typeof d.warning === "string" && d.warning.toLowerCase().includes("target url returned error")) {
+    return true;
+  }
+  return false;
 }
 
-/* -------------------- Fetching logic -------------------- */
+async function fetchPollsSmart(paramsObj) {
+  // paramsObj is a plain object; we build a query string once.
+  const qs = new URLSearchParams(paramsObj).toString();
+  const targetUrl = `${API_BASE}?${qs}`;
 
-// This fetcher will:
-// - try both API base paths
-// - try direct first, then proxy fallback (unless disabled)
-// - throw an error with diagnostics if everything fails
-async function fetchPollsSmart(queryString) {
   let lastDiag = null;
 
-  for (const base of API_BASE_CANDIDATES) {
-    const rawUrl = `${base}?${queryString}`;
-    for (const px of PROXY_PREFIXES) {
-      const u = proxyUrl(rawUrl, px);
-      try {
-        const { res, ct, text } = await fetchTextWithTimeout(u);
-        if (!res.ok) {
-          lastDiag = `HTTP ${res.status} for ${u}\ncontent-type=${ct}\nbody(head)=${text.slice(0, 220)}`;
-          logDebug(lastDiag);
-          continue;
-        }
+  for (const tpl of PROXY_TEMPLATES) {
+    const attemptUrl = tpl.make(targetUrl);
 
-        const json = parseJsonRobust(text);
-        const polls = extractPollArray(json);
+    try {
+      const { res, ct, text } = await fetchTextWithTimeout(attemptUrl);
 
-        if (!polls) {
-          const keys = (json && typeof json === "object") ? Object.keys(json).slice(0, 20).join(", ") : "(not an object)";
-          lastDiag = `Unexpected JSON shape for ${u}\nkeys=${keys}\nbody(head)=${text.slice(0, 220)}`;
-          logDebug(lastDiag);
-          continue;
-        }
-
-        logDebug(`FETCH OK: ${u} items=${polls.length}`);
-        return polls;
-      } catch (e) {
-        lastDiag = `Fetch/parse error for ${u}: ${e && e.message ? e.message : String(e)}`;
+      // CORS failures will usually throw before here; non-OK still gives us payload.
+      if (!res.ok) {
+        lastDiag = `HTTP ${res.status} via ${tpl.name}\nurl=${attemptUrl}\ncontent-type=${ct}\nbody(head)=${text.slice(0, 240)}`;
         logDebug(lastDiag);
         continue;
       }
+
+      const json = parseJsonRobust(text);
+
+      if (looksLikeProxyError(json)) {
+        lastDiag = `Proxy wrapper error via ${tpl.name}\nurl=${attemptUrl}\nbody(head)=${text.slice(0, 240)}`;
+        logDebug(lastDiag);
+        continue;
+      }
+
+      const polls = extractPollArray(json);
+      if (!polls) {
+        const keys = (json && typeof json === "object") ? Object.keys(json).slice(0, 25).join(", ") : "(not an object)";
+        lastDiag = `Unexpected JSON shape via ${tpl.name}\nurl=${attemptUrl}\nkeys=${keys}\nbody(head)=${text.slice(0, 240)}`;
+        logDebug(lastDiag);
+        continue;
+      }
+
+      logDebug(`FETCH OK via ${tpl.name}: items=${polls.length}`);
+      return { polls, via: tpl.name, url: attemptUrl };
+    } catch (e) {
+      lastDiag = `Fetch/parse error via ${tpl.name}\nurl=${attemptUrl}\nerr=${e && e.message ? e.message : String(e)}`;
+      logDebug(lastDiag);
+      continue;
     }
   }
 
   throw new Error(lastDiag || "Failed to fetch polls (no diagnostic).");
 }
 
-/* -------------------- Rendering -------------------- */
+/* -------------------- RENDERING -------------------- */
+
+function renderPollsterList() {
+  document.getElementById("pollsterList").textContent =
+    ALLOWED_POLLSTERS.map(x => `• ${x.label}`).join("\n");
+}
 
 function renderApproval(points, maSeries, meta) {
   ensurePlotly();
@@ -412,17 +461,7 @@ function renderGenericBallot(points, maSeries, meta) {
   ].filter(Boolean).join(" ");
 }
 
-/* -------------------- Main -------------------- */
-
-window.addEventListener("error", (e) => {
-  setStatus(`Runtime error: ${e.message || e.type}\nOpen with ?debug=1 for details.`);
-  logDebug(`window.error: ${e.message}\n${e.filename}:${e.lineno}:${e.colno}`);
-});
-window.addEventListener("unhandledrejection", (e) => {
-  const msg = (e && e.reason && e.reason.message) ? e.reason.message : String(e.reason || e);
-  setStatus(`Unhandled promise rejection: ${msg}\nOpen with ?debug=1 for details.`);
-  logDebug(`unhandledrejection: ${msg}`);
-});
+/* -------------------- MAIN -------------------- */
 
 async function main() {
   renderPollsterList();
@@ -431,50 +470,60 @@ async function main() {
   const from = new Date(now.getTime() - LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
   const fromISO = from.toISOString().slice(0, 10);
 
-  // Trump approval: try a couple of likely subject slugs to avoid “0 polls because slug mismatch”.
-  const approvalSubjects = ["donald-trump", "trump"];
-
   setStatus(
 `Loading…
 Lookback: ${LOOKBACK_DAYS} days (from ${fromISO})
-Proxy fallback: ${PROXY_PREFIXES.includes("https://r.jina.ai/http://") ? "enabled" : "disabled"}`
+Proxy attempts: ${PROXY_TEMPLATES.map(p => p.name).join(", ")}`
   );
 
-  // Fetch approval (first subject that returns any items; if all are empty, keep the last empty)
+  // ---- Approval fetch (try subject candidates) ----
   let approvalRaw = [];
-  let approvalUsedSubject = approvalSubjects[0];
-  for (const subj of approvalSubjects) {
-    const qs = new URLSearchParams({
+  let approvalVia = "(none)";
+  let approvalUrlUsed = "(none)";
+  let approvalSubjectUsed = "(none)";
+  let approvalFetchTotal = 0;
+
+  for (const subj of APPROVAL_SUBJECT_CANDIDATES) {
+    const { polls, via, url } = await fetchPollsSmart({
       poll_type: "approval",
       subject: subj,
       from_date: fromISO
-    }).toString();
+    });
 
-    const data = await fetchPollsSmart(qs);
-    approvalUsedSubject = subj;
-    approvalRaw = data;
-    if (data.length > 0) break;
+    approvalFetchTotal = polls.length;
+    approvalRaw = polls;
+    approvalVia = via;
+    approvalUrlUsed = url;
+    approvalSubjectUsed = subj;
+
+    // accept the first non-empty result, else keep trying
+    if (polls.length > 0) break;
   }
 
-  // Fetch generic ballot
-  const gbQs = new URLSearchParams({
+  // ---- Generic ballot fetch ----
+  const gbPack = await fetchPollsSmart({
     poll_type: "generic-ballot",
     from_date: fromISO
-  }).toString();
+  });
+  const gbRaw = gbPack.polls;
+  const gbVia = gbPack.via;
+  const gbUrlUsed = gbPack.url;
 
-  const gbRaw = await fetchPollsSmart(gbQs);
+  logDebug(`Approval via=${approvalVia} subject=${approvalSubjectUsed} raw=${approvalRaw.length}`);
+  logDebug(`Approval url=${approvalUrlUsed}`);
+  logDebug(`GB via=${gbVia} raw=${gbRaw.length}`);
+  logDebug(`GB url=${gbUrlUsed}`);
 
-  logDebug(`Approval raw count=${approvalRaw.length} subject=${approvalUsedSubject}`);
-  logDebug(`GB raw count=${gbRaw.length}`);
-
-  // Process approval
+  // ---- Process approval ----
   const approvalFiltered = approvalRaw
     .filter(p => isAllowedPollster(p.pollster))
     .map(p => {
       const approve = getAnswerPct(p, ["Approve", "Approval", "Yes"]);
       const disapprove = getAnswerPct(p, ["Disapprove", "Disapproval", "No"]);
       const date = p.end_date ? parseDateYYYYMMDD(p.end_date) : null;
+
       if (!date || approve == null || !Number.isFinite(approve)) return null;
+
       return {
         date,
         value: Number(approve),
@@ -487,14 +536,23 @@ Proxy fallback: ${PROXY_PREFIXES.includes("https://r.jina.ai/http://") ? "enable
     })
     .filter(Boolean);
 
-  // Process generic ballot
+  const approvalMA = rollingMeanDaily(approvalFiltered, APPROVAL_WINDOW_DAYS);
+
+  // ---- Process generic ballot ----
   const gbFiltered = gbRaw
+    .filter(p => {
+      // keep only the national generic entry if seat_name is present
+      if (p.seat_name == null) return true;
+      return String(p.seat_name).toLowerCase() === "generic";
+    })
     .filter(p => isAllowedPollster(p.pollster))
     .map(p => {
       const dem = getAnswerPct(p, ["Dem", "Democrat", "Democratic", "Democratic Party"]);
       const rep = getAnswerPct(p, ["Rep", "Republican", "GOP", "Republican Party"]);
       const date = p.end_date ? parseDateYYYYMMDD(p.end_date) : null;
+
       if (!date || dem == null || rep == null || !Number.isFinite(dem) || !Number.isFinite(rep)) return null;
+
       return {
         date,
         value: Number(dem) - Number(rep),
@@ -507,9 +565,9 @@ Proxy fallback: ${PROXY_PREFIXES.includes("https://r.jina.ai/http://") ? "enable
     })
     .filter(Boolean);
 
-  const approvalMA = rollingMeanDaily(approvalFiltered, APPROVAL_WINDOW_DAYS);
   const gbMA = rollingMeanDaily(gbFiltered, GB_WINDOW_DAYS);
 
+  // ---- Render charts ----
   renderApproval(approvalFiltered, approvalMA, {
     totalFetched: approvalRaw.length,
     totalIncluded: approvalFiltered.length,
@@ -522,12 +580,10 @@ Proxy fallback: ${PROXY_PREFIXES.includes("https://r.jina.ai/http://") ? "enable
     byPollster: buildPollsterCounts(gbFiltered)
   });
 
-  // If you still see "from 0 fetched", this line will reflect the truth now:
-  // either the fetch failed (you’ll see an error), or VoteHub returned an empty list.
   setStatus(
 `Loaded.
-Approval subject used: ${approvalUsedSubject}
-Fetched: approval=${approvalRaw.length}, generic-ballot=${gbRaw.length}
+Approval: fetched=${approvalRaw.length} via=${approvalVia} subject="${approvalSubjectUsed}"
+Generic ballot: fetched=${gbRaw.length} via=${gbVia}
 Included after pollster filter: approval=${approvalFiltered.length}, generic-ballot=${gbFiltered.length}
 Last refresh: ${new Date().toLocaleString()}`
   );
