@@ -580,6 +580,7 @@ async function fetchPolls(type, extraParams = {}) {
   for (const uri of candidates) {
     try {
       log(`Fetching: ${uri}`);
+      const res = await fetchWithTimeout(uri); 
       const res = await fetch('./polls.json'); 
       if (!res.ok) throw new Error(`Status ${res.status}`);
       
