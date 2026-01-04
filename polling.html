@@ -2,791 +2,842 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Polling Dashboard</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VoteHub Polls Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🇺🇸</text></svg>">
+  
+  <!-- Load Plotly from CDN -->
   <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
-
+  
   <style>
-    :root{
-      --bg: #0b0d10;
-      --panel: rgba(255,255,255,0.06);
-      --panel2: rgba(255,255,255,0.08);
-      --border: rgba(255,255,255,0.10);
-      --text: rgba(255,255,255,0.92);
-      --muted: rgba(255,255,255,0.68);
-      --muted2: rgba(255,255,255,0.52);
-      --shadow: 0 12px 34px rgba(0,0,0,0.35);
-      --radius: 16px;
-      --radius2: 12px;
-      --pad: 14px;
-      --pad2: 18px;
-      --maxw: 1180px;
-
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    :root {
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      
+      /* Brand Colors */
+      --primary: #2563eb;   /* Dem Blue */
+      --danger: #dc2626;    /* Rep Red */
+      --success: #16a34a;   /* Approve Green */
+      --neutral: #475569;
     }
 
-    @media (prefers-color-scheme: light) {
-      :root{
-        --bg: #f6f7fb;
-        --panel: rgba(0,0,0,0.04);
-        --panel2: rgba(0,0,0,0.06);
-        --border: rgba(0,0,0,0.10);
-        --text: rgba(0,0,0,0.88);
-        --muted: rgba(0,0,0,0.62);
-        --muted2: rgba(0,0,0,0.46);
-        --shadow: 0 10px 28px rgba(0,0,0,0.10);
+    /* Dark Mode Overrides */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-body: #020617;
+        --bg-card: #1e293b;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border: #334155;
+        --primary: #60a5fa;
+        --danger: #f87171;
+        --success: #4ade80;
       }
     }
 
-    *{ box-sizing: border-box; }
-    html,body{ height: 100%; }
-    body{
+    body {
       margin: 0;
-      font-family: var(--sans);
-      color: var(--text);
-      background:
-        radial-gradient(1200px 700px at 10% 5%, rgba(130,170,255,0.14), transparent 60%),
-        radial-gradient(900px 500px at 95% 10%, rgba(255,130,200,0.10), transparent 55%),
-        radial-gradient(1200px 800px at 50% 100%, rgba(120,255,210,0.08), transparent 60%),
-        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .wrap{ max-width: var(--maxw); margin: 0 auto; padding: 18px 16px 34px; }
-    header{
-      display:flex; gap: 14px; align-items: flex-start; justify-content: space-between;
-      padding: 14px 2px 8px;
+    /* Header */
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
     }
-    .title{
-      display:flex; flex-direction: column; gap: 6px;
+
+    header h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text-main);
     }
-    h1{
-      margin:0;
-      font-size: 18px;
+
+    header .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 1.25rem;
+      align-items: center;
+      font-size: 0.875rem;
+    }
+
+    label.toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    label.toggle input {
+      accent-color: var(--primary);
+      width: 1rem;
+      height: 1rem;
+      margin-right: 0.5rem;
+    }
+
+    /* Layout */
+    main {
+      padding: 2rem 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.2s;
+    }
+    
+    .card:hover {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h2 {
+      margin: 0 0 1.25rem 0;
+      font-size: 1.125rem;
       font-weight: 700;
-      letter-spacing: 0.2px;
-    }
-    .sub{
-      margin:0;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-    .rightmeta{
-      display:flex; flex-direction: column; align-items: flex-end; gap: 8px;
-      min-width: 260px;
-    }
-    .chips{ display:flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
-    .chip{
-      display:inline-flex; align-items:center; gap:8px;
-      padding: 7px 10px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      border-radius: 999px;
-      font-size: 12px;
-      color: var(--muted);
-      box-shadow: none;
-      white-space: nowrap;
-    }
-    .dot{
-      width: 8px; height: 8px; border-radius: 999px;
-      background: rgba(255,255,255,0.45);
-      border: 1px solid var(--border);
-    }
-    @media (prefers-color-scheme: light){
-      .dot{ background: rgba(0,0,0,0.25); }
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-      margin-top: 10px;
-    }
-    @media (min-width: 980px){
-      .grid{ grid-template-columns: 1fr 1fr; }
-    }
-
-    .card{
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, var(--panel2), var(--panel));
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+    /* Charts */
+    .plot-container {
+      width: 100%;
+      height: 450px;
+      position: relative;
+      border-radius: 0.5rem;
       overflow: hidden;
     }
-    .cardHead{
-      padding: 14px 16px 10px;
-      border-bottom: 1px solid var(--border);
-      display:flex; justify-content: space-between; gap: 10px; align-items: flex-start;
-    }
-    .cardHead h2{
-      margin: 0;
-      font-size: 14px;
-      font-weight: 680;
-      letter-spacing: 0.2px;
-    }
-    .cardHead .hint{
-      margin-top: 4px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-    .cardBody{ padding: 10px 10px 14px; }
-    .plot{ width: 100%; height: 480px; }
 
-    .footerRow{
-      display:flex; justify-content: space-between; align-items: center; gap: 10px;
-      padding: 0 16px 14px;
-      color: var(--muted2);
-      font-size: 12px;
+    /* Stats Grid */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
     }
-    .mono{ font-family: var(--mono); }
 
-    .statusBox{
-      margin-top: 10px;
+    .stat-box {
+      background: var(--bg-body);
+      padding: 1rem;
+      border-radius: 0.75rem;
       border: 1px solid var(--border);
-      background: var(--panel);
-      border-radius: var(--radius2);
-      padding: 12px 14px;
-      font-size: 12px;
-      color: var(--muted);
-      white-space: pre-wrap;
-      box-shadow: none;
+      display: flex;
+      flex-direction: column;
     }
 
-    .pollstersCard{
-      margin-top: 14px;
-      padding: 14px 16px 16px;
-    }
-    .pillWrap{ display:flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .pill{
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      font-size: 12px;
-      color: var(--muted);
+    .stat-label { 
+      font-size: 0.7rem; 
+      color: var(--text-muted); 
+      text-transform: uppercase; 
+      letter-spacing: 0.05em; 
+      font-weight: 600;
+      margin-bottom: 0.25rem;
     }
 
-    .skeleton{
-      height: 480px;
-      border-radius: var(--radius2);
-      background: linear-gradient(90deg,
-        rgba(255,255,255,0.05),
-        rgba(255,255,255,0.10),
-        rgba(255,255,255,0.05)
-      );
-      background-size: 200% 100%;
-      animation: shimmer 1.2s infinite linear;
+    .stat-value { 
+      font-size: 1.5rem; 
+      font-weight: 700; 
+      line-height: 1.2;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
     }
-    @media (prefers-color-scheme: light){
-      .skeleton{
-        background: linear-gradient(90deg,
-          rgba(0,0,0,0.04),
-          rgba(0,0,0,0.08),
-          rgba(0,0,0,0.04)
-        );
-      }
-    }
-    @keyframes shimmer { 0%{background-position: 0% 0;} 100%{background-position: 200% 0;} }
 
-    details{
-      margin-top: 12px;
+    .trend-indicator {
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.1rem 0.4rem;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .trend-up { color: var(--success); background: rgba(22, 163, 74, 0.1); }
+    .trend-down { color: var(--danger); background: rgba(220, 38, 38, 0.1); }
+    .trend-flat { color: var(--text-muted); background: rgba(148, 163, 184, 0.1); }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      border-top: 1px solid var(--border);
+      background: var(--bg-card);
+      margin-top: auto;
+    }
+
+    .small {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    #pollsterList {
+      max-height: 120px;
+      overflow-y: auto;
+      padding: 0.75rem;
+      background: var(--bg-body);
+      border-radius: 0.5rem;
       border: 1px solid var(--border);
-      background: var(--panel);
-      border-radius: var(--radius2);
-      padding: 10px 12px;
-      color: var(--muted);
-      font-size: 12px;
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
-    summary{ cursor: pointer; user-select: none; font-weight: 650; color: var(--muted); }
-    pre{
-      margin: 10px 0 0;
-      padding: 10px 10px;
-      border-radius: 10px;
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.125rem 0.625rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background-color: var(--bg-card);
       border: 1px solid var(--border);
-      background: rgba(0,0,0,0.16);
-      overflow:auto;
-      color: var(--muted);
+      color: var(--text-main);
     }
-    @media (prefers-color-scheme: light){
-      pre{ background: rgba(0,0,0,0.04); }
+
+    /* Alerts */
+    .alert {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+      display: none;
+      animation: fadeIn 0.3s ease-in;
     }
+    .alert.info { background: rgba(37, 99, 235, 0.1); color: var(--primary); border: 1px solid rgba(37, 99, 235, 0.2); }
+    .alert.error { background: rgba(220, 38, 38, 0.1); color: var(--danger); border: 1px solid rgba(220, 38, 38, 0.2); }
+    .alert.warn { background: rgba(245, 158, 11, 0.1); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.2); }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Loading Spinner */
+    .animate-spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    #debugCard { display: none; margin-top: 2rem; }
+    #debugOut { background: #000; color: #0f0; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <header>
-      <div class="title">
-        <h1>Polling Dashboard</h1>
-        <p class="sub">
-          VoteHub API • Filtered to your pollsters • Rolling averages: 14d approval, 30d generic ballot.
-        </p>
+
+  <header>
+    <div>
+      <h1>🇺🇸 VoteHub Dashboard</h1>
+      <div class="subtitle">Real-time Polling Aggregation & Trends</div>
+    </div>
+    <div class="controls">
+      <div id="loadingIndicator" style="display:none; color: var(--primary);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+      </div>
+      <label class="toggle" title="Toggle between a strict quality filter and all data">
+        <input type="checkbox" id="toggleFilter" checked onchange="app.refreshViews()">
+        <span>Strict Filter</span>
+      </label>
+    </div>
+  </header>
+
+  <main>
+    <div id="globalStatus" class="alert info">Initializing dashboard...</div>
+
+    <!-- Generic Ballot Card -->
+    <div class="card">
+      <h2>
+        Generic Ballot
+        <span class="small" style="font-weight: 400;">Dem vs Rep</span>
+      </h2>
+      
+      <div class="stats-row" id="gbStats">
+        <div class="stat-box">
+          <div class="stat-label">Democrat Avg</div>
+          <div class="stat-value">--</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Republican Avg</div>
+          <div class="stat-value">--</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total Polls</div>
+          <div class="stat-value">--</div>
+        </div>
       </div>
 
-      <div class="rightmeta">
-        <div class="chips">
-          <div class="chip"><span class="dot"></span><span id="chipStatus">Loading…</span></div>
-          <div class="chip"><span class="mono" id="chipUpdated">—</span></div>
-        </div>
-        <div class="chips">
-          <div class="chip">Approval avg: <span class="mono" id="chipApAvg">—</span></div>
-          <div class="chip">GB avg: <span class="mono" id="chipGbAvg">—</span></div>
-        </div>
+      <div id="gbChart" class="plot-container"></div>
+      <div class="small" style="margin-top: 0.5rem">
+        Hover over dots to see poll details. Hover over chart area to track trends.
       </div>
-    </header>
-
-    <div id="status" class="statusBox">Booting…</div>
-
-    <div class="grid">
-      <section class="card">
-        <div class="cardHead">
-          <div>
-            <h2>Trump approval</h2>
-            <div class="hint">Scatter + 14-day rolling average</div>
-          </div>
-        </div>
-        <div class="cardBody">
-          <div id="approvalChart" class="plot">
-            <div class="skeleton"></div>
-          </div>
-        </div>
-        <div class="footerRow">
-          <div id="approvalNote">—</div>
-        </div>
-      </section>
-
-      <section class="card">
-        <div class="cardHead">
-          <div>
-            <h2>Generic ballot</h2>
-            <div class="hint">Dem − Rep margin • Scatter + 30-day rolling average</div>
-          </div>
-        </div>
-        <div class="cardBody">
-          <div id="gbChart" class="plot">
-            <div class="skeleton"></div>
-          </div>
-        </div>
-        <div class="footerRow">
-          <div id="gbNote">—</div>
-        </div>
-      </section>
     </div>
 
-    <section class="card pollstersCard">
-      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
-        <div>
-          <div style="font-weight:700;font-size:14px;">Included pollsters</div>
-          <div class="sub" style="margin-top:6px;">
-            Exactly your allowlist. If a pollster’s naming differs on VoteHub, the matcher is tolerant.
-          </div>
+    <!-- Approval Card -->
+    <div class="card">
+      <h2>
+        Presidential Approval
+        <span class="small" style="font-weight: 400;">Approve vs Disapprove</span>
+      </h2>
+      
+      <div class="stats-row" id="approvalStats">
+        <div class="stat-box">
+          <div class="stat-label">Approve Avg</div>
+          <div class="stat-value">--</div>
         </div>
-        <div class="chip">No uploads. No buttons. Just data.</div>
+        <div class="stat-box">
+          <div class="stat-label">Disapprove Avg</div>
+          <div class="stat-value">--</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Total Polls</div>
+          <div class="stat-value">--</div>
+        </div>
       </div>
-      <div class="pillWrap" id="pollsterPills"></div>
 
-      <details id="debugDetails" style="display:none;">
-        <summary>Debug</summary>
-        <pre id="debugOut"></pre>
-      </details>
-    </section>
-  </div>
+      <div id="approvalChart" class="plot-container"></div>
+      <div class="small" style="margin-top: 0.5rem">
+        Includes "Strongly" variations where available.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Pollster Inclusion</h2>
+      <div class="small">
+        <strong>Current Mode:</strong> <span id="filterModeText">Strict Allowlist</span>
+        <br>
+        Showing polls from the following sources:
+      </div>
+      <div id="pollsterList"></div>
+    </div>
+
+    <div class="card" id="debugCard">
+      <h2>Debug Log</h2>
+      <pre id="debugOut" class="small"></pre>
+    </div>
+  </main>
+
+  <footer>
+    <p>VoteHub Dashboard &copy; <span id="year"></span>. Data aggregated from public polling sources.</p>
+    <p class="small">Disclaimer: Polls are snapshots in time. Rolling averages may lag behind breaking news.</p>
+  </footer>
 
 <script>
-/* -------------------- CONFIG -------------------- */
+/**
+ * VoteHub Dashboard - Enhanced v3
+ * Updates: 'closest' hover mode + spikelines for better scrubbing experience
+ */
 
-const API_BASE = "https://api.votehub.com/polls";
+const CONFIG = {
+  apiBase: "https://api.votehub.com/polls",
+  lookbackDays: 400,
+  approvalWindow: 14,
+  gbWindow: 30,
+  proxyPrefix: "https://r.jina.ai/http://",
+  debug: new URLSearchParams(location.search).has("debug")
+};
 
-// Turn proxies off with ?proxy=0 (direct only)
-const PROXY_TEMPLATES = (new URLSearchParams(location.search).get("proxy") === "0")
-  ? [{ name: "direct", make: (url) => url }]
-  : [
-      { name: "direct",     make: (url) => url },
-      { name: "allorigins", make: (url) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url) },
-      { name: "corsproxy",  make: (url) => "https://corsproxy.io/?" + encodeURIComponent(url) },
-      { name: "codetabs",   make: (url) => "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(url) },
-    ];
+document.getElementById("year").textContent = new Date().getFullYear();
 
-const DEBUG = new URLSearchParams(location.search).has("debug");
-const LOOKBACK_DAYS = 400;
-const APPROVAL_WINDOW_DAYS = 14;
-const GB_WINDOW_DAYS = 30;
+// State
+const STATE = {
+  approvalData: [],
+  gbData: [],
+  isDemoMode: false,
+  filterStrict: true
+};
 
-const APPROVAL_SUBJECT_CANDIDATES = ["donald-trump","donald trump","Donald Trump","trump"];
-
-/* -------------------- POLLSTER ALLOWLIST -------------------- */
-
+/* -------------------- Pollster Allowlist -------------------- */
 const ALLOWED_POLLSTERS = [
   { label: "YouGov", pattern: /yougov/ },
   { label: "Ipsos", pattern: /ipsos/ },
-  { label: "American Research Group", pattern: /americanresearchgroup|arg\b/ },
-  { label: "TIPP Insights", pattern: /tipp/ },
-  { label: "Emerson College", pattern: /emerson/ },
+  { label: "ARG", pattern: /americanresearchgroup|arg\b/ },
+  { label: "TIPP", pattern: /tipp/ },
+  { label: "Emerson", pattern: /emerson/ },
   { label: "Gallup", pattern: /gallup/ },
-  { label: "Marist College", pattern: /marist/ },
-  { label: "Quinnipiac University", pattern: /quinnipiac/ },
+  { label: "Marist", pattern: /marist/ },
+  { label: "Quinnipiac", pattern: /quinnipiac/ },
   { label: "AP-NORC", pattern: /apnorc|ap\-norc|norc/ },
-  { label: "Marquette University Law School", pattern: /marquette/ },
+  { label: "Marquette", pattern: /marquette/ },
   { label: "CNN/SSRS", pattern: /cnnssrs|cnn\/ssrs|ssrs/ },
   { label: "AtlasIntel", pattern: /atlasintel|atlas/ },
-  { label: "Beacon Research/Shaw & Co. Research", pattern: /beaconresearch|shaw/ },
-  { label: "Hart Research Associates/Public Opinion Strategies", pattern: /hartresearch|publicopinionstrategies/ },
-  { label: "Verasight", pattern: /verasight/ },
-  { label: "Pew Research Center", pattern: /pewresearch|pew/ },
+  { label: "Beacon/Shaw", pattern: /beaconresearch|shaw/ },
+  { label: "Hart/POS", pattern: /hartresearch|publicopinionstrategies/ },
+  { label: "Pew", pattern: /pewresearch|pew/ },
   { label: "SurveyMonkey", pattern: /surveymonkey/ },
-  { label: "The Argument/Verasight", pattern: /theargument/ },
   { label: "Leger", pattern: /leger/ },
-  { label: "University of Massachusetts Dept. of Political Science/YouGov", pattern: /massachusetts|umass|departmentofpoliticalscience/ }
+  { label: "UMass", pattern: /massachusetts|umass|departmentofpoliticalscience/ },
+  { label: "NYT/Siena", pattern: /siena|newyorktimes/ },
+  { label: "Fox News", pattern: /foxnews/ },
+  { label: "WSJ", pattern: /wallstreetjournal|wsj/ },
 ];
 
-/* -------------------- UI -------------------- */
+/* -------------------- Utilities -------------------- */
+const $ = (id) => document.getElementById(id);
 
-const $status = document.getElementById("status");
-const $chipStatus = document.getElementById("chipStatus");
-const $chipUpdated = document.getElementById("chipUpdated");
-const $chipApAvg = document.getElementById("chipApAvg");
-const $chipGbAvg = document.getElementById("chipGbAvg");
-
-const $debugDetails = document.getElementById("debugDetails");
-const $debugOut = document.getElementById("debugOut");
-
-function setStatus(msg) { $status.textContent = msg; }
-function setChipStatus(msg) { $chipStatus.textContent = msg; }
-function setUpdated(d) { $chipUpdated.textContent = d; }
-function setChipAp(v) { $chipApAvg.textContent = v; }
-function setChipGb(v) { $chipGbAvg.textContent = v; }
-
-function logDebug(msg) {
-  if (!DEBUG) return;
-  $debugDetails.style.display = "block";
-  $debugOut.textContent += ($debugOut.textContent ? "\n" : "") + String(msg);
-}
-
-window.addEventListener("error", (e) => {
-  setChipStatus("Error");
-  setStatus(`Runtime error: ${e.message || e.type}`);
-  logDebug(`window.error: ${e.message}\n${e.filename}:${e.lineno}:${e.colno}`);
-});
-window.addEventListener("unhandledrejection", (e) => {
-  const msg = (e && e.reason && e.reason.message) ? e.reason.message : String(e.reason || e);
-  setChipStatus("Error");
-  setStatus(`Unhandled promise rejection: ${msg}`);
-  logDebug(`unhandledrejection: ${msg}`);
-});
-
-/* -------------------- HELPERS -------------------- */
-
-function ensurePlotly() {
-  if (!window.Plotly || typeof Plotly.newPlot !== "function") {
-    throw new Error("Plotly failed to load (CDN blocked?).");
+function log(msg) {
+  if(CONFIG.debug) {
+    $('debugCard').style.display = 'block';
+    $('debugOut').textContent += `[${new Date().toISOString().slice(11,19)}] ${msg}\n`;
   }
 }
 
-function prefersDark() {
-  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+function showStatus(msg, type = 'info') {
+  const el = $('globalStatus');
+  el.textContent = msg;
+  el.className = `alert ${type}`;
+  el.style.display = 'block';
+  // Auto hide success messages after 5s
+  if(type === 'success') setTimeout(() => el.style.display = 'none', 5000);
 }
 
 function norm(s) {
-  return String(s || "")
-    .toLowerCase()
-    .replace(/&/g, "and")
-    .replace(/[^a-z0-9]+/g, "");
+  return String(s || "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "");
 }
 
-function isAllowedPollster(pollsterName) {
+function isAllowed(pollsterName) {
+  if (!STATE.filterStrict) return true;
   const n = norm(pollsterName);
   return ALLOWED_POLLSTERS.some(x => x.pattern.test(n));
 }
 
-function parseDateYYYYMMDD(s) { return new Date(`${s}T00:00:00Z`); }
-function fmtDate(d) { return d.toISOString().slice(0,10); }
+function parseDate(s) {
+  return new Date(`${s}T00:00:00Z`);
+}
 
-function rollingMeanDaily(points, windowDays) {
+/* -------------------- Math & Logic -------------------- */
+
+// Calculate Simple Moving Average (SMA)
+function calculateRollingAvg(points, windowDays) {
   if (!points.length) return [];
-  const msDay = 24*60*60*1000;
-  const windowMs = windowDays * msDay;
-  const pts = points.slice().sort((a,b)=>a.date-b.date);
+  const sorted = points.slice().sort((a, b) => a.date - b.date);
+  const msPerDay = 86400000;
+  
+  const output = [];
+  const startTs = sorted[0].date.getTime();
+  const endTs = sorted[sorted.length - 1].date.getTime();
 
-  const minD = new Date(Date.UTC(pts[0].date.getUTCFullYear(), pts[0].date.getUTCMonth(), pts[0].date.getUTCDate()));
-  const maxD = new Date(Date.UTC(pts[pts.length-1].date.getUTCFullYear(), pts[pts.length-1].date.getUTCMonth(), pts[pts.length-1].date.getUTCDate()));
+  for (let t = startTs; t <= endTs; t += msPerDay) {
+    const currentDay = new Date(t);
+    const windowStart = t - (windowDays * msPerDay);
+    
+    const inWindow = sorted.filter(p => {
+      const pts = p.date.getTime();
+      return pts > windowStart && pts <= t;
+    });
 
-  let i=0, j=0, sum=0;
-  const out=[];
-  for (let t=minD.getTime(); t<=maxD.getTime(); t+=msDay) {
-    const day = new Date(t);
-    while (j<pts.length && pts[j].date.getTime()<=day.getTime()) { sum += pts[j].value; j++; }
-    const threshold = day.getTime() - windowMs;
-    while (i<j && pts[i].date.getTime()<=threshold) { sum -= pts[i].value; i++; }
-    const n = j - i;
-    if (n>0) out.push({date:day, value: sum/n, n});
+    if (inWindow.length > 0) {
+      const avg = inWindow.reduce((acc, p) => acc + p.value, 0) / inWindow.length;
+      output.push({ date: currentDay, value: avg, count: inWindow.length });
+    }
   }
-  return out;
+  return output;
 }
 
-function choiceMatches(choice, wanted) {
-  const c = norm(choice), w = norm(wanted);
-  return c === w || c.includes(w) || w.includes(c);
-}
-
-function getAnswerPct(poll, wantedChoices) {
-  const answers = Array.isArray(poll.answers) ? poll.answers : [];
-  for (const a of answers) {
-    for (const w of wantedChoices) {
-      if (choiceMatches(a.choice, w)) return Number(a.pct);
+function getAnswer(poll, keys) {
+  if(!poll.answers) return null;
+  for (const ans of poll.answers) {
+    const c = norm(ans.choice);
+    // Avoid false positives (e.g. "Disapprove" contains "Approve")
+    if (c.includes('disapprove') && keys.some(k => norm(k).includes('approve') && !norm(k).includes('dis'))) {
+        continue;
+    }
+    for (const key of keys) {
+      if (c.includes(norm(key))) return parseFloat(ans.pct);
     }
   }
   return null;
 }
 
-function parseJsonRobust(text) {
-  try { return JSON.parse(text); } catch (_) {}
-  const firstBrace = text.indexOf("{");
-  const firstBracket = text.indexOf("[");
-  let start=-1, end=-1;
-
-  if (firstBracket !== -1 && (firstBrace === -1 || firstBracket < firstBrace)) {
-    start = firstBracket; end = text.lastIndexOf("]");
-  } else if (firstBrace !== -1) {
-    start = firstBrace; end = text.lastIndexOf("}");
-  }
-  if (start !== -1 && end !== -1 && end > start) {
-    return JSON.parse(text.slice(start, end+1));
-  }
-  throw new Error("Could not parse JSON.");
+// Calculate trend (change over last 7 days of data points)
+function getTrendHTML(series) {
+  if (series.length < 2) return '';
+  
+  const current = series[series.length - 1].value;
+  // Look back ~7 indices (assuming daily points) or fallback to start
+  const lookbackIndex = Math.max(0, series.length - 8); 
+  const past = series[lookbackIndex].value;
+  const diff = current - past;
+  
+  let arrow, cls;
+  if (diff > 0.5) { arrow = '↑'; cls = 'trend-up'; }
+  else if (diff < -0.5) { arrow = '↓'; cls = 'trend-down'; }
+  else { arrow = '→'; cls = 'trend-flat'; }
+  
+  return `<span class="trend-indicator ${cls}" title="${diff > 0 ? '+' : ''}${diff.toFixed(1)} since last week">${arrow}</span>`;
 }
 
-function looksLikeProxyWrapperError(json) {
-  // common wrapper: {code, status, data:{warning:"Target URL returned error 500..."}, meta}
-  if (!json || typeof json !== "object") return false;
-  if (!("data" in json)) return false;
-  const d = json.data;
-  return !!(d && typeof d === "object" && typeof d.warning === "string" && d.warning.toLowerCase().includes("target url returned error"));
-}
-
-function extractPollArray(json) {
-  if (json && Array.isArray(json.polls)) return json.polls;
-  if (json && json.data && Array.isArray(json.data.polls)) return json.data.polls;
-  if (Array.isArray(json)) return json;
-  return null;
-}
-
-async function fetchTextWithTimeout(url, timeoutMs = 20000) {
-  const ctrl = new AbortController();
-  const t = setTimeout(()=>ctrl.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, { headers:{Accept:"application/json"}, cache:"no-store", signal: ctrl.signal });
-    const ct = res.headers.get("content-type") || "";
-    const text = await res.text();
-    return { res, ct, text };
-  } finally {
-    clearTimeout(t);
-  }
-}
-
-async function fetchPollsSmart(paramsObj) {
-  const qs = new URLSearchParams(paramsObj).toString();
-  const targetUrl = `${API_BASE}?${qs}`;
-  let lastDiag = null;
-
-  for (const tpl of PROXY_TEMPLATES) {
-    const attemptUrl = tpl.make(targetUrl);
-    try {
-      const { res, ct, text } = await fetchTextWithTimeout(attemptUrl);
-
-      if (!res.ok) {
-        lastDiag = `HTTP ${res.status} via ${tpl.name}\n${attemptUrl}\nct=${ct}\nhead=${text.slice(0,240)}`;
-        logDebug(lastDiag);
-        continue;
-      }
-
-      const json = parseJsonRobust(text);
-
-      if (looksLikeProxyWrapperError(json)) {
-        lastDiag = `Proxy wrapper error via ${tpl.name}\n${attemptUrl}\nhead=${text.slice(0,240)}`;
-        logDebug(lastDiag);
-        continue;
-      }
-
-      const polls = extractPollArray(json);
-      if (!polls) {
-        const keys = (json && typeof json === "object") ? Object.keys(json).slice(0,25).join(", ") : "(not object)";
-        lastDiag = `Unexpected JSON shape via ${tpl.name}\nkeys=${keys}\n${attemptUrl}\nhead=${text.slice(0,240)}`;
-        logDebug(lastDiag);
-        continue;
-      }
-
-      logDebug(`FETCH OK via ${tpl.name}: ${polls.length} items`);
-      return { polls, via: tpl.name, url: attemptUrl };
-    } catch (e) {
-      lastDiag = `Fetch/parse error via ${tpl.name}\n${attemptUrl}\nerr=${e?.message || e}`;
-      logDebug(lastDiag);
-      continue;
-    }
-  }
-  throw new Error(lastDiag || "Failed to fetch polls.");
-}
-
-function buildPollsterCounts(points) {
-  const m = new Map();
-  for (const p of points) {
-    const k = p.pollster || "Unknown";
-    m.set(k, (m.get(k)||0) + 1);
-  }
-  return [...m.entries()].sort((a,b)=>b[1]-a[1]);
-}
-
-/* -------------------- PLOT STYLING -------------------- */
-
-function plotLayoutBase(titleY) {
-  const dark = prefersDark();
-  const css = getComputedStyle(document.documentElement);
-  const text = css.getPropertyValue("--text").trim();
-  const muted = css.getPropertyValue("--muted").trim();
-
-  return {
-    paper_bgcolor: "rgba(0,0,0,0)",
-    plot_bgcolor: "rgba(0,0,0,0)",
-    margin: { l: 62, r: 18, t: 14, b: 50 },
-    hovermode: "closest",
-    font: { family: getComputedStyle(document.body).fontFamily, size: 12, color: text },
-    xaxis: {
-      title: { text: "Poll end date", standoff: 10 },
-      type: "date",
-      gridcolor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
-      zerolinecolor: dark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)",
-      tickfont: { color: muted }
-    },
-    yaxis: {
-      title: { text: titleY, standoff: 10 },
-      gridcolor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
-      zerolinecolor: dark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)",
-      tickfont: { color: muted }
-    },
-    legend: { orientation: "h", x: 0, y: 1.08, font: { color: muted } }
-  };
-}
-
-function renderApproval(points, maSeries, meta) {
-  ensurePlotly();
-
-  const hoverText = points.map(p =>
-    `${p.pollster}<br>${fmtDate(p.date)}<br>Approve: ${p.approve.toFixed(1)}%` +
-    (p.disapprove != null ? `<br>Disapprove: ${p.disapprove.toFixed(1)}%` : "") +
-    (p.sample_size ? `<br>n=${p.sample_size}` : "") +
-    (p.url ? `<br><a href="${p.url}" target="_blank" rel="noopener">source</a>` : "")
-  );
-
-  const traceMA = {
-    type: "scatter",
-    mode: "lines",
-    name: `${APPROVAL_WINDOW_DAYS}d avg`,
-    x: maSeries.map(d => d.date),
-    y: maSeries.map(d => d.value),
-    customdata: maSeries.map(d => d.n),
-    hovertemplate: "%{x|%Y-%m-%d}<br>Avg: %{y:.2f}%<br>Polls in window: %{customdata}<extra></extra>",
-    line: { width: 3 }
-  };
-
-  const tracePolls = {
-    type: "scatter",
-    mode: "markers",
-    name: "polls",
-    x: points.map(p => p.date),
-    y: points.map(p => p.value),
-    text: hoverText,
-    hovertemplate: "%{text}<extra></extra>",
-    marker: { size: 9, opacity: 0.85 }
-  };
-
-  const layout = plotLayoutBase("Approve (%)");
-
-  Plotly.newPlot("approvalChart", [traceMA, tracePolls], layout, {
-    responsive: true,
-    displayModeBar: false
-  });
-
-  const lastMA = maSeries.length ? maSeries[maSeries.length-1] : null;
-  document.getElementById("approvalNote").textContent =
-    `Included: ${meta.totalIncluded} (fetched ${meta.totalFetched}). ` +
-    (lastMA ? `Latest avg (${fmtDate(lastMA.date)}): ${lastMA.value.toFixed(2)}% (n=${lastMA.n}).` : `No rolling average yet.`);
-
-  setChipAp(lastMA ? `${lastMA.value.toFixed(2)}%` : "—");
-}
-
-function renderGenericBallot(points, maSeries, meta) {
-  ensurePlotly();
-
-  const hoverText = points.map(p =>
-    `${p.pollster}<br>${fmtDate(p.date)}<br>Dem: ${p.dem.toFixed(1)}%<br>Rep: ${p.rep.toFixed(1)}%` +
-    `<br>Margin (D−R): ${p.value.toFixed(1)}` +
-    (p.sample_size ? `<br>n=${p.sample_size}` : "") +
-    (p.url ? `<br><a href="${p.url}" target="_blank" rel="noopener">source</a>` : "")
-  );
-
-  const traceMA = {
-    type: "scatter",
-    mode: "lines",
-    name: `${GB_WINDOW_DAYS}d avg`,
-    x: maSeries.map(d => d.date),
-    y: maSeries.map(d => d.value),
-    customdata: maSeries.map(d => d.n),
-    hovertemplate: "%{x|%Y-%m-%d}<br>Avg margin: %{y:.2f}<br>Polls in window: %{customdata}<extra></extra>",
-    line: { width: 3 }
-  };
-
-  const tracePolls = {
-    type: "scatter",
-    mode: "markers",
-    name: "polls",
-    x: points.map(p => p.date),
-    y: points.map(p => p.value),
-    text: hoverText,
-    hovertemplate: "%{text}<extra></extra>",
-    marker: { size: 9, opacity: 0.85 }
-  };
-
-  const layout = plotLayoutBase("Dem − Rep margin (pts)");
-  layout.shapes = [{
-    type: "line",
-    xref: "paper", x0: 0, x1: 1,
-    yref: "y", y0: 0, y1: 0,
-    line: { width: 1, dash: "dot" }
-  }];
-
-  Plotly.newPlot("gbChart", [traceMA, tracePolls], layout, {
-    responsive: true,
-    displayModeBar: false
-  });
-
-  const lastMA = maSeries.length ? maSeries[maSeries.length-1] : null;
-  document.getElementById("gbNote").textContent =
-    `Included: ${meta.totalIncluded} (fetched ${meta.totalFetched}). ` +
-    (lastMA ? `Latest avg (${fmtDate(lastMA.date)}): ${lastMA.value.toFixed(2)} pts (n=${lastMA.n}).` : `No rolling average yet.`);
-
-  setChipGb(lastMA ? `${lastMA.value.toFixed(2)} pts` : "—");
-}
-
-/* -------------------- MAIN -------------------- */
-
-function renderPollsterPills() {
-  const wrap = document.getElementById("pollsterPills");
-  wrap.innerHTML = "";
-  for (const p of ALLOWED_POLLSTERS) {
-    const el = document.createElement("div");
-    el.className = "pill";
-    el.textContent = p.label;
-    wrap.appendChild(el);
-  }
-}
-
-async function main() {
-  renderPollsterPills();
-  setChipStatus("Loading");
-  setUpdated("—");
-  setChipAp("—");
-  setChipGb("—");
-
+/* -------------------- Mock Data (Fallback) -------------------- */
+function generateMockData(type) {
+  const data = [];
+  const pollsters = ALLOWED_POLLSTERS.map(p => p.label).concat(["Unknown Polling", "Generic Analytics"]);
   const now = new Date();
-  const from = new Date(now.getTime() - LOOKBACK_DAYS * 24*60*60*1000);
-  const fromISO = from.toISOString().slice(0,10);
+  let value = type === 'approval' ? 42 : 2; 
+  
+  for (let i = 365; i >= 0; i--) {
+    const date = new Date(now.getTime() - i * 86400000);
+    value += (Math.random() - 0.5) * 1.5; 
+    const pollsToday = Math.floor(Math.random() * 2.5); 
+    
+    for (let j = 0; j < pollsToday; j++) {
+      const variance = (Math.random() - 0.5) * 6;
+      const pollVal = value + variance;
+      const pollster = pollsters[Math.floor(Math.random() * pollsters.length)];
+      
+      let entry = {
+        date: date,
+        pollster: pollster,
+        sample_size: 500 + Math.floor(Math.random() * 1000),
+        url: "#"
+      };
 
-  setStatus(
-`Loading…
-Lookback: ${LOOKBACK_DAYS} days (from ${fromISO})
-Proxy attempts: ${PROXY_TEMPLATES.map(p=>p.name).join(", ")}`
-  );
-
-  // Approval: try multiple subject spellings.
-  let approvalRaw = [];
-  let approvalMeta = { via:"—", subject:"—" };
-  for (const subj of APPROVAL_SUBJECT_CANDIDATES) {
-    const pack = await fetchPollsSmart({ poll_type:"approval", subject: subj, from_date: fromISO });
-    approvalRaw = pack.polls;
-    approvalMeta = { via: pack.via, subject: subj };
-    if (approvalRaw.length > 0) break;
+      if (type === 'approval') {
+        entry.approve = pollVal;
+        entry.disapprove = 100 - pollVal - 5; 
+      } else {
+        const dem = 46 + (pollVal / 2);
+        const rep = 46 - (pollVal / 2);
+        entry.dem = dem;
+        entry.rep = rep;
+      }
+      data.push(entry);
+    }
   }
-
-  // Generic ballot
-  const gbPack = await fetchPollsSmart({ poll_type:"generic-ballot", from_date: fromISO });
-  const gbRaw = gbPack.polls;
-
-  // Process approval
-  const approvalFiltered = approvalRaw
-    .filter(p => isAllowedPollster(p.pollster))
-    .map(p => {
-      const approve = getAnswerPct(p, ["Approve","Approval","Yes"]);
-      const disapprove = getAnswerPct(p, ["Disapprove","Disapproval","No"]);
-      const date = p.end_date ? parseDateYYYYMMDD(p.end_date) : null;
-      if (!date || approve == null || !Number.isFinite(approve)) return null;
-      return {
-        date,
-        value: Number(approve),
-        approve: Number(approve),
-        disapprove: (disapprove != null && Number.isFinite(disapprove)) ? Number(disapprove) : null,
-        pollster: p.pollster || "Unknown",
-        sample_size: p.sample_size || "",
-        url: p.url || ""
-      };
-    })
-    .filter(Boolean);
-
-  // Process generic ballot (national generic if seat_name present)
-  const gbFiltered = gbRaw
-    .filter(p => (p.seat_name == null) || String(p.seat_name).toLowerCase() === "generic")
-    .filter(p => isAllowedPollster(p.pollster))
-    .map(p => {
-      const dem = getAnswerPct(p, ["Dem","Democrat","Democratic","Democratic Party"]);
-      const rep = getAnswerPct(p, ["Rep","Republican","GOP","Republican Party"]);
-      const date = p.end_date ? parseDateYYYYMMDD(p.end_date) : null;
-      if (!date || dem == null || rep == null || !Number.isFinite(dem) || !Number.isFinite(rep)) return null;
-      return {
-        date,
-        value: Number(dem) - Number(rep),
-        dem: Number(dem),
-        rep: Number(rep),
-        pollster: p.pollster || "Unknown",
-        sample_size: p.sample_size || "",
-        url: p.url || ""
-      };
-    })
-    .filter(Boolean);
-
-  const approvalMA = rollingMeanDaily(approvalFiltered, APPROVAL_WINDOW_DAYS);
-  const gbMA = rollingMeanDaily(gbFiltered, GB_WINDOW_DAYS);
-
-  renderApproval(approvalFiltered, approvalMA, {
-    totalFetched: approvalRaw.length,
-    totalIncluded: approvalFiltered.length
-  });
-  renderGenericBallot(gbFiltered, gbMA, {
-    totalFetched: gbRaw.length,
-    totalIncluded: gbFiltered.length
-  });
-
-  const updated = new Date().toLocaleString();
-  setUpdated(updated);
-  setChipStatus("Live");
-
-  const apLast = approvalMA.length ? approvalMA[approvalMA.length-1] : null;
-  const gbLast = gbMA.length ? gbMA[gbMA.length-1] : null;
-
-  const apCounts = buildPollsterCounts(approvalFiltered).slice(0,6).map(([k,v])=>`${k} (${v})`).join(", ");
-  const gbCounts = buildPollsterCounts(gbFiltered).slice(0,6).map(([k,v])=>`${k} (${v})`).join(", ");
-
-  setStatus(
-`Loaded.
-Approval: fetched=${approvalRaw.length} via=${approvalMeta.via} subject="${approvalMeta.subject}" | included=${approvalFiltered.length}
-Generic ballot: fetched=${gbRaw.length} via=${gbPack.via} | included=${gbFiltered.length}
-Latest avgs: approval=${apLast ? apLast.value.toFixed(2)+"%" : "—"}, GB=${gbLast ? gbLast.value.toFixed(2)+" pts" : "—"}
-Top pollster counts (approval): ${apCounts || "—"}
-Top pollster counts (generic ballot): ${gbCounts || "—"}
-Updated: ${updated}`
-  );
+  return data;
 }
 
-main();
+/* -------------------- API Fetching -------------------- */
+
+async function fetchWithTimeout(url) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), 12000);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(id);
+    return response;
+  } catch (e) {
+    clearTimeout(id);
+    throw e;
+  }
+}
+
+async function fetchPolls(type, extraParams = {}) {
+  const now = new Date();
+  const fromDate = new Date(now.getTime() - CONFIG.lookbackDays * 86400000).toISOString().split('T')[0];
+  
+  const params = new URLSearchParams({
+    poll_type: type,
+    from_date: fromDate,
+    sort: "-end_date"
+  });
+
+  for (const [key, value] of Object.entries(extraParams)) {
+    params.set(key, value);
+  }
+
+  const url = `${CONFIG.apiBase}?${params.toString()}`;
+  const candidates = [
+    url,
+    `${CONFIG.proxyPrefix}${url.replace(/^https?:\/\//, '')}`
+  ];
+
+  for (const uri of candidates) {
+    try {
+      log(`Fetching: ${uri}`);
+      const res = await fetchWithTimeout(uri);
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      
+      const text = await res.text();
+      let json;
+      try { json = JSON.parse(text); } 
+      catch (e) {
+        // Fallback for messy proxy responses
+        const start = text.indexOf('[');
+        const end = text.lastIndexOf(']');
+        if (start > -1 && end > start) {
+          json = JSON.parse(text.substring(start, end+1));
+        } else { throw e; }
+      }
+      
+      const list = Array.isArray(json) ? json : (json.polls || []);
+      if(list.length > 0) return list;
+      
+    } catch (e) {
+      log(`Failed ${uri}: ${e.message}`);
+    }
+  }
+  throw new Error("All fetch attempts failed");
+}
+
+/* -------------------- Visualization -------------------- */
+
+function updateStatsDual(id, count, s1MA, s2MA) {
+  const container = $(id);
+  if (!container) return;
+
+  const box1 = container.children[0].children[1];
+  const box2 = container.children[1].children[1];
+  const box3 = container.children[2].children[1];
+
+  const latest1 = s1MA.length ? s1MA[s1MA.length-1].value : null;
+  const latest2 = s2MA.length ? s2MA[s2MA.length-1].value : null;
+
+  // Render Value + Trend Arrow
+  if (latest1 !== null) {
+    box1.innerHTML = `${latest1.toFixed(1)}% ${getTrendHTML(s1MA)}`;
+    box1.style.color = id === 'gbStats' ? 'var(--primary)' : 'var(--success)';
+  } else box1.textContent = "--";
+
+  if (latest2 !== null) {
+    box2.innerHTML = `${latest2.toFixed(1)}% ${getTrendHTML(s2MA)}`;
+    box2.style.color = 'var(--danger)';
+  } else box2.textContent = "--";
+
+  box3.textContent = count;
+}
+
+function renderDualChart(divId, datasets, yTitle) {
+  const traces = [];
+
+  datasets.forEach(ds => {
+    // 1. Scatter (Individual Polls)
+    traces.push({
+      x: ds.raw.map(p => p.date),
+      y: ds.raw.map(p => p.value),
+      mode: 'markers',
+      type: 'scatter',
+      name: ds.name + ' (Polls)',
+      marker: { 
+        color: ds.color,
+        opacity: 0.35,
+        size: 7,
+        line: { width: 1, color: '#fff' }
+      },
+      text: ds.raw.map(p => 
+        `<b>${p.pollster}</b><br>${p.date.toISOString().slice(0,10)}<br>${ds.name}: ${p.value.toFixed(1)}%<br>N=${p.sample_size}`
+      ),
+      hovertemplate: '%{text}<extra></extra>',
+      showlegend: false
+    });
+
+    // 2. Line (Rolling Average)
+    traces.push({
+      x: ds.ma.map(p => p.date),
+      y: ds.ma.map(p => p.value),
+      mode: 'lines',
+      name: ds.name, 
+      line: { color: ds.color, width: 3 },
+      // Updated tooltip for Line
+      hovertemplate: `<b>${ds.name} (Avg)</b><br>%{x|%Y-%m-%d}<br>Value: %{y:.1f}%<extra></extra>`
+    });
+  });
+
+  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const gridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(148, 163, 184, 0.2)';
+  const textColor = isDark ? '#94a3b8' : '#64748b';
+  const spikeColor = isDark ? '#475569' : '#94a3b8';
+
+  const layout = {
+    autosize: true,
+    margin: { t: 20, r: 20, l: 40, b: 40 },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { family: 'inherit', color: textColor },
+    xaxis: { 
+      gridcolor: gridColor,
+      zerolinecolor: gridColor,
+      tickformat: '%b %Y',
+      // Spikeline configuration
+      showspikes: true,
+      spikemode: 'across',
+      spikethickness: 1,
+      spikecolor: spikeColor,
+      spikedash: 'solid',
+      spikesnap: 'cursor' // Snaps line to cursor x-position
+    },
+    yaxis: { 
+      title: yTitle, 
+      gridcolor: gridColor,
+      zeroline: false
+    },
+    showlegend: true,
+    legend: { orientation: 'h', y: 1.1, x: 0 },
+    // Changed from 'x unified' to 'closest'
+    hovermode: 'closest',
+    dragmode: 'pan' 
+  };
+
+  const config = { 
+    responsive: true, 
+    displayModeBar: false, 
+    scrollZoom: false 
+  };
+
+  Plotly.react(divId, traces, layout, config);
+}
+
+/* -------------------- Main App -------------------- */
+
+const app = {
+  async init() {
+    $('loadingIndicator').style.display = 'block';
+    
+    // Render Pollster Tags
+    $('pollsterList').innerHTML = ALLOWED_POLLSTERS.map(p => 
+      `<span class="tag">${p.label}</span>`
+    ).join(" ");
+
+    try {
+      // 1. Generic Ballot
+      try {
+        const gbRaw = await fetchPolls('generic-ballot');
+        STATE.gbData = this.normalizeGB(gbRaw);
+      } catch (e) {
+        log(`GB Fail: ${e}`);
+        STATE.gbData = [];
+      }
+
+      // 2. Approval
+      try {
+        const subjects = ['donald-trump', 'trump', 'joe-biden', 'biden'];
+        let appRaw = [];
+        for (const subj of subjects) {
+            try {
+                log(`Trying approval: ${subj}`);
+                appRaw = await fetchPolls('approval', { subject: subj });
+                if (appRaw && appRaw.length > 0) break;
+            } catch(subErr) { }
+        }
+        STATE.approvalData = this.normalizeApproval(appRaw);
+      } catch (e) {
+        log(`App Fail: ${e}`);
+        STATE.approvalData = [];
+      }
+
+      // Fallback Check
+      if (STATE.gbData.length === 0 || STATE.approvalData.length === 0) {
+        throw new Error("Missing datasets");
+      }
+      showStatus("Live data loaded successfully.", "success");
+
+    } catch (e) {
+      console.warn("Fallback to Demo", e);
+      STATE.isDemoMode = true;
+      showStatus("API unavailable. Showing DEMO MODE data.", "warn");
+      STATE.gbData = generateMockData('gb');
+      STATE.approvalData = generateMockData('approval');
+    }
+
+    $('loadingIndicator').style.display = 'none';
+    this.refreshViews();
+    
+    window.addEventListener('resize', () => {
+        Plotly.Plots.resize('gbChart');
+        Plotly.Plots.resize('approvalChart');
+    });
+  },
+
+  normalizeGB(list) {
+    return list.map(p => {
+      const dem = getAnswer(p, ['Dem', 'Democrat']);
+      const rep = getAnswer(p, ['Rep', 'Republican']);
+      if (dem === null || rep === null) return null;
+      return {
+        date: parseDate(p.end_date || p.start_date),
+        dem: dem, rep: rep,
+        pollster: p.pollster, sample_size: p.sample_size
+      };
+    }).filter(x => x);
+  },
+
+  normalizeApproval(list) {
+    return list.map(p => {
+      const app = getAnswer(p, ['Approve', 'Strongly Approve', 'Yes']);
+      const dis = getAnswer(p, ['Disapprove', 'Strongly Disapprove', 'No']);
+      if (app === null && dis === null) return null;
+      return {
+        date: parseDate(p.end_date || p.start_date),
+        approve: app, disapprove: dis,
+        pollster: p.pollster, sample_size: p.sample_size
+      };
+    }).filter(x => x);
+  },
+
+  refreshViews() {
+    STATE.filterStrict = $('toggleFilter').checked;
+    $('filterModeText').textContent = STATE.filterStrict ? "Strict Allowlist (Quality)" : "All Available Sources";
+
+    const gbFiltered = STATE.gbData.filter(p => isAllowed(p.pollster));
+    const appFiltered = STATE.approvalData.filter(p => isAllowed(p.pollster));
+
+    const mapVal = (arr, key) => arr.map(p => ({ ...p, value: p[key] })).filter(p => p.value != null);
+
+    // Generic Ballot Processing
+    const demRaw = mapVal(gbFiltered, 'dem');
+    const repRaw = mapVal(gbFiltered, 'rep');
+    const demMA = calculateRollingAvg(demRaw, CONFIG.gbWindow);
+    const repMA = calculateRollingAvg(repRaw, CONFIG.gbWindow);
+
+    // Approval Processing
+    const appRaw = mapVal(appFiltered, 'approve');
+    const disRaw = mapVal(appFiltered, 'disapprove');
+    const appMA = calculateRollingAvg(appRaw, CONFIG.approvalWindow);
+    const disMA = calculateRollingAvg(disRaw, CONFIG.approvalWindow);
+
+    updateStatsDual('gbStats', gbFiltered.length, demMA, repMA);
+    updateStatsDual('approvalStats', appFiltered.length, appMA, disMA);
+
+    renderDualChart('gbChart', [
+      { name: "Democrats", raw: demRaw, ma: demMA, color: "#2563eb" }, 
+      { name: "Republicans", raw: repRaw, ma: repMA, color: "#dc2626" }
+    ], "Percentage (%)");
+
+    renderDualChart('approvalChart', [
+      { name: "Approve", raw: appRaw, ma: appMA, color: "#16a34a" }, 
+      { name: "Disapprove", raw: disRaw, ma: disMA, color: "#dc2626" }
+    ], "Percentage (%)");
+  }
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => app.init());
+} else {
+  app.init();
+}
 </script>
 </body>
 </html>
