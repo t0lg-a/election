@@ -193,7 +193,11 @@ async function fetchPolls(url) {
   const res = await fetch(url, { headers: { "Accept": "application/json" } });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   const data = await res.json();
-  return Array.isArray(data.polls) ? data.polls : [];
+
+  // VoteHub docs show {polls:[...]}, but the live endpoint currently returns [...].
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.polls)) return data.polls;
+  return [];
 }
 
 function buildPollsterCounts(polls) {
