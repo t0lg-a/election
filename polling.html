@@ -3,73 +3,305 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>VoteHub Polls Dashboard (Selected Pollsters)</title>
+  <title>Polling Dashboard</title>
 
-  <!-- Plotly for charts -->
   <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
 
   <style>
-    :root { color-scheme: light dark; }
-    body { margin: 0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; line-height: 1.35; }
-    header { padding: 18px 16px; border-bottom: 1px solid rgba(127,127,127,0.35); }
-    header h1 { margin: 0 0 6px 0; font-size: 18px; font-weight: 650; }
-    header .meta { font-size: 12px; opacity: 0.85; }
-    main { padding: 14px 16px 24px; max-width: 1100px; margin: 0 auto; }
-    .card { border: 1px solid rgba(127,127,127,0.35); border-radius: 12px; padding: 12px; margin: 12px 0; }
-    .card h2 { margin: 0 0 6px 0; font-size: 15px; }
-    #status { font-size: 12px; opacity: 0.92; margin-bottom: 10px; white-space: pre-wrap; }
-    .plot { width: 100%; height: 520px; }
-    .small { font-size: 12px; opacity: 0.85; white-space: pre-wrap; }
-    code.inline { padding: 1px 6px; border: 1px solid rgba(127,127,127,0.35); border-radius: 6px; font-size: 12px; }
-    #debugCard { display: none; }
+    :root{
+      --bg: #0b0d10;
+      --panel: rgba(255,255,255,0.06);
+      --panel2: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.10);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.68);
+      --muted2: rgba(255,255,255,0.52);
+      --shadow: 0 12px 34px rgba(0,0,0,0.35);
+      --radius: 16px;
+      --radius2: 12px;
+      --pad: 14px;
+      --pad2: 18px;
+      --maxw: 1180px;
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root{
+        --bg: #f6f7fb;
+        --panel: rgba(0,0,0,0.04);
+        --panel2: rgba(0,0,0,0.06);
+        --border: rgba(0,0,0,0.10);
+        --text: rgba(0,0,0,0.88);
+        --muted: rgba(0,0,0,0.62);
+        --muted2: rgba(0,0,0,0.46);
+        --shadow: 0 10px 28px rgba(0,0,0,0.10);
+      }
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ height: 100%; }
+    body{
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(1200px 700px at 10% 5%, rgba(130,170,255,0.14), transparent 60%),
+        radial-gradient(900px 500px at 95% 10%, rgba(255,130,200,0.10), transparent 55%),
+        radial-gradient(1200px 800px at 50% 100%, rgba(120,255,210,0.08), transparent 60%),
+        var(--bg);
+    }
+
+    .wrap{ max-width: var(--maxw); margin: 0 auto; padding: 18px 16px 34px; }
+    header{
+      display:flex; gap: 14px; align-items: flex-start; justify-content: space-between;
+      padding: 14px 2px 8px;
+    }
+    .title{
+      display:flex; flex-direction: column; gap: 6px;
+    }
+    h1{
+      margin:0;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .sub{
+      margin:0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .rightmeta{
+      display:flex; flex-direction: column; align-items: flex-end; gap: 8px;
+      min-width: 260px;
+    }
+    .chips{ display:flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      box-shadow: none;
+      white-space: nowrap;
+    }
+    .dot{
+      width: 8px; height: 8px; border-radius: 999px;
+      background: rgba(255,255,255,0.45);
+      border: 1px solid var(--border);
+    }
+    @media (prefers-color-scheme: light){
+      .dot{ background: rgba(0,0,0,0.25); }
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 10px;
+    }
+    @media (min-width: 980px){
+      .grid{ grid-template-columns: 1fr 1fr; }
+    }
+
+    .card{
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--panel2), var(--panel));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .cardHead{
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      display:flex; justify-content: space-between; gap: 10px; align-items: flex-start;
+    }
+    .cardHead h2{
+      margin: 0;
+      font-size: 14px;
+      font-weight: 680;
+      letter-spacing: 0.2px;
+    }
+    .cardHead .hint{
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .cardBody{ padding: 10px 10px 14px; }
+    .plot{ width: 100%; height: 480px; }
+
+    .footerRow{
+      display:flex; justify-content: space-between; align-items: center; gap: 10px;
+      padding: 0 16px 14px;
+      color: var(--muted2);
+      font-size: 12px;
+    }
+    .mono{ font-family: var(--mono); }
+
+    .statusBox{
+      margin-top: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: var(--radius2);
+      padding: 12px 14px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: pre-wrap;
+      box-shadow: none;
+    }
+
+    .pollstersCard{
+      margin-top: 14px;
+      padding: 14px 16px 16px;
+    }
+    .pillWrap{ display:flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pill{
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .skeleton{
+      height: 480px;
+      border-radius: var(--radius2);
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.05),
+        rgba(255,255,255,0.10),
+        rgba(255,255,255,0.05)
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite linear;
+    }
+    @media (prefers-color-scheme: light){
+      .skeleton{
+        background: linear-gradient(90deg,
+          rgba(0,0,0,0.04),
+          rgba(0,0,0,0.08),
+          rgba(0,0,0,0.04)
+        );
+      }
+    }
+    @keyframes shimmer { 0%{background-position: 0% 0;} 100%{background-position: 200% 0;} }
+
+    details{
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: var(--radius2);
+      padding: 10px 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    summary{ cursor: pointer; user-select: none; font-weight: 650; color: var(--muted); }
+    pre{
+      margin: 10px 0 0;
+      padding: 10px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.16);
+      overflow:auto;
+      color: var(--muted);
+    }
+    @media (prefers-color-scheme: light){
+      pre{ background: rgba(0,0,0,0.04); }
+    }
   </style>
 </head>
 
 <body>
-  <header>
-    <h1>Polling Dashboard (restricted pollster list)</h1>
-    <div class="meta">
-      VoteHub API + rolling averages. Debug: <code class="inline">?debug=1</code>
-    </div>
-  </header>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1>Polling Dashboard</h1>
+        <p class="sub">
+          VoteHub API • Filtered to your pollsters • Rolling averages: 14d approval, 30d generic ballot.
+        </p>
+      </div>
 
-  <main>
-    <div id="status">Booting…</div>
+      <div class="rightmeta">
+        <div class="chips">
+          <div class="chip"><span class="dot"></span><span id="chipStatus">Loading…</span></div>
+          <div class="chip"><span class="mono" id="chipUpdated">—</span></div>
+        </div>
+        <div class="chips">
+          <div class="chip">Approval avg: <span class="mono" id="chipApAvg">—</span></div>
+          <div class="chip">GB avg: <span class="mono" id="chipGbAvg">—</span></div>
+        </div>
+      </div>
+    </header>
 
-    <div class="card">
-      <h2>Trump Approval (scatter + 14-day rolling average)</h2>
-      <div id="approvalChart" class="plot"></div>
-      <div id="approvalNote" class="small"></div>
+    <div id="status" class="statusBox">Booting…</div>
+
+    <div class="grid">
+      <section class="card">
+        <div class="cardHead">
+          <div>
+            <h2>Trump approval</h2>
+            <div class="hint">Scatter + 14-day rolling average</div>
+          </div>
+        </div>
+        <div class="cardBody">
+          <div id="approvalChart" class="plot">
+            <div class="skeleton"></div>
+          </div>
+        </div>
+        <div class="footerRow">
+          <div id="approvalNote">—</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="cardHead">
+          <div>
+            <h2>Generic ballot</h2>
+            <div class="hint">Dem − Rep margin • Scatter + 30-day rolling average</div>
+          </div>
+        </div>
+        <div class="cardBody">
+          <div id="gbChart" class="plot">
+            <div class="skeleton"></div>
+          </div>
+        </div>
+        <div class="footerRow">
+          <div id="gbNote">—</div>
+        </div>
+      </section>
     </div>
 
-    <div class="card">
-      <h2>Generic Ballot (Dem − Rep margin; scatter + 30-day rolling average)</h2>
-      <div id="gbChart" class="plot"></div>
-      <div id="gbNote" class="small"></div>
-    </div>
+    <section class="card pollstersCard">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
+        <div>
+          <div style="font-weight:700;font-size:14px;">Included pollsters</div>
+          <div class="sub" style="margin-top:6px;">
+            Exactly your allowlist. If a pollster’s naming differs on VoteHub, the matcher is tolerant.
+          </div>
+        </div>
+        <div class="chip">No uploads. No buttons. Just data.</div>
+      </div>
+      <div class="pillWrap" id="pollsterPills"></div>
 
-    <div class="card">
-      <h2>Included pollsters</h2>
-      <div class="small" id="pollsterList"></div>
-    </div>
-
-    <div class="card" id="debugCard">
-      <h2>Debug</h2>
-      <div class="small" id="debugOut"></div>
-    </div>
-  </main>
+      <details id="debugDetails" style="display:none;">
+        <summary>Debug</summary>
+        <pre id="debugOut"></pre>
+      </details>
+    </section>
+  </div>
 
 <script>
 /* -------------------- CONFIG -------------------- */
 
 const API_BASE = "https://api.votehub.com/polls";
 
-// If direct browser fetch is blocked by CORS, we try these public CORS proxies.
-// Disable proxies with ?proxy=0
+// Turn proxies off with ?proxy=0 (direct only)
 const PROXY_TEMPLATES = (new URLSearchParams(location.search).get("proxy") === "0")
-  ? [
-      { name: "direct", make: (url) => url },
-    ]
+  ? [{ name: "direct", make: (url) => url }]
   : [
       { name: "direct",     make: (url) => url },
       { name: "allorigins", make: (url) => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url) },
@@ -78,20 +310,14 @@ const PROXY_TEMPLATES = (new URLSearchParams(location.search).get("proxy") === "
     ];
 
 const DEBUG = new URLSearchParams(location.search).has("debug");
-
+const LOOKBACK_DAYS = 400;
 const APPROVAL_WINDOW_DAYS = 14;
 const GB_WINDOW_DAYS = 30;
-const LOOKBACK_DAYS = 400;
 
-// Subjects to try (VoteHub accepts dashes/spaces; we try a few to avoid “0 polls” from slug mismatch)
-const APPROVAL_SUBJECT_CANDIDATES = [
-  "donald-trump",
-  "donald trump",
-  "Donald Trump",
-  "trump",
-];
+const APPROVAL_SUBJECT_CANDIDATES = ["donald-trump","donald trump","Donald Trump","trump"];
 
-// Your pollster allowlist. Implemented as robust string patterns.
+/* -------------------- POLLSTER ALLOWLIST -------------------- */
+
 const ALLOWED_POLLSTERS = [
   { label: "YouGov", pattern: /yougov/ },
   { label: "Ipsos", pattern: /ipsos/ },
@@ -115,38 +341,51 @@ const ALLOWED_POLLSTERS = [
   { label: "University of Massachusetts Dept. of Political Science/YouGov", pattern: /massachusetts|umass|departmentofpoliticalscience/ }
 ];
 
-/* -------------------- UI HELPERS -------------------- */
+/* -------------------- UI -------------------- */
 
-const debugCard = document.getElementById("debugCard");
-const debugOut  = document.getElementById("debugOut");
-if (DEBUG) debugCard.style.display = "block";
+const $status = document.getElementById("status");
+const $chipStatus = document.getElementById("chipStatus");
+const $chipUpdated = document.getElementById("chipUpdated");
+const $chipApAvg = document.getElementById("chipApAvg");
+const $chipGbAvg = document.getElementById("chipGbAvg");
 
-function setStatus(msg) {
-  document.getElementById("status").textContent = msg;
-}
+const $debugDetails = document.getElementById("debugDetails");
+const $debugOut = document.getElementById("debugOut");
+
+function setStatus(msg) { $status.textContent = msg; }
+function setChipStatus(msg) { $chipStatus.textContent = msg; }
+function setUpdated(d) { $chipUpdated.textContent = d; }
+function setChipAp(v) { $chipApAvg.textContent = v; }
+function setChipGb(v) { $chipGbAvg.textContent = v; }
 
 function logDebug(msg) {
   if (!DEBUG) return;
-  debugOut.textContent += (debugOut.textContent ? "\n" : "") + String(msg);
+  $debugDetails.style.display = "block";
+  $debugOut.textContent += ($debugOut.textContent ? "\n" : "") + String(msg);
 }
 
 window.addEventListener("error", (e) => {
-  setStatus(`Runtime error: ${e.message || e.type}\nOpen with ?debug=1`);
+  setChipStatus("Error");
+  setStatus(`Runtime error: ${e.message || e.type}`);
   logDebug(`window.error: ${e.message}\n${e.filename}:${e.lineno}:${e.colno}`);
 });
-
 window.addEventListener("unhandledrejection", (e) => {
   const msg = (e && e.reason && e.reason.message) ? e.reason.message : String(e.reason || e);
-  setStatus(`Unhandled promise rejection: ${msg}\nOpen with ?debug=1`);
+  setChipStatus("Error");
+  setStatus(`Unhandled promise rejection: ${msg}`);
   logDebug(`unhandledrejection: ${msg}`);
 });
 
-/* -------------------- DATA / MATH HELPERS -------------------- */
+/* -------------------- HELPERS -------------------- */
 
 function ensurePlotly() {
   if (!window.Plotly || typeof Plotly.newPlot !== "function") {
     throw new Error("Plotly failed to load (CDN blocked?).");
   }
+}
+
+function prefersDark() {
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
 function norm(s) {
@@ -161,67 +400,33 @@ function isAllowedPollster(pollsterName) {
   return ALLOWED_POLLSTERS.some(x => x.pattern.test(n));
 }
 
-function parseDateYYYYMMDD(s) {
-  return new Date(`${s}T00:00:00Z`);
-}
-
-function fmtDate(d) {
-  return d.toISOString().slice(0, 10);
-}
+function parseDateYYYYMMDD(s) { return new Date(`${s}T00:00:00Z`); }
+function fmtDate(d) { return d.toISOString().slice(0,10); }
 
 function rollingMeanDaily(points, windowDays) {
   if (!points.length) return [];
-  const msDay = 24 * 60 * 60 * 1000;
+  const msDay = 24*60*60*1000;
   const windowMs = windowDays * msDay;
+  const pts = points.slice().sort((a,b)=>a.date-b.date);
 
-  const pts = points.slice().sort((a, b) => a.date - b.date);
+  const minD = new Date(Date.UTC(pts[0].date.getUTCFullYear(), pts[0].date.getUTCMonth(), pts[0].date.getUTCDate()));
+  const maxD = new Date(Date.UTC(pts[pts.length-1].date.getUTCFullYear(), pts[pts.length-1].date.getUTCMonth(), pts[pts.length-1].date.getUTCDate()));
 
-  const minD = new Date(Date.UTC(
-    pts[0].date.getUTCFullYear(),
-    pts[0].date.getUTCMonth(),
-    pts[0].date.getUTCDate()
-  ));
-  const maxD = new Date(Date.UTC(
-    pts[pts.length - 1].date.getUTCFullYear(),
-    pts[pts.length - 1].date.getUTCMonth(),
-    pts[pts.length - 1].date.getUTCDate()
-  ));
-
-  let i = 0, j = 0, sum = 0;
-  const out = [];
-
-  for (let t = minD.getTime(); t <= maxD.getTime(); t += msDay) {
+  let i=0, j=0, sum=0;
+  const out=[];
+  for (let t=minD.getTime(); t<=maxD.getTime(); t+=msDay) {
     const day = new Date(t);
-
-    while (j < pts.length && pts[j].date.getTime() <= day.getTime()) {
-      sum += pts[j].value; j++;
-    }
-
+    while (j<pts.length && pts[j].date.getTime()<=day.getTime()) { sum += pts[j].value; j++; }
     const threshold = day.getTime() - windowMs;
-    while (i < j && pts[i].date.getTime() <= threshold) {
-      sum -= pts[i].value; i++;
-    }
-
+    while (i<j && pts[i].date.getTime()<=threshold) { sum -= pts[i].value; i++; }
     const n = j - i;
-    if (n > 0) out.push({ date: day, value: sum / n, n });
+    if (n>0) out.push({date:day, value: sum/n, n});
   }
-
   return out;
 }
 
-function buildPollsterCounts(points) {
-  const counts = new Map();
-  for (const p of points) {
-    const k = p.pollster || "Unknown";
-    counts.set(k, (counts.get(k) || 0) + 1);
-  }
-  return [...counts.entries()].sort((a,b) => b[1] - a[1]);
-}
-
-// Match answer labels loosely
 function choiceMatches(choice, wanted) {
-  const c = norm(choice);
-  const w = norm(wanted);
+  const c = norm(choice), w = norm(wanted);
   return c === w || c.includes(w) || w.includes(c);
 }
 
@@ -236,53 +441,42 @@ function getAnswerPct(poll, wantedChoices) {
 }
 
 function parseJsonRobust(text) {
-  // Prefer direct parse
   try { return JSON.parse(text); } catch (_) {}
-
-  // Some proxies prepend junk; try slicing to the first JSON bracket/brace.
   const firstBrace = text.indexOf("{");
   const firstBracket = text.indexOf("[");
-  let start = -1, end = -1;
+  let start=-1, end=-1;
 
   if (firstBracket !== -1 && (firstBrace === -1 || firstBracket < firstBrace)) {
-    start = firstBracket;
-    end = text.lastIndexOf("]");
+    start = firstBracket; end = text.lastIndexOf("]");
   } else if (firstBrace !== -1) {
-    start = firstBrace;
-    end = text.lastIndexOf("}");
+    start = firstBrace; end = text.lastIndexOf("}");
   }
-
   if (start !== -1 && end !== -1 && end > start) {
-    return JSON.parse(text.slice(start, end + 1));
+    return JSON.parse(text.slice(start, end+1));
   }
+  throw new Error("Could not parse JSON.");
+}
 
-  throw new Error("Could not parse JSON from response text.");
+function looksLikeProxyWrapperError(json) {
+  // common wrapper: {code, status, data:{warning:"Target URL returned error 500..."}, meta}
+  if (!json || typeof json !== "object") return false;
+  if (!("data" in json)) return false;
+  const d = json.data;
+  return !!(d && typeof d === "object" && typeof d.warning === "string" && d.warning.toLowerCase().includes("target url returned error"));
 }
 
 function extractPollArray(json) {
-  // VoteHub docs show { polls: [...] }
   if (json && Array.isArray(json.polls)) return json.polls;
-
-  // Some APIs nest in "data"
   if (json && json.data && Array.isArray(json.data.polls)) return json.data.polls;
-
-  // Some endpoints might return a raw array
   if (Array.isArray(json)) return json;
-
   return null;
 }
 
-/* -------------------- FETCHING -------------------- */
-
 async function fetchTextWithTimeout(url, timeoutMs = 20000) {
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  const t = setTimeout(()=>ctrl.abort(), timeoutMs);
   try {
-    const res = await fetch(url, {
-      headers: { "Accept": "application/json" },
-      cache: "no-store",
-      signal: ctrl.signal
-    });
+    const res = await fetch(url, { headers:{Accept:"application/json"}, cache:"no-store", signal: ctrl.signal });
     const ct = res.headers.get("content-type") || "";
     const text = await res.text();
     return { res, ct, text };
@@ -291,71 +485,87 @@ async function fetchTextWithTimeout(url, timeoutMs = 20000) {
   }
 }
 
-function looksLikeProxyError(json) {
-  // Handle the specific “proxy wrapper” style errors (like the one you pasted).
-  // Example keys: code, status, data, meta; data.warning mentions target URL error
-  if (!json || typeof json !== "object") return false;
-  if (!("code" in json) || !("data" in json)) return false;
-  const d = json.data;
-  if (d && typeof d === "object" && typeof d.warning === "string" && d.warning.toLowerCase().includes("target url returned error")) {
-    return true;
-  }
-  return false;
-}
-
 async function fetchPollsSmart(paramsObj) {
-  // paramsObj is a plain object; we build a query string once.
   const qs = new URLSearchParams(paramsObj).toString();
   const targetUrl = `${API_BASE}?${qs}`;
-
   let lastDiag = null;
 
   for (const tpl of PROXY_TEMPLATES) {
     const attemptUrl = tpl.make(targetUrl);
-
     try {
       const { res, ct, text } = await fetchTextWithTimeout(attemptUrl);
 
-      // CORS failures will usually throw before here; non-OK still gives us payload.
       if (!res.ok) {
-        lastDiag = `HTTP ${res.status} via ${tpl.name}\nurl=${attemptUrl}\ncontent-type=${ct}\nbody(head)=${text.slice(0, 240)}`;
+        lastDiag = `HTTP ${res.status} via ${tpl.name}\n${attemptUrl}\nct=${ct}\nhead=${text.slice(0,240)}`;
         logDebug(lastDiag);
         continue;
       }
 
       const json = parseJsonRobust(text);
 
-      if (looksLikeProxyError(json)) {
-        lastDiag = `Proxy wrapper error via ${tpl.name}\nurl=${attemptUrl}\nbody(head)=${text.slice(0, 240)}`;
+      if (looksLikeProxyWrapperError(json)) {
+        lastDiag = `Proxy wrapper error via ${tpl.name}\n${attemptUrl}\nhead=${text.slice(0,240)}`;
         logDebug(lastDiag);
         continue;
       }
 
       const polls = extractPollArray(json);
       if (!polls) {
-        const keys = (json && typeof json === "object") ? Object.keys(json).slice(0, 25).join(", ") : "(not an object)";
-        lastDiag = `Unexpected JSON shape via ${tpl.name}\nurl=${attemptUrl}\nkeys=${keys}\nbody(head)=${text.slice(0, 240)}`;
+        const keys = (json && typeof json === "object") ? Object.keys(json).slice(0,25).join(", ") : "(not object)";
+        lastDiag = `Unexpected JSON shape via ${tpl.name}\nkeys=${keys}\n${attemptUrl}\nhead=${text.slice(0,240)}`;
         logDebug(lastDiag);
         continue;
       }
 
-      logDebug(`FETCH OK via ${tpl.name}: items=${polls.length}`);
+      logDebug(`FETCH OK via ${tpl.name}: ${polls.length} items`);
       return { polls, via: tpl.name, url: attemptUrl };
     } catch (e) {
-      lastDiag = `Fetch/parse error via ${tpl.name}\nurl=${attemptUrl}\nerr=${e && e.message ? e.message : String(e)}`;
+      lastDiag = `Fetch/parse error via ${tpl.name}\n${attemptUrl}\nerr=${e?.message || e}`;
       logDebug(lastDiag);
       continue;
     }
   }
-
-  throw new Error(lastDiag || "Failed to fetch polls (no diagnostic).");
+  throw new Error(lastDiag || "Failed to fetch polls.");
 }
 
-/* -------------------- RENDERING -------------------- */
+function buildPollsterCounts(points) {
+  const m = new Map();
+  for (const p of points) {
+    const k = p.pollster || "Unknown";
+    m.set(k, (m.get(k)||0) + 1);
+  }
+  return [...m.entries()].sort((a,b)=>b[1]-a[1]);
+}
 
-function renderPollsterList() {
-  document.getElementById("pollsterList").textContent =
-    ALLOWED_POLLSTERS.map(x => `• ${x.label}`).join("\n");
+/* -------------------- PLOT STYLING -------------------- */
+
+function plotLayoutBase(titleY) {
+  const dark = prefersDark();
+  const css = getComputedStyle(document.documentElement);
+  const text = css.getPropertyValue("--text").trim();
+  const muted = css.getPropertyValue("--muted").trim();
+
+  return {
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    margin: { l: 62, r: 18, t: 14, b: 50 },
+    hovermode: "closest",
+    font: { family: getComputedStyle(document.body).fontFamily, size: 12, color: text },
+    xaxis: {
+      title: { text: "Poll end date", standoff: 10 },
+      type: "date",
+      gridcolor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+      zerolinecolor: dark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)",
+      tickfont: { color: muted }
+    },
+    yaxis: {
+      title: { text: titleY, standoff: 10 },
+      gridcolor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+      zerolinecolor: dark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)",
+      tickfont: { color: muted }
+    },
+    legend: { orientation: "h", x: 0, y: 1.08, font: { color: muted } }
+  };
 }
 
 function renderApproval(points, maSeries, meta) {
@@ -368,43 +578,41 @@ function renderApproval(points, maSeries, meta) {
     (p.url ? `<br><a href="${p.url}" target="_blank" rel="noopener">source</a>` : "")
   );
 
+  const traceMA = {
+    type: "scatter",
+    mode: "lines",
+    name: `${APPROVAL_WINDOW_DAYS}d avg`,
+    x: maSeries.map(d => d.date),
+    y: maSeries.map(d => d.value),
+    customdata: maSeries.map(d => d.n),
+    hovertemplate: "%{x|%Y-%m-%d}<br>Avg: %{y:.2f}%<br>Polls in window: %{customdata}<extra></extra>",
+    line: { width: 3 }
+  };
+
   const tracePolls = {
     type: "scatter",
     mode: "markers",
-    name: "Polls (Approve %)",
+    name: "polls",
     x: points.map(p => p.date),
     y: points.map(p => p.value),
     text: hoverText,
     hovertemplate: "%{text}<extra></extra>",
-    marker: { size: 9 }
+    marker: { size: 9, opacity: 0.85 }
   };
 
-  const traceMA = {
-    type: "scatter",
-    mode: "lines",
-    name: `${APPROVAL_WINDOW_DAYS}-day rolling avg`,
-    x: maSeries.map(d => d.date),
-    y: maSeries.map(d => d.value),
-    hovertemplate: "%{x|%Y-%m-%d}<br>Avg: %{y:.2f}%<br>Polls in window: %{customdata}<extra></extra>",
-    customdata: maSeries.map(d => d.n),
-    line: { width: 3 }
-  };
+  const layout = plotLayoutBase("Approve (%)");
 
-  Plotly.newPlot("approvalChart", [traceMA, tracePolls], {
-    margin: { l: 55, r: 18, t: 10, b: 50 },
-    xaxis: { title: "Poll end date", type: "date" },
-    yaxis: { title: "Approve (%)", rangemode: "tozero" },
-    legend: { orientation: "h", y: 1.05, x: 0 },
-    hovermode: "closest"
-  }, { responsive: true, displayModeBar: false });
+  Plotly.newPlot("approvalChart", [traceMA, tracePolls], layout, {
+    responsive: true,
+    displayModeBar: false
+  });
 
-  const lastMA = maSeries.length ? maSeries[maSeries.length - 1] : null;
-  document.getElementById("approvalNote").textContent = [
-    `Included polls: ${meta.totalIncluded} (from ${meta.totalFetched} fetched).`,
-    lastMA ? `Latest ${APPROVAL_WINDOW_DAYS}-day avg (as of ${fmtDate(lastMA.date)}): ${lastMA.value.toFixed(2)}% (window polls: ${lastMA.n}).`
-           : `Not enough data for rolling average.`,
-    meta.byPollster.length ? `Top pollsters by count: ${meta.byPollster.slice(0, 6).map(([k,v]) => `${k} (${v})`).join(", ")}.` : ""
-  ].filter(Boolean).join(" ");
+  const lastMA = maSeries.length ? maSeries[maSeries.length-1] : null;
+  document.getElementById("approvalNote").textContent =
+    `Included: ${meta.totalIncluded} (fetched ${meta.totalFetched}). ` +
+    (lastMA ? `Latest avg (${fmtDate(lastMA.date)}): ${lastMA.value.toFixed(2)}% (n=${lastMA.n}).` : `No rolling average yet.`);
+
+  setChipAp(lastMA ? `${lastMA.value.toFixed(2)}%` : "—");
 }
 
 function renderGenericBallot(points, maSeries, meta) {
@@ -417,113 +625,101 @@ function renderGenericBallot(points, maSeries, meta) {
     (p.url ? `<br><a href="${p.url}" target="_blank" rel="noopener">source</a>` : "")
   );
 
+  const traceMA = {
+    type: "scatter",
+    mode: "lines",
+    name: `${GB_WINDOW_DAYS}d avg`,
+    x: maSeries.map(d => d.date),
+    y: maSeries.map(d => d.value),
+    customdata: maSeries.map(d => d.n),
+    hovertemplate: "%{x|%Y-%m-%d}<br>Avg margin: %{y:.2f}<br>Polls in window: %{customdata}<extra></extra>",
+    line: { width: 3 }
+  };
+
   const tracePolls = {
     type: "scatter",
     mode: "markers",
-    name: "Polls (D−R)",
+    name: "polls",
     x: points.map(p => p.date),
     y: points.map(p => p.value),
     text: hoverText,
     hovertemplate: "%{text}<extra></extra>",
-    marker: { size: 9 }
+    marker: { size: 9, opacity: 0.85 }
   };
 
-  const traceMA = {
-    type: "scatter",
-    mode: "lines",
-    name: `${GB_WINDOW_DAYS}-day rolling avg`,
-    x: maSeries.map(d => d.date),
-    y: maSeries.map(d => d.value),
-    hovertemplate: "%{x|%Y-%m-%d}<br>Avg margin: %{y:.2f}<br>Polls in window: %{customdata}<extra></extra>",
-    customdata: maSeries.map(d => d.n),
-    line: { width: 3 }
-  };
+  const layout = plotLayoutBase("Dem − Rep margin (pts)");
+  layout.shapes = [{
+    type: "line",
+    xref: "paper", x0: 0, x1: 1,
+    yref: "y", y0: 0, y1: 0,
+    line: { width: 1, dash: "dot" }
+  }];
 
-  Plotly.newPlot("gbChart", [traceMA, tracePolls], {
-    margin: { l: 70, r: 18, t: 10, b: 50 },
-    xaxis: { title: "Poll end date", type: "date" },
-    yaxis: { title: "Generic ballot margin (Dem − Rep)", zeroline: true },
-    shapes: [{
-      type: "line", xref: "paper", x0: 0, x1: 1,
-      yref: "y", y0: 0, y1: 0,
-      line: { width: 1, dash: "dot" }
-    }],
-    legend: { orientation: "h", y: 1.05, x: 0 },
-    hovermode: "closest"
-  }, { responsive: true, displayModeBar: false });
+  Plotly.newPlot("gbChart", [traceMA, tracePolls], layout, {
+    responsive: true,
+    displayModeBar: false
+  });
 
-  const lastMA = maSeries.length ? maSeries[maSeries.length - 1] : null;
-  document.getElementById("gbNote").textContent = [
-    `Included polls: ${meta.totalIncluded} (from ${meta.totalFetched} fetched).`,
-    lastMA ? `Latest ${GB_WINDOW_DAYS}-day avg (as of ${fmtDate(lastMA.date)}): ${lastMA.value.toFixed(2)} pts (window polls: ${lastMA.n}).`
-           : `Not enough data for rolling average.`,
-    meta.byPollster.length ? `Top pollsters by count: ${meta.byPollster.slice(0, 6).map(([k,v]) => `${k} (${v})`).join(", ")}.` : ""
-  ].filter(Boolean).join(" ");
+  const lastMA = maSeries.length ? maSeries[maSeries.length-1] : null;
+  document.getElementById("gbNote").textContent =
+    `Included: ${meta.totalIncluded} (fetched ${meta.totalFetched}). ` +
+    (lastMA ? `Latest avg (${fmtDate(lastMA.date)}): ${lastMA.value.toFixed(2)} pts (n=${lastMA.n}).` : `No rolling average yet.`);
+
+  setChipGb(lastMA ? `${lastMA.value.toFixed(2)} pts` : "—");
 }
 
 /* -------------------- MAIN -------------------- */
 
+function renderPollsterPills() {
+  const wrap = document.getElementById("pollsterPills");
+  wrap.innerHTML = "";
+  for (const p of ALLOWED_POLLSTERS) {
+    const el = document.createElement("div");
+    el.className = "pill";
+    el.textContent = p.label;
+    wrap.appendChild(el);
+  }
+}
+
 async function main() {
-  renderPollsterList();
+  renderPollsterPills();
+  setChipStatus("Loading");
+  setUpdated("—");
+  setChipAp("—");
+  setChipGb("—");
 
   const now = new Date();
-  const from = new Date(now.getTime() - LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
-  const fromISO = from.toISOString().slice(0, 10);
+  const from = new Date(now.getTime() - LOOKBACK_DAYS * 24*60*60*1000);
+  const fromISO = from.toISOString().slice(0,10);
 
   setStatus(
 `Loading…
 Lookback: ${LOOKBACK_DAYS} days (from ${fromISO})
-Proxy attempts: ${PROXY_TEMPLATES.map(p => p.name).join(", ")}`
+Proxy attempts: ${PROXY_TEMPLATES.map(p=>p.name).join(", ")}`
   );
 
-  // ---- Approval fetch (try subject candidates) ----
+  // Approval: try multiple subject spellings.
   let approvalRaw = [];
-  let approvalVia = "(none)";
-  let approvalUrlUsed = "(none)";
-  let approvalSubjectUsed = "(none)";
-  let approvalFetchTotal = 0;
-
+  let approvalMeta = { via:"—", subject:"—" };
   for (const subj of APPROVAL_SUBJECT_CANDIDATES) {
-    const { polls, via, url } = await fetchPollsSmart({
-      poll_type: "approval",
-      subject: subj,
-      from_date: fromISO
-    });
-
-    approvalFetchTotal = polls.length;
-    approvalRaw = polls;
-    approvalVia = via;
-    approvalUrlUsed = url;
-    approvalSubjectUsed = subj;
-
-    // accept the first non-empty result, else keep trying
-    if (polls.length > 0) break;
+    const pack = await fetchPollsSmart({ poll_type:"approval", subject: subj, from_date: fromISO });
+    approvalRaw = pack.polls;
+    approvalMeta = { via: pack.via, subject: subj };
+    if (approvalRaw.length > 0) break;
   }
 
-  // ---- Generic ballot fetch ----
-  const gbPack = await fetchPollsSmart({
-    poll_type: "generic-ballot",
-    from_date: fromISO
-  });
+  // Generic ballot
+  const gbPack = await fetchPollsSmart({ poll_type:"generic-ballot", from_date: fromISO });
   const gbRaw = gbPack.polls;
-  const gbVia = gbPack.via;
-  const gbUrlUsed = gbPack.url;
 
-  logDebug(`Approval via=${approvalVia} subject=${approvalSubjectUsed} raw=${approvalRaw.length}`);
-  logDebug(`Approval url=${approvalUrlUsed}`);
-  logDebug(`GB via=${gbVia} raw=${gbRaw.length}`);
-  logDebug(`GB url=${gbUrlUsed}`);
-
-  // ---- Process approval ----
+  // Process approval
   const approvalFiltered = approvalRaw
     .filter(p => isAllowedPollster(p.pollster))
     .map(p => {
-      const approve = getAnswerPct(p, ["Approve", "Approval", "Yes"]);
-      const disapprove = getAnswerPct(p, ["Disapprove", "Disapproval", "No"]);
+      const approve = getAnswerPct(p, ["Approve","Approval","Yes"]);
+      const disapprove = getAnswerPct(p, ["Disapprove","Disapproval","No"]);
       const date = p.end_date ? parseDateYYYYMMDD(p.end_date) : null;
-
       if (!date || approve == null || !Number.isFinite(approve)) return null;
-
       return {
         date,
         value: Number(approve),
@@ -536,23 +732,15 @@ Proxy attempts: ${PROXY_TEMPLATES.map(p => p.name).join(", ")}`
     })
     .filter(Boolean);
 
-  const approvalMA = rollingMeanDaily(approvalFiltered, APPROVAL_WINDOW_DAYS);
-
-  // ---- Process generic ballot ----
+  // Process generic ballot (national generic if seat_name present)
   const gbFiltered = gbRaw
-    .filter(p => {
-      // keep only the national generic entry if seat_name is present
-      if (p.seat_name == null) return true;
-      return String(p.seat_name).toLowerCase() === "generic";
-    })
+    .filter(p => (p.seat_name == null) || String(p.seat_name).toLowerCase() === "generic")
     .filter(p => isAllowedPollster(p.pollster))
     .map(p => {
-      const dem = getAnswerPct(p, ["Dem", "Democrat", "Democratic", "Democratic Party"]);
-      const rep = getAnswerPct(p, ["Rep", "Republican", "GOP", "Republican Party"]);
+      const dem = getAnswerPct(p, ["Dem","Democrat","Democratic","Democratic Party"]);
+      const rep = getAnswerPct(p, ["Rep","Republican","GOP","Republican Party"]);
       const date = p.end_date ? parseDateYYYYMMDD(p.end_date) : null;
-
       if (!date || dem == null || rep == null || !Number.isFinite(dem) || !Number.isFinite(rep)) return null;
-
       return {
         date,
         value: Number(dem) - Number(rep),
@@ -565,27 +753,36 @@ Proxy attempts: ${PROXY_TEMPLATES.map(p => p.name).join(", ")}`
     })
     .filter(Boolean);
 
+  const approvalMA = rollingMeanDaily(approvalFiltered, APPROVAL_WINDOW_DAYS);
   const gbMA = rollingMeanDaily(gbFiltered, GB_WINDOW_DAYS);
 
-  // ---- Render charts ----
   renderApproval(approvalFiltered, approvalMA, {
     totalFetched: approvalRaw.length,
-    totalIncluded: approvalFiltered.length,
-    byPollster: buildPollsterCounts(approvalFiltered)
+    totalIncluded: approvalFiltered.length
   });
-
   renderGenericBallot(gbFiltered, gbMA, {
     totalFetched: gbRaw.length,
-    totalIncluded: gbFiltered.length,
-    byPollster: buildPollsterCounts(gbFiltered)
+    totalIncluded: gbFiltered.length
   });
+
+  const updated = new Date().toLocaleString();
+  setUpdated(updated);
+  setChipStatus("Live");
+
+  const apLast = approvalMA.length ? approvalMA[approvalMA.length-1] : null;
+  const gbLast = gbMA.length ? gbMA[gbMA.length-1] : null;
+
+  const apCounts = buildPollsterCounts(approvalFiltered).slice(0,6).map(([k,v])=>`${k} (${v})`).join(", ");
+  const gbCounts = buildPollsterCounts(gbFiltered).slice(0,6).map(([k,v])=>`${k} (${v})`).join(", ");
 
   setStatus(
 `Loaded.
-Approval: fetched=${approvalRaw.length} via=${approvalVia} subject="${approvalSubjectUsed}"
-Generic ballot: fetched=${gbRaw.length} via=${gbVia}
-Included after pollster filter: approval=${approvalFiltered.length}, generic-ballot=${gbFiltered.length}
-Last refresh: ${new Date().toLocaleString()}`
+Approval: fetched=${approvalRaw.length} via=${approvalMeta.via} subject="${approvalMeta.subject}" | included=${approvalFiltered.length}
+Generic ballot: fetched=${gbRaw.length} via=${gbPack.via} | included=${gbFiltered.length}
+Latest avgs: approval=${apLast ? apLast.value.toFixed(2)+"%" : "—"}, GB=${gbLast ? gbLast.value.toFixed(2)+" pts" : "—"}
+Top pollster counts (approval): ${apCounts || "—"}
+Top pollster counts (generic ballot): ${gbCounts || "—"}
+Updated: ${updated}`
   );
 }
 
