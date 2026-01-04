@@ -10,14 +10,15 @@
     body { margin: 0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; line-height: 1.35; }
     header { padding: 18px 16px; border-bottom: 1px solid rgba(127,127,127,0.35); }
     header h1 { margin: 0 0 6px 0; font-size: 18px; font-weight: 650; }
-    header .meta { font-size: 12px; opacity: 0.8; }
+    header .meta { font-size: 12px; opacity: 0.85; }
     main { padding: 14px 16px 24px; max-width: 1100px; margin: 0 auto; }
     .card { border: 1px solid rgba(127,127,127,0.35); border-radius: 12px; padding: 12px; margin: 12px 0; }
     .card h2 { margin: 0 0 6px 0; font-size: 15px; }
-    #status { font-size: 12px; opacity: 0.9; margin-bottom: 10px; white-space: pre-wrap; }
+    #status { font-size: 12px; opacity: 0.92; margin-bottom: 10px; white-space: pre-wrap; }
     .plot { width: 100%; height: 520px; }
     .small { font-size: 12px; opacity: 0.85; white-space: pre-wrap; }
-    .warn { color: inherit; opacity: 0.95; }
+    code.inline { padding: 1px 5px; border: 1px solid rgba(127,127,127,0.35); border-radius: 6px; font-size: 12px; }
+    #debugCard { display: none; }
   </style>
 </head>
 
@@ -25,7 +26,8 @@
   <header>
     <h1>Polling Dashboard (restricted pollster list)</h1>
     <div class="meta">
-      Data: VoteHub Polling API (CC BY 4.0 per their docs). Rolling averages: 14d (approval), 30d (generic ballot).
+      Static client-side dashboard. Rolling averages: 14d (approval), 30d (generic ballot).
+      Debug: add <code class="inline">?debug=1</code>.
     </div>
   </header>
 
@@ -49,25 +51,62 @@
       <div class="small" id="pollsterList"></div>
     </div>
 
-    <div class="card" id="debugCard" style="display:none;">
+    <div class="card" id="debugCard">
       <h2>Debug</h2>
       <div class="small" id="debugOut"></div>
     </div>
   </main>
 
 <script>
-/**
- * VoteHub API docs describe GET /polls with filters like poll_type, subject, from_date.
- * Endpoint used here: https://api.votehub.com/polls?poll_type=...
- */
+/* -------------------- Config -------------------- */
 
-const API_BASE = "https://api.votehub.com/polls";
+// Try both bases because deployments sometimes mount routes differently.
+const API_BASE_CANDIDATES = [
+  "https://api.votehub.com/polls",
+  "https://api.votehub.com/polls/polls"
+];
 
-// If the browser blocks cross-origin fetch (CORS / privacy extensions), we fall back.
-// You can set this to "" to disable the fallback.
-const CORS_FALLBACK_PREFIX = "https://r.jina.ai/http://";
+// If the browser blocks cross-origin requests to api.votehub.com, this fallback can still work on GitHub Pages.
+// Disable by adding ?proxy=0
+const PROXY_PREFIXES = (new URLSearchParams(location.search).get("proxy") === "0")
+  ? [""]
+  : ["", "https://r.jina.ai/http://"];
 
 const DEBUG = new URLSearchParams(location.search).has("debug");
+
+const APPROVAL_WINDOW_DAYS = 14;
+const GB_WINDOW_DAYS = 30;
+
+// How far back to request from VoteHub.
+const LOOKBACK_DAYS = 400;
+
+/* -------------------- Pollster allowlist -------------------- */
+
+const ALLOWED_POLLSTERS = [
+  { label: "YouGov", pattern: /yougov/ },
+  { label: "Ipsos", pattern: /ipsos/ },
+  { label: "American Research Group", pattern: /americanresearchgroup|arg\b/ },
+  { label: "TIPP Insights", pattern: /tipp/ },
+  { label: "Emerson College", pattern: /emerson/ },
+  { label: "Gallup", pattern: /gallup/ },
+  { label: "Marist College", pattern: /marist/ },
+  { label: "Quinnipiac University", pattern: /quinnipiac/ },
+  { label: "AP-NORC", pattern: /apnorc|ap\-norc|norc/ },
+  { label: "Marquette University Law School", pattern: /marquette/ },
+  { label: "CNN/SSRS", pattern: /cnnssrs|cnn\/ssrs|ssrs/ },
+  { label: "AtlasIntel", pattern: /atlasintel|atlas/ },
+  { label: "Beacon Research/Shaw & Co. Research", pattern: /beaconresearch|shaw/ },
+  { label: "Hart Research Associates/Public Opinion Strategies", pattern: /hartresearch|publicopinionstrategies/ },
+  { label: "Verasight", pattern: /verasight/ },
+  { label: "Pew Research Center", pattern: /pewresearch|pew/ },
+  { label: "SurveyMonkey", pattern: /surveymonkey/ },
+  { label: "The Argument/Verasight", pattern: /theargument/ },
+  { label: "Leger", pattern: /leger/ },
+  { label: "University of Massachusetts Dept. of Political Science/YouGov", pattern: /massachusetts|umass|departmentofpoliticalscience/ }
+];
+
+/* -------------------- Utilities -------------------- */
+
 const debugCard = document.getElementById("debugCard");
 const debugOut = document.getElementById("debugOut");
 if (DEBUG) debugCard.style.display = "block";
@@ -81,44 +120,10 @@ function setStatus(msg) {
   document.getElementById("status").textContent = msg;
 }
 
-// Catch “script died silently” situations.
-window.addEventListener("error", (e) => {
-  setStatus(`Runtime error: ${e.message || e.type}\n(See ?debug=1 for more details)`);
-  logDebug(`window.error: ${e.message}\n${e.filename}:${e.lineno}:${e.colno}`);
-});
-window.addEventListener("unhandledrejection", (e) => {
-  const msg = (e && e.reason && e.reason.message) ? e.reason.message : String(e.reason || e);
-  setStatus(`Unhandled promise rejection: ${msg}\n(See ?debug=1 for more details)`);
-  logDebug(`unhandledrejection: ${msg}`);
-});
-
-// Your allowed list, implemented as robust match patterns to survive small naming differences.
-const ALLOWED_POLLSTERS = [
-  { label: "YouGov", pattern: /yougov/ },
-  { label: "Ipsos", pattern: /ipsos/ },
-  { label: "American Research Group", pattern: /americanresearchgroup|arg\b/ },
-  { label: "TIPP Insights", pattern: /tipp/ },
-  { label: "Emerson College", pattern: /emerson/ },
-  { label: "Gallup", pattern: /gallup/ },
-  { label: "Marist College", pattern: /marist/ },
-  { label: "Quinnipiac University", pattern: /quinnipiac/ },
-  { label: "AP-NORC", pattern: /apnorc|norc/ },
-  { label: "Marquette University Law School", pattern: /marquette/ },
-  { label: "CNN/SSRS", pattern: /cnnssrs|ssrs/ },
-  { label: "AtlasIntel", pattern: /atlasintel|atlas/ },
-  { label: "Beacon Research/Shaw & Co. Research", pattern: /beaconresearch|shaw/ },
-  { label: "Hart Research Associates/Public Opinion Strategies", pattern: /hartresearch|publicopinionstrategies/ },
-  { label: "Verasight", pattern: /verasight/ },
-  { label: "Pew Research Center", pattern: /pewresearch|pew/ },
-  { label: "SurveyMonkey", pattern: /surveymonkey/ },
-  { label: "The Argument/Verasight", pattern: /theargument/ },
-  { label: "Leger", pattern: /leger/ },
-  { label: "UMass Dept. of Political Science/YouGov", pattern: /massachusetts|umass|departmentofpoliticalscience/ }
-];
-
-function renderPollsterList() {
-  document.getElementById("pollsterList").textContent =
-    ALLOWED_POLLSTERS.map(x => `• ${x.label}`).join("\n");
+function ensurePlotly() {
+  if (!window.Plotly || typeof Plotly.newPlot !== "function") {
+    throw new Error("Plotly failed to load (CDN blocked?).");
+  }
 }
 
 function norm(s) {
@@ -141,51 +146,70 @@ function fmtDate(d) {
   return d.toISOString().slice(0, 10);
 }
 
-function getAnswerPct(poll, wantedChoices) {
-  const answers = Array.isArray(poll.answers) ? poll.answers : [];
-  for (const a of answers) {
-    const c = norm(a.choice);
-    for (const w of wantedChoices) {
-      if (c === norm(w)) return Number(a.pct);
-    }
-  }
-  return null;
-}
-
 function rollingMeanDaily(points, windowDays) {
   if (!points.length) return [];
   const msDay = 24 * 60 * 60 * 1000;
   const windowMs = windowDays * msDay;
 
   const pts = points.slice().sort((a, b) => a.date - b.date);
-  const minD = new Date(Date.UTC(pts[0].date.getUTCFullYear(), pts[0].date.getUTCMonth(), pts[0].date.getUTCDate()));
-  const maxD = new Date(Date.UTC(pts[pts.length - 1].date.getUTCFullYear(), pts[pts.length - 1].date.getUTCMonth(), pts[pts.length - 1].date.getUTCDate()));
+
+  const minD = new Date(Date.UTC(
+    pts[0].date.getUTCFullYear(),
+    pts[0].date.getUTCMonth(),
+    pts[0].date.getUTCDate()
+  ));
+  const maxD = new Date(Date.UTC(
+    pts[pts.length - 1].date.getUTCFullYear(),
+    pts[pts.length - 1].date.getUTCMonth(),
+    pts[pts.length - 1].date.getUTCDate()
+  ));
 
   let i = 0, j = 0, sum = 0;
   const out = [];
+
   for (let t = minD.getTime(); t <= maxD.getTime(); t += msDay) {
     const day = new Date(t);
+
     while (j < pts.length && pts[j].date.getTime() <= day.getTime()) { sum += pts[j].value; j++; }
     const threshold = day.getTime() - windowMs;
     while (i < j && pts[i].date.getTime() <= threshold) { sum -= pts[i].value; i++; }
+
     const n = j - i;
     if (n > 0) out.push({ date: day, value: sum / n, n });
   }
+
   return out;
 }
 
-function buildPollsterCounts(polls) {
+function buildPollsterCounts(points) {
   const counts = new Map();
-  for (const p of polls) {
+  for (const p of points) {
     const k = p.pollster || "Unknown";
     counts.set(k, (counts.get(k) || 0) + 1);
   }
   return [...counts.entries()].sort((a,b) => b[1] - a[1]);
 }
 
-// Robust JSON parsing (handles proxies that wrap content)
+// Match answer labels loosely (VoteHub answers aren’t always identical across polls).
+function choiceMatches(choice, wanted) {
+  const c = norm(choice);
+  const w = norm(wanted);
+  return c === w || c.includes(w) || w.includes(c);
+}
+
+function getAnswerPct(poll, wantedChoices) {
+  const answers = Array.isArray(poll.answers) ? poll.answers : [];
+  for (const a of answers) {
+    for (const w of wantedChoices) {
+      if (choiceMatches(a.choice, w)) return Number(a.pct);
+    }
+  }
+  return null;
+}
+
 function parseJsonRobust(text) {
   try { return JSON.parse(text); } catch (_) {}
+
   const firstBrace = text.indexOf("{");
   const firstBracket = text.indexOf("[");
   let start = -1, end = -1;
@@ -197,11 +221,24 @@ function parseJsonRobust(text) {
     start = firstBrace;
     end = text.lastIndexOf("}");
   }
+
   if (start !== -1 && end !== -1 && end > start) {
-    const sliced = text.slice(start, end + 1);
-    return JSON.parse(sliced);
+    return JSON.parse(text.slice(start, end + 1));
   }
-  throw new Error("Could not parse JSON from response text.");
+
+  throw new Error("Could not parse JSON.");
+}
+
+function extractPollArray(json) {
+  if (Array.isArray(json)) return json;
+  if (json && Array.isArray(json.polls)) return json.polls;
+  return null;
+}
+
+function proxyUrl(rawUrl, prefix) {
+  if (!prefix) return rawUrl;
+  // r.jina.ai/http://example.com/path... (no scheme in tail)
+  return prefix + rawUrl.replace(/^https?:\/\//, "");
 }
 
 async function fetchTextWithTimeout(url, timeoutMs = 20000) {
@@ -214,43 +251,63 @@ async function fetchTextWithTimeout(url, timeoutMs = 20000) {
       signal: ctrl.signal
     });
     const ct = res.headers.get("content-type") || "";
-    const txt = await res.text();
-    return { ok: res.ok, status: res.status, contentType: ct, text: txt, url };
+    const text = await res.text();
+    return { res, ct, text };
   } finally {
     clearTimeout(t);
   }
 }
 
-async function fetchPolls(url) {
-  // Try direct
-  try {
-    const r = await fetchTextWithTimeout(url);
-    if (!r.ok) throw new Error(`HTTP ${r.status} (direct)`);
-    const data = parseJsonRobust(r.text);
-    const polls = Array.isArray(data) ? data : (data && Array.isArray(data.polls) ? data.polls : []);
-    logDebug(`Direct OK: ${url}\ncontent-type=${r.contentType}\nitems=${polls.length}`);
-    return polls;
-  } catch (e) {
-    logDebug(`Direct FAIL: ${url}\n${e && e.message ? e.message : e}`);
-  }
-
-  // Fallback proxy (helps if browser blocks CORS)
-  if (!CORS_FALLBACK_PREFIX) throw new Error("Direct fetch failed and fallback proxy disabled.");
-
-  const proxied = CORS_FALLBACK_PREFIX + url.replace(/^https?:\/\//, "");
-  const r2 = await fetchTextWithTimeout(proxied);
-  if (!r2.ok) throw new Error(`HTTP ${r2.status} (proxy)`);
-  const data2 = parseJsonRobust(r2.text);
-  const polls2 = Array.isArray(data2) ? data2 : (data2 && Array.isArray(data2.polls) ? data2.polls : []);
-  logDebug(`Proxy OK: ${proxied}\ncontent-type=${r2.contentType}\nitems=${polls2.length}`);
-  return polls2;
+function renderPollsterList() {
+  document.getElementById("pollsterList").textContent =
+    ALLOWED_POLLSTERS.map(x => `• ${x.label}`).join("\n");
 }
 
-function ensurePlotly() {
-  if (!window.Plotly || typeof Plotly.newPlot !== "function") {
-    throw new Error("Plotly failed to load (CDN blocked?).");
+/* -------------------- Fetching logic -------------------- */
+
+// This fetcher will:
+// - try both API base paths
+// - try direct first, then proxy fallback (unless disabled)
+// - throw an error with diagnostics if everything fails
+async function fetchPollsSmart(queryString) {
+  let lastDiag = null;
+
+  for (const base of API_BASE_CANDIDATES) {
+    const rawUrl = `${base}?${queryString}`;
+    for (const px of PROXY_PREFIXES) {
+      const u = proxyUrl(rawUrl, px);
+      try {
+        const { res, ct, text } = await fetchTextWithTimeout(u);
+        if (!res.ok) {
+          lastDiag = `HTTP ${res.status} for ${u}\ncontent-type=${ct}\nbody(head)=${text.slice(0, 220)}`;
+          logDebug(lastDiag);
+          continue;
+        }
+
+        const json = parseJsonRobust(text);
+        const polls = extractPollArray(json);
+
+        if (!polls) {
+          const keys = (json && typeof json === "object") ? Object.keys(json).slice(0, 20).join(", ") : "(not an object)";
+          lastDiag = `Unexpected JSON shape for ${u}\nkeys=${keys}\nbody(head)=${text.slice(0, 220)}`;
+          logDebug(lastDiag);
+          continue;
+        }
+
+        logDebug(`FETCH OK: ${u} items=${polls.length}`);
+        return polls;
+      } catch (e) {
+        lastDiag = `Fetch/parse error for ${u}: ${e && e.message ? e.message : String(e)}`;
+        logDebug(lastDiag);
+        continue;
+      }
+    }
   }
+
+  throw new Error(lastDiag || "Failed to fetch polls (no diagnostic).");
 }
+
+/* -------------------- Rendering -------------------- */
 
 function renderApproval(points, maSeries, meta) {
   ensurePlotly();
@@ -276,7 +333,7 @@ function renderApproval(points, maSeries, meta) {
   const traceMA = {
     type: "scatter",
     mode: "lines",
-    name: "14-day rolling avg",
+    name: `${APPROVAL_WINDOW_DAYS}-day rolling avg`,
     x: maSeries.map(d => d.date),
     y: maSeries.map(d => d.value),
     hovertemplate: "%{x|%Y-%m-%d}<br>Avg: %{y:.2f}%<br>Polls in window: %{customdata}<extra></extra>",
@@ -295,7 +352,7 @@ function renderApproval(points, maSeries, meta) {
   const lastMA = maSeries.length ? maSeries[maSeries.length - 1] : null;
   document.getElementById("approvalNote").textContent = [
     `Included polls: ${meta.totalIncluded} (from ${meta.totalFetched} fetched).`,
-    lastMA ? `Latest 14-day avg (as of ${fmtDate(lastMA.date)}): ${lastMA.value.toFixed(2)}% (window polls: ${lastMA.n}).`
+    lastMA ? `Latest ${APPROVAL_WINDOW_DAYS}-day avg (as of ${fmtDate(lastMA.date)}): ${lastMA.value.toFixed(2)}% (window polls: ${lastMA.n}).`
            : `Not enough data for rolling average.`,
     meta.byPollster.length ? `Top pollsters by count: ${meta.byPollster.slice(0, 6).map(([k,v]) => `${k} (${v})`).join(", ")}.` : ""
   ].filter(Boolean).join(" ");
@@ -325,7 +382,7 @@ function renderGenericBallot(points, maSeries, meta) {
   const traceMA = {
     type: "scatter",
     mode: "lines",
-    name: "30-day rolling avg",
+    name: `${GB_WINDOW_DAYS}-day rolling avg`,
     x: maSeries.map(d => d.date),
     y: maSeries.map(d => d.value),
     hovertemplate: "%{x|%Y-%m-%d}<br>Avg margin: %{y:.2f}<br>Polls in window: %{customdata}<extra></extra>",
@@ -349,87 +406,109 @@ function renderGenericBallot(points, maSeries, meta) {
   const lastMA = maSeries.length ? maSeries[maSeries.length - 1] : null;
   document.getElementById("gbNote").textContent = [
     `Included polls: ${meta.totalIncluded} (from ${meta.totalFetched} fetched).`,
-    lastMA ? `Latest 30-day avg (as of ${fmtDate(lastMA.date)}): ${lastMA.value.toFixed(2)} pts (window polls: ${lastMA.n}).`
+    lastMA ? `Latest ${GB_WINDOW_DAYS}-day avg (as of ${fmtDate(lastMA.date)}): ${lastMA.value.toFixed(2)} pts (window polls: ${lastMA.n}).`
            : `Not enough data for rolling average.`,
     meta.byPollster.length ? `Top pollsters by count: ${meta.byPollster.slice(0, 6).map(([k,v]) => `${k} (${v})`).join(", ")}.` : ""
   ].filter(Boolean).join(" ");
 }
 
+/* -------------------- Main -------------------- */
+
+window.addEventListener("error", (e) => {
+  setStatus(`Runtime error: ${e.message || e.type}\nOpen with ?debug=1 for details.`);
+  logDebug(`window.error: ${e.message}\n${e.filename}:${e.lineno}:${e.colno}`);
+});
+window.addEventListener("unhandledrejection", (e) => {
+  const msg = (e && e.reason && e.reason.message) ? e.reason.message : String(e.reason || e);
+  setStatus(`Unhandled promise rejection: ${msg}\nOpen with ?debug=1 for details.`);
+  logDebug(`unhandledrejection: ${msg}`);
+});
+
 async function main() {
   renderPollsterList();
-  setStatus("Starting…");
 
   const now = new Date();
-  const from = new Date(now.getTime() - 400 * 24 * 60 * 60 * 1000);
-  const fromISO = from.toISOString().slice(0,10);
+  const from = new Date(now.getTime() - LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
+  const fromISO = from.toISOString().slice(0, 10);
 
-  const approvalUrl = `${API_BASE}?poll_type=approval&subject=donald-trump&from_date=${fromISO}`;
-  const gbUrl = `${API_BASE}?poll_type=generic-ballot&from_date=${fromISO}`;
+  // Trump approval: try a couple of likely subject slugs to avoid “0 polls because slug mismatch”.
+  const approvalSubjects = ["donald-trump", "trump"];
 
   setStatus(
 `Loading…
-Approval: ${approvalUrl}
-Generic ballot: ${gbUrl}`
+Lookback: ${LOOKBACK_DAYS} days (from ${fromISO})
+Proxy fallback: ${PROXY_PREFIXES.includes("https://r.jina.ai/http://") ? "enabled" : "disabled"}`
   );
 
-  const [approvalRaw, gbRaw] = await Promise.all([
-    fetchPolls(approvalUrl),
-    fetchPolls(gbUrl)
-  ]);
+  // Fetch approval (first subject that returns any items; if all are empty, keep the last empty)
+  let approvalRaw = [];
+  let approvalUsedSubject = approvalSubjects[0];
+  for (const subj of approvalSubjects) {
+    const qs = new URLSearchParams({
+      poll_type: "approval",
+      subject: subj,
+      from_date: fromISO
+    }).toString();
 
-  logDebug(`Raw approval pollsters sample: ${approvalRaw.slice(0,5).map(p=>p.pollster).join(" | ")}`);
-  logDebug(`Raw GB pollsters sample: ${gbRaw.slice(0,5).map(p=>p.pollster).join(" | ")}`);
+    const data = await fetchPollsSmart(qs);
+    approvalUsedSubject = subj;
+    approvalRaw = data;
+    if (data.length > 0) break;
+  }
 
+  // Fetch generic ballot
+  const gbQs = new URLSearchParams({
+    poll_type: "generic-ballot",
+    from_date: fromISO
+  }).toString();
+
+  const gbRaw = await fetchPollsSmart(gbQs);
+
+  logDebug(`Approval raw count=${approvalRaw.length} subject=${approvalUsedSubject}`);
+  logDebug(`GB raw count=${gbRaw.length}`);
+
+  // Process approval
   const approvalFiltered = approvalRaw
     .filter(p => isAllowedPollster(p.pollster))
     .map(p => {
-      const approve = getAnswerPct(p, ["Approve"]);
-      const disapprove = getAnswerPct(p, ["Disapprove"]);
+      const approve = getAnswerPct(p, ["Approve", "Approval", "Yes"]);
+      const disapprove = getAnswerPct(p, ["Disapprove", "Disapproval", "No"]);
       const date = p.end_date ? parseDateYYYYMMDD(p.end_date) : null;
-      if (date && approve != null && Number.isFinite(approve)) {
-        return {
-          date,
-          value: Number(approve),
-          approve: Number(approve),
-          disapprove: disapprove != null ? Number(disapprove) : null,
-          pollster: p.pollster || "Unknown",
-          sample_size: p.sample_size || "",
-          url: p.url || ""
-        };
-      }
-      return null;
+      if (!date || approve == null || !Number.isFinite(approve)) return null;
+      return {
+        date,
+        value: Number(approve),
+        approve: Number(approve),
+        disapprove: (disapprove != null && Number.isFinite(disapprove)) ? Number(disapprove) : null,
+        pollster: p.pollster || "Unknown",
+        sample_size: p.sample_size || "",
+        url: p.url || ""
+      };
     })
     .filter(Boolean);
 
+  // Process generic ballot
   const gbFiltered = gbRaw
     .filter(p => isAllowedPollster(p.pollster))
-    .filter(p => (p.seat_name == null) || String(p.seat_name).toLowerCase() === "generic")
     .map(p => {
-      const dem = getAnswerPct(p, ["Dem", "Democrat"]);
-      const rep = getAnswerPct(p, ["Rep", "Republican"]);
+      const dem = getAnswerPct(p, ["Dem", "Democrat", "Democratic", "Democratic Party"]);
+      const rep = getAnswerPct(p, ["Rep", "Republican", "GOP", "Republican Party"]);
       const date = p.end_date ? parseDateYYYYMMDD(p.end_date) : null;
-      if (date && dem != null && rep != null && Number.isFinite(dem) && Number.isFinite(rep)) {
-        return {
-          date,
-          value: Number(dem) - Number(rep),
-          dem: Number(dem),
-          rep: Number(rep),
-          pollster: p.pollster || "Unknown",
-          sample_size: p.sample_size || "",
-          url: p.url || ""
-        };
-      }
-      return null;
+      if (!date || dem == null || rep == null || !Number.isFinite(dem) || !Number.isFinite(rep)) return null;
+      return {
+        date,
+        value: Number(dem) - Number(rep),
+        dem: Number(dem),
+        rep: Number(rep),
+        pollster: p.pollster || "Unknown",
+        sample_size: p.sample_size || "",
+        url: p.url || ""
+      };
     })
     .filter(Boolean);
 
-  logDebug(`After filter: approval=${approvalFiltered.length}, gb=${gbFiltered.length}`);
-  if (!approvalFiltered.length || !gbFiltered.length) {
-    logDebug("If counts are zero, it’s either filter mismatch or API fetch blocked; proxy fallback should help if it’s CORS.");
-  }
-
-  const approvalMA = rollingMeanDaily(approvalFiltered, 14);
-  const gbMA = rollingMeanDaily(gbFiltered, 30);
+  const approvalMA = rollingMeanDaily(approvalFiltered, APPROVAL_WINDOW_DAYS);
+  const gbMA = rollingMeanDaily(gbFiltered, GB_WINDOW_DAYS);
 
   renderApproval(approvalFiltered, approvalMA, {
     totalFetched: approvalRaw.length,
@@ -443,8 +522,15 @@ Generic ballot: ${gbUrl}`
     byPollster: buildPollsterCounts(gbFiltered)
   });
 
-  setStatus(`Loaded.
-Last refresh: ${new Date().toLocaleString()}`);
+  // If you still see "from 0 fetched", this line will reflect the truth now:
+  // either the fetch failed (you’ll see an error), or VoteHub returned an empty list.
+  setStatus(
+`Loaded.
+Approval subject used: ${approvalUsedSubject}
+Fetched: approval=${approvalRaw.length}, generic-ballot=${gbRaw.length}
+Included after pollster filter: approval=${approvalFiltered.length}, generic-ballot=${gbFiltered.length}
+Last refresh: ${new Date().toLocaleString()}`
+  );
 }
 
 main();
