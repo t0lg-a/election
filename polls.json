@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-01-06T11:44:15.464Z",
+  "updatedAt": "2026-01-07T11:45:29.490Z",
   "approval": [
     {
       "id": "appdoninsm57hlnce",
@@ -17548,6 +17548,114 @@
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonmor8yl39gvm",
+      "poll_type": "approval",
+      "sample_size": 45000,
+      "population": "a",
+      "url": "https://pro.morningconsult.com/trackers/global-leader-approval#01-04-2026",
+      "created_at": "2026-01-06",
+      "start_date": "2025-12-29",
+      "end_date": "2026-01-04",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 43
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 51
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonmorkxajhef2",
+      "poll_type": "approval",
+      "sample_size": 2201,
+      "population": "rv",
+      "url": "https://pro.morningconsult.com/trackers/donald-trump-congress-policy-republicans-polling#01-04-2026",
+      "created_at": "2026-01-06",
+      "start_date": "2026-01-02",
+      "end_date": "2026-01-04",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 46
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 51
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyoukkhzphom",
+      "poll_type": "approval",
+      "sample_size": 1551,
+      "population": "a",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econtoplines_EO7XvNO.pdf",
+      "created_at": "2026-01-06",
+      "start_date": "2026-01-02",
+      "end_date": "2026-01-05",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 39
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 56
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyouxjtwkhuy",
+      "poll_type": "approval",
+      "sample_size": 1389,
+      "population": "rv",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econtoplines_EO7XvNO.pdf",
+      "created_at": "2026-01-06",
+      "start_date": "2026-01-02",
+      "end_date": "2026-01-05",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 43
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 55
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
     }
   ],
   "genericBallot": [
@@ -23949,6 +24057,88 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202morjcls6rqx",
+      "poll_type": "generic-ballot",
+      "sample_size": 2201,
+      "population": "rv",
+      "url": "https://pro.morningconsult.com/trackers/donald-trump-congress-policy-republicans-polling#01-04-2026",
+      "created_at": "2026-01-06",
+      "start_date": "2026-01-02",
+      "end_date": "2026-01-04",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 45
+        },
+        {
+          "choice": "Rep",
+          "pct": 42
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202youu3ai7u27",
+      "poll_type": "generic-ballot",
+      "sample_size": 1551,
+      "population": "a",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econtoplines_EO7XvNO.pdf",
+      "created_at": "2026-01-06",
+      "start_date": "2026-01-02",
+      "end_date": "2026-01-05",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 39
+        },
+        {
+          "choice": "Rep",
+          "pct": 32
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202youurkrv24g",
+      "poll_type": "generic-ballot",
+      "sample_size": 1389,
+      "population": "rv",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econtoplines_EO7XvNO.pdf",
+      "created_at": "2026-01-06",
+      "start_date": "2026-01-02",
+      "end_date": "2026-01-05",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 45
+        },
+        {
+          "choice": "Rep",
+          "pct": 39
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "2026"
