@@ -1,0 +1,1126 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kocaeli Özel Bölge Çizimi (Mahalle Bazlı)</title>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1a2e;
+      --panel2:#0c1628;
+      --ink:#e5e7eb;
+      --muted:#94a3b8;
+      --line:rgba(148,163,184,.18);
+      --accent:#60a5fa;
+      --danger:#ef4444;
+      --ok:#22c55e;
+      --warn:#f59e0b;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; margin:0; background:var(--bg); color:var(--ink); font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; }
+    a{ color:var(--accent); text-decoration:none; }
+    .app{ height:100%; display:flex; flex-direction:column; }
+    .topbar{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px; border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0));
+    }
+    .title{ font-weight:700; letter-spacing:.2px; }
+    .pill{ font-size:12px; padding:3px 8px; border:1px solid var(--line); border-radius:999px; color:var(--muted); }
+    .spacer{ flex:1; }
+    .btn{
+      appearance:none; border:1px solid var(--line); background:rgba(255,255,255,.04);
+      color:var(--ink); border-radius:10px; padding:8px 10px; font-size:13px; cursor:pointer;
+    }
+    .btn:hover{ border-color:rgba(148,163,184,.35); }
+    .btn.primary{ border-color:rgba(96,165,250,.55); background:rgba(96,165,250,.14); }
+    .btn.danger{ border-color:rgba(239,68,68,.5); background:rgba(239,68,68,.12); }
+    .btn.small{ padding:6px 8px; font-size:12px; border-radius:9px; }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .main{ flex:1; display:flex; min-height:0; }
+    #map{ flex:1; min-width:0; }
+    .panel{
+      width:420px; max-width:42vw; min-width:340px;
+      border-left:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0));
+      display:flex; flex-direction:column; min-height:0;
+    }
+    .tabs{ display:flex; gap:8px; padding:10px 10px 0 10px; }
+    .tab{
+      flex:1; text-align:center; padding:8px 10px; cursor:pointer; user-select:none;
+      border:1px solid var(--line); border-bottom:none; border-radius:12px 12px 0 0;
+      background:rgba(255,255,255,.03); color:var(--muted); font-size:13px;
+    }
+    .tab.active{ color:var(--ink); background:rgba(255,255,255,.06); border-color:rgba(148,163,184,.28); }
+    .pane{
+      border-top:1px solid var(--line);
+      background:rgba(11,18,32,.35);
+      padding:10px;
+      overflow:auto;
+      flex:1;
+    }
+    .card{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      border-radius:14px;
+      padding:10px;
+      margin-bottom:10px;
+    }
+    .row{ display:flex; gap:8px; align-items:center; }
+    .row.wrap{ flex-wrap:wrap; }
+    .row.between{ justify-content:space-between; }
+    .muted{ color:var(--muted); }
+    .mono{ font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
+    .k{ font-size:12px; color:var(--muted); }
+    .v{ font-size:14px; }
+    .hr{ height:1px; background:var(--line); margin:10px 0; }
+    .input, .select{
+      width:100%;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:rgba(255,255,255,.02);
+      color:var(--ink);
+      outline:none;
+      font-size:13px;
+    }
+    .input:focus, .select:focus{ border-color:rgba(96,165,250,.6); }
+    .tiny{ font-size:12px; }
+    .badge{
+      font-size:12px; padding:3px 8px; border-radius:999px; border:1px solid var(--line);
+      color:var(--muted);
+    }
+    .badge.ok{ border-color:rgba(34,197,94,.45); color:rgba(34,197,94,.95); background:rgba(34,197,94,.10); }
+    .badge.warn{ border-color:rgba(245,158,11,.45); color:rgba(245,158,11,.95); background:rgba(245,158,11,.10); }
+    .badge.bad{ border-color:rgba(239,68,68,.45); color:rgba(239,68,68,.95); background:rgba(239,68,68,.10); }
+    .district-dot{ width:10px; height:10px; border-radius:50%; border:1px solid rgba(255,255,255,.25); display:inline-block; }
+    .list{ display:flex; flex-direction:column; gap:8px; }
+    .item{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      border-radius:12px;
+      padding:10px;
+    }
+    .item.active{ border-color:rgba(96,165,250,.6); box-shadow:0 0 0 3px rgba(96,165,250,.12) inset; }
+    .item .name{ font-weight:700; }
+    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+
+    .statusbar{
+      position:absolute;
+      left:10px; bottom:10px;
+      background:rgba(15,26,46,.90);
+      border:1px solid var(--line);
+      color:var(--ink);
+      border-radius:12px;
+      padding:8px 10px;
+      min-width:260px;
+      max-width:min(560px, 60vw);
+      pointer-events:none;
+      backdrop-filter: blur(8px);
+      font-size:13px;
+    }
+    .statusbar .sub{ margin-top:2px; color:var(--muted); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .leaflet-control-attribution { background: rgba(11,18,32,.65) !important; color: var(--muted) !important; border-radius: 8px !important; border:1px solid var(--line) !important; }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="title">Kocaeli Özel Bölge Çizimi</div>
+      <div class="pill">Mahalle bazlı • seçim sonuçlarıyla</div>
+      <div class="spacer"></div>
+      <button class="btn small" id="btnHelp">Kısayollar</button>
+      <button class="btn small" id="btnReset" title="Yerel kaydı temizler (district + eşleştirme)">Sıfırla</button>
+    </div>
+
+    <div class="main">
+      <div id="map"></div>
+
+      <div class="panel">
+        <div class="tabs">
+          <div class="tab active" id="tabDistricts">Bölgeler</div>
+          <div class="tab" id="tabLink">Sonuç Eşleştir</div>
+        </div>
+
+        <div class="pane" id="paneDistricts">
+          <div class="card">
+            <div class="row wrap">
+              <button class="btn primary" id="btnNewDistrict">+ Yeni Bölge</button>
+              <button class="btn" id="btnUndo" disabled>Geri Al</button>
+              <button class="btn" id="btnClearActive" disabled>Aktifi Temizle</button>
+              <button class="btn danger" id="btnDeleteActive" disabled>Aktifi Sil</button>
+            </div>
+            <div class="hr"></div>
+            <div class="grid2">
+              <div>
+                <div class="k">Aktif Bölge</div>
+                <div class="v" id="activeDistrictLabel" style="font-weight:700;">(yok)</div>
+              </div>
+              <div>
+                <div class="k">Tık Modu</div>
+                <div class="v">
+                  <label class="tiny"><input type="checkbox" id="chkMove" checked /> Başka bölgeden taşı</label>
+                </div>
+              </div>
+            </div>
+            <div class="hr"></div>
+            <div class="row wrap">
+              <button class="btn" id="btnExportPlan">Planı Dışa Aktar</button>
+              <button class="btn" id="btnExportSummary">Özet Dışa Aktar</button>
+              <label class="tiny"><input type="checkbox" id="chkShowUnmatched" /> Eşleşmeyen mahalleleri göster</label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="k">Arama</div>
+            <input class="input" id="searchBox" placeholder="Mahalle adı yaz (ör. Cumhuriyet)..." />
+            <div class="tiny muted" style="margin-top:6px;">
+              Haritada bir mahalleye tıkla → aktif bölgeye eklenir/çıkarılır.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="row between">
+              <div>
+                <div class="k">Kapsam</div>
+                <div class="v" id="coverageLabel">—</div>
+              </div>
+              <div>
+                <div class="k">Seçim verisi</div>
+                <div class="v" id="dataLabel">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="list" id="districtList"></div>
+        </div>
+
+        <div class="pane" id="paneLink" style="display:none;">
+          <div class="card">
+            <div class="row between">
+              <div>
+                <div class="k">Eşleştirme Durumu</div>
+                <div class="v" id="linkStatusLabel">—</div>
+              </div>
+              <button class="btn" id="btnExportMapping">Eşleştirmeyi Dışa Aktar</button>
+            </div>
+            <div class="hr"></div>
+            <div class="tiny muted">
+              Not: Bazı mahalle isimleri Kocaeli içinde tekrar ediyor (ör. “Cumhuriyet”). Bu ekranda hangi mahalle poligonunun hangi <span class="mono">Muhtarlık Id</span> ile eşleştiğini seçiyorsun.
+            </div>
+          </div>
+
+          <div class="card" id="linkCard">
+            <div class="k">Seçili mahalle</div>
+            <div class="v" id="selName">(haritadan seç)</div>
+            <div class="sub muted" id="selKey"></div>
+            <div class="hr"></div>
+            <div class="k">Aday eşleşmeler</div>
+            <select class="select" id="selMuht" disabled></select>
+            <div class="row wrap" style="margin-top:8px;">
+              <button class="btn primary" id="btnApplyLink" disabled>Uygula</button>
+              <button class="btn" id="btnClearLink" disabled>Bağlantıyı Kaldır</button>
+            </div>
+            <div class="hr"></div>
+            <div class="grid2">
+              <div>
+                <div class="k">Erdoğan</div>
+                <div class="v mono" id="selErd">—</div>
+              </div>
+              <div>
+                <div class="k">Kılıçdaroğlu</div>
+                <div class="v mono" id="selKil">—</div>
+              </div>
+            </div>
+            <div class="tiny muted" style="margin-top:8px;">
+              Eşleştirmeyi yaptıktan sonra “Bölgeler” sekmesinde toplamlara yansır.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="k">İpuçları</div>
+            <div class="tiny muted" style="line-height:1.45;">
+              • <span class="mono">Shift</span> basılıyken tıklarsan “seçim verisi eşleştir” sekmesinde mahalle seçili kalır.<br/>
+              • Seçim verisi olmayan poligonları gizlemek performansı artırır.<br/>
+              • Her şey tarayıcıda ve yerel kayıtta; sunucu yok, telemetri yok.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="statusbar" id="statusbar" style="display:none;">
+    <div id="statusMain">—</div>
+    <div class="sub" id="statusSub">—</div>
+  </div>
+
+<script>
+/* =========================
+   Kocaeli District Builder
+   - Custom districting (not optimization)
+   - GeoJSON polygons + election results per Muhtarlık
+   ========================= */
+
+const GEO_FILE = "export.geojson";
+const RESULTS_FILES = [
+  "SecimSonucMuhtarlik.json",
+  "SecimSonucMuhtarlik-2.json",
+  "SecimSonucMuhtarlik-3.json",
+  "SecimSonucMuhtarlik-4.json",
+  "SecimSonucMuhtarlik-5.json",
+  "SecimSonucMuhtarlik-6.json",
+  "SecimSonucMuhtarlik-7.json",
+];
+
+const LS_KEYS = {
+  plan: "kocaeli_plan_v1",
+  mapping: "kocaeli_vote_mapping_v1",
+};
+
+const state = {
+  map: null,
+  geojson: null,
+  layer: null,
+  featureByKey: new Map(),         // key -> feature
+  layerByKey: new Map(),           // key -> leaflet layer
+  votesByMuht: new Map(),          // muhtId -> {name, erd, kil, total, winner, margin}
+  muhtByNormName: new Map(),       // normName -> [muhtId...]
+  precinctCandidates: new Map(),   // key -> [muhtId...]
+  mapping: {},                     // key -> muhtId (or null)
+  plan: {                          // districts + assignments
+    districts: [],
+    activeId: null,
+    precinctToDistrict: {},        // key -> districtId
+  },
+  lastAction: null,
+  selectedKey: null,               // currently selected feature key (for linking)
+  showUnmatched: false,
+  moveFromOther: true,
+};
+
+function normalizeTR(s){
+  if(!s) return "";
+  s = String(s).toUpperCase().trim();
+  const map = { "Ç":"C","Ğ":"G","İ":"I","Ö":"O","Ş":"S","Ü":"U","Â":"A","Û":"U","Î":"I" };
+  s = s.replace(/[ÇĞİÖŞÜÂÛÎ]/g, ch => map[ch] || ch);
+  s = s.replace(/\bMAHALLESI\b/g, "").replace(/\bMAHALLESİ\b/g, "");
+  s = s.replace(/\bMAHALL\b/g, "").replace(/\bMAH\b/g, "");
+  s = s.replace(/[^\w\s]/g, " ").replace(/\s+/g, " ").trim();
+  return s;
+}
+
+function fmtInt(x){
+  if(x === null || x === undefined || Number.isNaN(x)) return "—";
+  return Number(x).toLocaleString("tr-TR");
+}
+
+function safeJSONparse(s){
+  try{ return JSON.parse(s); } catch { return null; }
+}
+
+function saveLS(){
+  localStorage.setItem(LS_KEYS.plan, JSON.stringify(state.plan));
+  localStorage.setItem(LS_KEYS.mapping, JSON.stringify(state.mapping));
+}
+
+function loadLS(){
+  const plan = safeJSONparse(localStorage.getItem(LS_KEYS.plan));
+  const mapping = safeJSONparse(localStorage.getItem(LS_KEYS.mapping));
+  if(plan && plan.districts && plan.precinctToDistrict){
+    state.plan = plan;
+  }
+  if(mapping && typeof mapping === "object"){
+    state.mapping = mapping;
+  }
+}
+
+function resetLS(){
+  localStorage.removeItem(LS_KEYS.plan);
+  localStorage.removeItem(LS_KEYS.mapping);
+  // keep in-memory but blank them too
+  state.mapping = {};
+  state.plan = { districts: [], activeId: null, precinctToDistrict: {} };
+  state.lastAction = null;
+  state.selectedKey = null;
+}
+
+function randomColorFromId(id){
+  // stable-ish color from integer id
+  const h = (Number(id) * 47) % 360;
+  return `hsl(${h} 80% 55%)`;
+}
+
+function getActiveDistrict(){
+  return state.plan.districts.find(d => d.id === state.plan.activeId) || null;
+}
+
+function setActiveDistrict(id){
+  state.plan.activeId = id;
+  document.getElementById("activeDistrictLabel").textContent = getActiveDistrict()?.name || "(yok)";
+  updateDistrictList();
+  updateAllStyles();
+  updateButtons();
+  saveLS();
+}
+
+function updateButtons(){
+  const hasActive = !!getActiveDistrict();
+  document.getElementById("btnClearActive").disabled = !hasActive;
+  document.getElementById("btnDeleteActive").disabled = !hasActive;
+  document.getElementById("btnUndo").disabled = !state.lastAction;
+  document.getElementById("btnExportPlan").disabled = !state.geojson;
+  document.getElementById("btnExportSummary").disabled = state.plan.districts.length === 0;
+}
+
+function tryGetFeatureKey(feature, idx){
+  // prefer stable IDs if present
+  const p = feature.properties || {};
+  if(feature.id !== undefined && feature.id !== null) return String(feature.id);
+  if(p["@id"]) return String(p["@id"]);
+  if(p.osm_id) return String(p.osm_id);
+  return "f_" + idx;
+}
+
+async function tryFetchJSON(path){
+  try{
+    const r = await fetch(path, { cache: "no-store" });
+    if(!r.ok) return null;
+    return await r.json();
+  } catch {
+    return null;
+  }
+}
+
+async function loadData(){
+  const [geo, ...parts] = await Promise.all([
+    tryFetchJSON(GEO_FILE),
+    ...RESULTS_FILES.map(f => tryFetchJSON(f))
+  ]);
+
+  if(!geo || !geo.features) throw new Error("GeoJSON yüklenemedi: " + GEO_FILE);
+
+  const rows = [];
+  for(const part of parts){
+    if(Array.isArray(part)) rows.push(...part);
+  }
+
+  // Build votesByMuht
+  const tmp = new Map(); // muhtId -> {name, erd, kil}
+  for(const r of rows){
+    const muhtId = String(r["Muhtarlık Id"] ?? "");
+    if(!muhtId) continue;
+    const name = r["Muhtarlık Adı"] ?? "";
+    const erd = Number(r["RECEP TAYYİP ERDOĞAN"] ?? 0);
+    const kil = Number(r["KEMAL KILIÇDAROĞLU"] ?? 0);
+    const cur = tmp.get(muhtId) || { name, erd:0, kil:0 };
+    cur.name = cur.name || name;
+    cur.erd += erd;
+    cur.kil += kil;
+    tmp.set(muhtId, cur);
+  }
+  state.votesByMuht.clear();
+  for(const [muhtId, v] of tmp.entries()){
+    const total = v.erd + v.kil;
+    const winner = (v.erd === v.kil) ? "TIE" : (v.erd > v.kil ? "ERDOĞAN" : "KILIÇDAROĞLU");
+    const margin = Math.abs(v.erd - v.kil);
+    state.votesByMuht.set(muhtId, { ...v, total, winner, margin });
+  }
+
+  // Build name index
+  state.muhtByNormName.clear();
+  for(const [muhtId, v] of state.votesByMuht.entries()){
+    const n = normalizeTR(v.name);
+    if(!state.muhtByNormName.has(n)) state.muhtByNormName.set(n, []);
+    state.muhtByNormName.get(n).push(muhtId);
+  }
+  // stable ordering: highest turnout first (useful for ambiguous lists)
+  for(const [n, ids] of state.muhtByNormName.entries()){
+    ids.sort((a,b)=> (state.votesByMuht.get(b)?.total||0) - (state.votesByMuht.get(a)?.total||0));
+  }
+
+  state.geojson = geo;
+  document.getElementById("dataLabel").textContent =
+    `${state.votesByMuht.size} muhtarlık • ${fmtInt(rows.length)} sandık kaydı`;
+
+  // fill featureByKey + candidates
+  state.featureByKey.clear();
+  state.precinctCandidates.clear();
+  let idx=0;
+  for(const f of geo.features){
+    const key = tryGetFeatureKey(f, idx++);
+    state.featureByKey.set(key, f);
+    const fname = f.properties?.name || "";
+    const norm = normalizeTR(fname);
+    const cands = state.muhtByNormName.get(norm) || [];
+    state.precinctCandidates.set(key, cands);
+  }
+
+  // Load LS (plan + mapping) AFTER we know keys
+  loadLS();
+
+  // Auto-fill mapping for keys that are missing:
+  for(const [key, cands] of state.precinctCandidates.entries()){
+    if(state.mapping[key] !== undefined) continue;
+    if(cands.length === 1) state.mapping[key] = cands[0];
+    else state.mapping[key] = null;
+  }
+
+  saveLS();
+  updateLinkStatus();
+}
+
+function buildMap(){
+  state.map = L.map("map", {
+    zoomControl: true,
+    preferCanvas: true
+  });
+
+  // Basemap
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 18,
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(state.map);
+
+  rebuildGeoLayer();
+}
+
+function filterFeature(feature, key){
+  const cands = state.precinctCandidates.get(key) || [];
+  if(state.showUnmatched) return true;
+  return cands.length > 0;
+}
+
+function styleForKey(key){
+  const districtId = state.plan.precinctToDistrict[key] || null;
+  const district = state.plan.districts.find(d => d.id === districtId);
+  const fill = district ? district.color : "rgba(148,163,184,.18)";
+  const isActive = districtId && districtId === state.plan.activeId;
+
+  return {
+    color: isActive ? "rgba(96,165,250,.9)" : "rgba(148,163,184,.38)",
+    weight: isActive ? 2.2 : 1.0,
+    fillColor: fill,
+    fillOpacity: district ? 0.62 : 0.22,
+  };
+}
+
+function updateAllStyles(){
+  for(const [key, layer] of state.layerByKey.entries()){
+    layer.setStyle(styleForKey(key));
+  }
+}
+
+function rebuildGeoLayer(){
+  if(state.layer){
+    state.layer.remove();
+    state.layerByKey.clear();
+  }
+
+  const canvas = L.canvas({ padding: 0.5 });
+
+  let idx=0;
+  state.layer = L.geoJSON(state.geojson, {
+    renderer: canvas,
+    filter: (feature) => {
+      const key = tryGetFeatureKey(feature, idx++);
+      return filterFeature(feature, key);
+    },
+    style: (feature) => {
+      const key = tryGetFeatureKey(feature, idx-1);
+      return styleForKey(key);
+    },
+    onEachFeature: (feature, layer) => {
+      const key = tryGetFeatureKey(feature, idx-1);
+      state.layerByKey.set(key, layer);
+      layer.on({
+        mouseover: (e) => onHover(key, e),
+        mouseout: (e) => onOut(key, e),
+        click: (e) => onClickFeature(key, e)
+      });
+    }
+  }).addTo(state.map);
+
+  // Fit bounds once
+  try{
+    state.map.fitBounds(state.layer.getBounds(), { padding: [12,12] });
+  } catch {}
+
+  updateCoverageLabel();
+  updateAllStyles();
+}
+
+function onHover(key, e){
+  const f = state.featureByKey.get(key);
+  if(!f) return;
+  const name = f.properties?.name || "(isimsiz)";
+  const districtId = state.plan.precinctToDistrict[key] || null;
+  const district = state.plan.districts.find(d => d.id === districtId);
+  const muhtId = state.mapping[key] || null;
+  const v = muhtId ? state.votesByMuht.get(String(muhtId)) : null;
+
+  const main = district ? `${name} • ${district.name}` : name;
+  let sub = `Key: ${key}`;
+  if(v){
+    const w = v.winner === "TIE" ? "Berabere" : (v.winner === "ERDOĞAN" ? "Erdoğan" : "Kılıçdaroğlu");
+    sub = `Erd: ${fmtInt(v.erd)} • Kil: ${fmtInt(v.kil)} • Kazanan: ${w}`;
+  } else {
+    const cands = state.precinctCandidates.get(key) || [];
+    if(cands.length === 0) sub = "Seçim verisi eşleşmesi yok (istersen 'Eşleştir' sekmesinden kontrol et).";
+    else if(cands.length > 1) sub = `Birden fazla aday eşleşme var (${cands.length}). 'Sonuç Eşleştir' sekmesinde seçebilirsin.`;
+    else sub = "Seçim verisi var ama eşleşme atanmamış.";
+  }
+
+  showStatus(main, sub);
+  // highlight visual
+  const layer = state.layerByKey.get(key);
+  if(layer){
+    layer.setStyle({ weight: 2.4, color: "rgba(226,232,240,.9)" });
+  }
+}
+
+function onOut(key, e){
+  hideStatusSoon();
+  const layer = state.layerByKey.get(key);
+  if(layer){
+    layer.setStyle(styleForKey(key));
+  }
+}
+
+let statusTimer=null;
+function showStatus(main, sub){
+  const box = document.getElementById("statusbar");
+  document.getElementById("statusMain").textContent = main;
+  document.getElementById("statusSub").textContent = sub;
+  box.style.display = "block";
+  if(statusTimer) clearTimeout(statusTimer);
+}
+function hideStatusSoon(){
+  if(statusTimer) clearTimeout(statusTimer);
+  statusTimer = setTimeout(()=>{ document.getElementById("statusbar").style.display="none"; }, 250);
+}
+
+function onClickFeature(key, e){
+  const isLinkTab = document.getElementById("tabLink").classList.contains("active");
+
+  if(isLinkTab || e.originalEvent.shiftKey){
+    selectForLinking(key);
+    return;
+  }
+
+  const active = getActiveDistrict();
+  if(!active){
+    toast("Önce bir 'Aktif Bölge' seçmelisin.");
+    return;
+  }
+
+  const current = state.plan.precinctToDistrict[key] || null;
+
+  if(current && current !== active.id && !state.moveFromOther){
+    toast("Bu mahalle başka bir bölgede. 'Başka bölgeden taşı' seçeneğini aç.");
+    return;
+  }
+
+  // toggle behavior: if already in active -> remove, else assign to active
+  const to = (current === active.id) ? null : active.id;
+  applyAssignment(key, to);
+}
+
+function applyAssignment(key, toDistrictId){
+  const from = state.plan.precinctToDistrict[key] || null;
+  if(from === toDistrictId) return;
+
+  if(toDistrictId === null){
+    delete state.plan.precinctToDistrict[key];
+  } else {
+    state.plan.precinctToDistrict[key] = toDistrictId;
+  }
+
+  state.lastAction = { key, from, to: toDistrictId };
+  saveLS();
+  updateAllStyles();
+  updateDistrictList();
+  updateCoverageLabel();
+  updateButtons();
+}
+
+function undo(){
+  if(!state.lastAction) return;
+  const { key, from, to } = state.lastAction;
+  if(from === null){
+    delete state.plan.precinctToDistrict[key];
+  } else {
+    state.plan.precinctToDistrict[key] = from;
+  }
+  state.lastAction = null;
+  saveLS();
+  updateAllStyles();
+  updateDistrictList();
+  updateCoverageLabel();
+  updateButtons();
+}
+
+function toast(msg){
+  // minimalist toast: use statusbar briefly
+  showStatus(msg, "—");
+  setTimeout(()=>hideStatusSoon(), 900);
+}
+
+function updateCoverageLabel(){
+  const keys = Array.from(state.featureByKey.keys());
+  let shown=0, assigned=0;
+  for(const key of keys){
+    const cands = state.precinctCandidates.get(key) || [];
+    if(!state.showUnmatched && cands.length===0) continue;
+    shown++;
+    if(state.plan.precinctToDistrict[key]) assigned++;
+  }
+  document.getElementById("coverageLabel").textContent =
+    `${assigned}/${shown} mahalle atanmış`;
+}
+
+function districtTotals(d){
+  let erd=0, kil=0, precincts=0, linked=0;
+  for(const [key, did] of Object.entries(state.plan.precinctToDistrict)){
+    if(did !== d.id) continue;
+    precincts++;
+    const muhtId = state.mapping[key] || null;
+    if(muhtId){
+      const v = state.votesByMuht.get(String(muhtId));
+      if(v){
+        linked++;
+        erd += v.erd;
+        kil += v.kil;
+      }
+    }
+  }
+  const total = erd+kil;
+  const winner = (erd===kil) ? "TIE" : (erd>kil ? "ERDOĞAN" : "KILIÇDAROĞLU");
+  const margin = Math.abs(erd-kil);
+  return { precincts, linked, erd, kil, total, winner, margin };
+}
+
+function updateDistrictList(){
+  const wrap = document.getElementById("districtList");
+  wrap.innerHTML = "";
+
+  if(state.plan.districts.length === 0){
+    wrap.innerHTML = `<div class="card"><div class="muted">Henüz bölge yok. “Yeni Bölge” ile başla.</div></div>`;
+    document.getElementById("activeDistrictLabel").textContent = "(yok)";
+    return;
+  }
+
+  for(const d of state.plan.districts){
+    const isActive = d.id === state.plan.activeId;
+    const t = districtTotals(d);
+    const winnerText = t.winner==="TIE" ? "Berabere" : (t.winner==="ERDOĞAN" ? "Erdoğan" : "Kılıçdaroğlu");
+    const badgeClass = t.winner==="TIE" ? "warn" : (t.winner==="ERDOĞAN" ? "ok" : "warn");
+
+    const div = document.createElement("div");
+    div.className = "item" + (isActive ? " active" : "");
+    div.innerHTML = `
+      <div class="row between">
+        <div class="row" style="gap:10px;">
+          <span class="district-dot" style="background:${d.color}"></span>
+          <div>
+            <div class="name">${escapeHTML(d.name)}</div>
+            <div class="tiny muted">${t.precincts} mahalle • ${t.linked} veri bağlı</div>
+          </div>
+        </div>
+        <button class="btn small" data-act="setActive" data-id="${d.id}">${isActive ? "Aktif" : "Seç"}</button>
+      </div>
+      <div class="hr"></div>
+      <div class="grid3">
+        <div><div class="k">Erd</div><div class="v mono">${fmtInt(t.erd)}</div></div>
+        <div><div class="k">Kil</div><div class="v mono">${fmtInt(t.kil)}</div></div>
+        <div><div class="k">Kazanan</div><div class="v"><span class="badge ${badgeClass}">${winnerText}</span></div></div>
+      </div>
+      <div class="tiny muted" style="margin-top:8px;">Toplam: ${fmtInt(t.total)} • Fark: ${fmtInt(t.margin)}</div>
+      <div class="row wrap" style="margin-top:10px;">
+        <button class="btn small" data-act="rename" data-id="${d.id}">Ad</button>
+        <button class="btn small" data-act="recolor" data-id="${d.id}">Renk</button>
+        <button class="btn small danger" data-act="clear" data-id="${d.id}">Temizle</button>
+      </div>
+    `;
+    div.querySelectorAll("button").forEach(btn=>{
+      btn.addEventListener("click", (ev)=>{
+        const act = ev.currentTarget.dataset.act;
+        const id = ev.currentTarget.dataset.id;
+        if(act === "setActive") setActiveDistrict(id);
+        if(act === "rename") renameDistrict(id);
+        if(act === "recolor") recolorDistrict(id);
+        if(act === "clear") clearDistrict(id);
+      });
+    });
+    wrap.appendChild(div);
+  }
+
+  document.getElementById("activeDistrictLabel").textContent = getActiveDistrict()?.name || "(yok)";
+}
+
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+}
+
+function newDistrict(){
+  const name = prompt("Bölge adı:", `Bölge ${state.plan.districts.length+1}`);
+  if(!name) return;
+  const id = String(Date.now());
+  const color = randomColorFromId(id);
+  state.plan.districts.push({ id, name: name.trim(), color });
+  setActiveDistrict(id);
+  saveLS();
+  updateDistrictList();
+  updateButtons();
+}
+
+function renameDistrict(id){
+  const d = state.plan.districts.find(x=>x.id===id);
+  if(!d) return;
+  const name = prompt("Yeni ad:", d.name);
+  if(!name) return;
+  d.name = name.trim();
+  saveLS();
+  updateDistrictList();
+}
+
+function recolorDistrict(id){
+  const d = state.plan.districts.find(x=>x.id===id);
+  if(!d) return;
+  const color = prompt("Renk (CSS):", d.color);
+  if(!color) return;
+  d.color = color.trim();
+  saveLS();
+  updateDistrictList();
+  updateAllStyles();
+}
+
+function clearDistrict(id){
+  if(!confirm("Bu bölgedeki tüm mahalleleri kaldırayım mı?")) return;
+  for(const [key, did] of Object.entries(state.plan.precinctToDistrict)){
+    if(did===id) delete state.plan.precinctToDistrict[key];
+  }
+  saveLS();
+  updateDistrictList();
+  updateAllStyles();
+  updateCoverageLabel();
+}
+
+function clearActiveDistrict(){
+  const d = getActiveDistrict();
+  if(!d) return;
+  clearDistrict(d.id);
+}
+
+function deleteActiveDistrict(){
+  const d = getActiveDistrict();
+  if(!d) return;
+  if(!confirm(`"${d.name}" silinsin mi? (içindeki mahalleler de boşa düşer)`)) return;
+
+  // unassign precincts
+  for(const [key, did] of Object.entries(state.plan.precinctToDistrict)){
+    if(did===d.id) delete state.plan.precinctToDistrict[key];
+  }
+
+  // remove district
+  state.plan.districts = state.plan.districts.filter(x=>x.id !== d.id);
+  state.plan.activeId = state.plan.districts[0]?.id || null;
+
+  saveLS();
+  updateDistrictList();
+  updateAllStyles();
+  updateCoverageLabel();
+  updateButtons();
+}
+
+function updateLinkStatus(){
+  let matched=0, ambiguous=0, none=0;
+  for(const [key, cands] of state.precinctCandidates.entries()){
+    if(!state.showUnmatched && cands.length===0) continue;
+    if(cands.length===0) { none++; continue; }
+    const m = state.mapping[key];
+    if(m) matched++;
+    else if(cands.length>1) ambiguous++;
+    else none++;
+  }
+  const txt = `${matched} bağlı • ${ambiguous} belirsiz • ${none} yok`;
+  document.getElementById("linkStatusLabel").textContent = txt;
+}
+
+function selectForLinking(key){
+  state.selectedKey = key;
+  const f = state.featureByKey.get(key);
+  const name = f?.properties?.name || "(isimsiz)";
+  document.getElementById("selName").textContent = name;
+  document.getElementById("selKey").textContent = "Key: " + key;
+
+  const sel = document.getElementById("selMuht");
+  sel.innerHTML = "";
+  const cands = state.precinctCandidates.get(key) || [];
+  if(cands.length===0){
+    sel.disabled = true;
+    document.getElementById("btnApplyLink").disabled = true;
+    document.getElementById("btnClearLink").disabled = true;
+    document.getElementById("selErd").textContent = "—";
+    document.getElementById("selKil").textContent = "—";
+    toast("Bu mahalle için aday seçim verisi bulunamadı.");
+    return;
+  }
+
+  // Build options
+  const current = state.mapping[key] ? String(state.mapping[key]) : "";
+  sel.disabled = false;
+  for(const muhtId of cands){
+    const v = state.votesByMuht.get(String(muhtId));
+    const nm = v?.name || "—";
+    const total = v?.total || 0;
+    const opt = document.createElement("option");
+    opt.value = String(muhtId);
+    opt.textContent = `${muhtId} • ${nm} • Toplam ${fmtInt(total)}`;
+    sel.appendChild(opt);
+  }
+
+  if(current && cands.includes(current)){
+    sel.value = current;
+  } else {
+    sel.value = String(cands[0]);
+  }
+
+  document.getElementById("btnApplyLink").disabled = false;
+  document.getElementById("btnClearLink").disabled = false;
+  updateSelectedCandidateStats();
+}
+
+function updateSelectedCandidateStats(){
+  const sel = document.getElementById("selMuht");
+  const muhtId = sel.value;
+  const v = state.votesByMuht.get(String(muhtId));
+  document.getElementById("selErd").textContent = fmtInt(v?.erd);
+  document.getElementById("selKil").textContent = fmtInt(v?.kil);
+}
+
+function applyLink(){
+  const key = state.selectedKey;
+  if(!key) return;
+  const muhtId = document.getElementById("selMuht").value;
+  state.mapping[key] = String(muhtId);
+  saveLS();
+  updateLinkStatus();
+  updateDistrictList(); // totals may change
+  toast("Eşleştirme uygulandı.");
+}
+
+function clearLink(){
+  const key = state.selectedKey;
+  if(!key) return;
+  state.mapping[key] = null;
+  saveLS();
+  updateLinkStatus();
+  updateDistrictList();
+  toast("Eşleştirme kaldırıldı.");
+}
+
+function exportBlob(filename, objOrText){
+  const text = (typeof objOrText === "string") ? objOrText : JSON.stringify(objOrText, null, 2);
+  const blob = new Blob([text], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function exportPlan(){
+  // GeoJSON with district assignment
+  const out = JSON.parse(JSON.stringify(state.geojson));
+  let idx=0;
+  for(const f of out.features){
+    const key = tryGetFeatureKey(f, idx++);
+    const did = state.plan.precinctToDistrict[key] || null;
+    const d = state.plan.districts.find(x=>x.id===did) || null;
+    const muhtId = state.mapping[key] || null;
+    const v = muhtId ? state.votesByMuht.get(String(muhtId)) : null;
+
+    f.properties = f.properties || {};
+    f.properties.__key = key;
+    f.properties.__districtId = did;
+    f.properties.__districtName = d?.name || null;
+    f.properties.__districtColor = d?.color || null;
+    f.properties.__muhtarlikId = muhtId;
+    if(v){
+      f.properties.__erdogan = v.erd;
+      f.properties.__kilicdaroglu = v.kil;
+      f.properties.__total = v.total;
+    }
+  }
+  exportBlob("kocaeli_district_plan.geojson", out);
+}
+
+function exportSummary(){
+  const districts = state.plan.districts.map(d => {
+    const t = districtTotals(d);
+    const precinctKeys = Object.entries(state.plan.precinctToDistrict)
+      .filter(([k, did]) => did === d.id)
+      .map(([k]) => k);
+    return { ...d, totals: t, precinctKeys };
+  });
+
+  // also export unassigned keys
+  const unassigned = [];
+  for(const key of state.featureByKey.keys()){
+    const cands = state.precinctCandidates.get(key) || [];
+    if(!state.showUnmatched && cands.length===0) continue;
+    if(!state.plan.precinctToDistrict[key]) unassigned.push(key);
+  }
+
+  exportBlob("kocaeli_district_summary.json", {
+    generatedAt: new Date().toISOString(),
+    geoFile: GEO_FILE,
+    resultsFilesTried: RESULTS_FILES,
+    activeDistrictId: state.plan.activeId,
+    districts,
+    unassignedCount: unassigned.length,
+    unassignedKeys: unassigned
+  });
+}
+
+function exportMapping(){
+  exportBlob("kocaeli_vote_mapping.json", {
+    generatedAt: new Date().toISOString(),
+    mapping: state.mapping
+  });
+}
+
+function zoomToSearch(query){
+  query = normalizeTR(query);
+  if(!query) return;
+
+  // find first feature that contains the query in normalized name
+  for(const [key, f] of state.featureByKey.entries()){
+    const cands = state.precinctCandidates.get(key) || [];
+    if(!state.showUnmatched && cands.length===0) continue;
+    const name = normalizeTR(f.properties?.name || "");
+    if(name.includes(query)){
+      const layer = state.layerByKey.get(key);
+      if(layer){
+        try{
+          state.map.fitBounds(layer.getBounds(), { padding:[30,30] });
+        } catch {}
+        onHover(key, null);
+        setTimeout(()=>hideStatusSoon(), 1100);
+      }
+      return;
+    }
+  }
+  toast("Eşleşen mahalle bulunamadı.");
+}
+
+function setTab(tab){
+  const isDistricts = tab === "districts";
+  document.getElementById("tabDistricts").classList.toggle("active", isDistricts);
+  document.getElementById("tabLink").classList.toggle("active", !isDistricts);
+  document.getElementById("paneDistricts").style.display = isDistricts ? "block" : "none";
+  document.getElementById("paneLink").style.display = isDistricts ? "none" : "block";
+}
+
+function showHelp(){
+  alert(
+`Kısayollar / Davranışlar
+
+• Tık: Aktif bölgeye ekle/çıkar
+• Shift + Tık: Sonuç eşleştirme için mahalleyi seç
+• “Başka bölgeden taşı”: Açıkken mahalleyi diğer bölgeden alır
+• Arama: Mahalle adına zoom
+
+Not: Dosyalar aynı klasörde olmalı:
+- export.geojson
+- SecimSonucMuhtarlik*.json`
+  );
+}
+
+function wireUI(){
+  document.getElementById("tabDistricts").addEventListener("click", ()=>setTab("districts"));
+  document.getElementById("tabLink").addEventListener("click", ()=>setTab("link"));
+
+  document.getElementById("btnNewDistrict").addEventListener("click", newDistrict);
+  document.getElementById("btnUndo").addEventListener("click", undo);
+  document.getElementById("btnClearActive").addEventListener("click", clearActiveDistrict);
+  document.getElementById("btnDeleteActive").addEventListener("click", deleteActiveDistrict);
+
+  document.getElementById("btnExportPlan").addEventListener("click", exportPlan);
+  document.getElementById("btnExportSummary").addEventListener("click", exportSummary);
+  document.getElementById("btnExportMapping").addEventListener("click", exportMapping);
+
+  document.getElementById("chkShowUnmatched").addEventListener("change", (e)=>{
+    state.showUnmatched = !!e.target.checked;
+    rebuildGeoLayer();
+    updateLinkStatus();
+    saveLS();
+  });
+
+  document.getElementById("chkMove").addEventListener("change", (e)=>{
+    state.moveFromOther = !!e.target.checked;
+    saveLS();
+  });
+
+  document.getElementById("searchBox").addEventListener("keydown", (e)=>{
+    if(e.key === "Enter") zoomToSearch(e.target.value);
+  });
+
+  document.getElementById("selMuht").addEventListener("change", updateSelectedCandidateStats);
+  document.getElementById("btnApplyLink").addEventListener("click", applyLink);
+  document.getElementById("btnClearLink").addEventListener("click", clearLink);
+
+  document.getElementById("btnHelp").addEventListener("click", showHelp);
+  document.getElementById("btnReset").addEventListener("click", ()=>{
+    if(!confirm("Yerel kayıt silinsin mi? (bölge planı + eşleştirme)")) return;
+    resetLS();
+    rebuildGeoLayer();
+    updateDistrictList();
+    updateLinkStatus();
+    updateCoverageLabel();
+    updateButtons();
+    toast("Sıfırlandı.");
+  });
+}
+
+(async function init(){
+  wireUI();
+
+  try{
+    await loadData();
+    buildMap();
+
+    // If plan exists but no activeId, select first.
+    if(state.plan.districts.length > 0 && !state.plan.activeId){
+      state.plan.activeId = state.plan.districts[0].id;
+    }
+
+    setActiveDistrict(state.plan.activeId);
+    updateDistrictList();
+    updateCoverageLabel();
+    updateButtons();
+    toast("Hazır. Mahallelere tıklayarak bölgeleri oluştur.");
+  } catch(err){
+    console.error(err);
+    alert("Yükleme hatası: " + err.message + "\n\nİpucu: Bu sayfayı 'file://' ile açma. Basit bir yerel sunucu kullan:\npython -m http.server\nSonra http://localhost:8000 üzerinden aç.");
+  }
+})();
+</script>
+</body>
+</html>
