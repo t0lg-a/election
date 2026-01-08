@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-01-07T11:45:29.490Z",
+  "updatedAt": "2026-01-08T11:46:24.857Z",
   "approval": [
     {
       "id": "appdoninsm57hlnce",
@@ -17652,6 +17652,34 @@
       "seat_name": null,
       "sponsors": [
         "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyou0zvjs45c",
+      "poll_type": "approval",
+      "sample_size": 2325,
+      "population": "a",
+      "url": "https://www.cbsnews.com/news/u-s-actions-venezuela-opinion-poll/",
+      "created_at": "2026-01-08",
+      "start_date": "2026-01-05",
+      "end_date": "2026-01-07",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 41
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 59
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "CBS News"
       ],
       "internal": false,
       "partisan": null,
