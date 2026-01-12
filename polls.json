@@ -3118,7 +3118,7 @@
       "poll_type": "approval",
       "sample_size": 2049,
       "population": "rv",
-      "url": "https://drive.google.com/file/d/1psgeNBsAPSV3-diBTaAIE4_wiFjYwk5y/view",
+      "url": "https://drive.google.com/file/d/1psBsAPSV3-diBTaAIE4_wiFjYwk5y/view",
       "created_at": "2025-03-24",
       "start_date": "2025-02-24",
       "end_date": "2025-03-02",
@@ -17793,6 +17793,36 @@
       "partisan": null,
       "subject": "2026"
     },
+    
+    
+    {
+      "id": "gen2026q4gallup",
+      "poll_type": "generic-ballot",
+      "sample_size": 1000,
+      "population": "lv",
+      "url": "https://x.com/iapolls2022/status/2010694856767623639",
+      "created_at": "2026-01-12",
+      "start_date": "2026-01-01",
+      "end_date": "2026-01-11",
+      "pollster": "Gallup",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 48
+        },
+        {
+          "choice": "Rep",
+          "pct": 40
+        }
+      ],
+      "seat_name": "Generic",
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    
+    
     {
       "id": "gen202rmg4ozl7t6b",
       "poll_type": "generic-ballot",
