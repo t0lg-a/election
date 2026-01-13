@@ -392,13 +392,14 @@
     .stripLbl{ font-size:11px; color:var(--muted); text-align:center; margin-top:4px; }
 
     .chartWrap{ margin-top:12px; border-top:1px solid var(--border); padding-top:12px; position:relative; }
-    svg{ width:100%; height:240px; display:block; }
+    svg{ width:100%; height:auto; aspect-ratio: 900 / 320; min-height:280px; display:block; overflow:visible; }
+    svg text{ font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; text-rendering:geometricPrecision; }
 
     .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
     @media (max-width:1080px){
       .row2{ grid-template-columns:1fr; }
       .kpis{ width:100%; grid-template-columns:1fr; }
-      svg{ height:260px; }
+      svg{ min-height:260px; }
     }
 
     table{ width:100%; border-collapse:separate; border-spacing:0; margin-top:10px; font-size:12px; }
@@ -550,7 +551,7 @@
 <div class="stripRow" id="leanStrip"></div>
 
           <div class="chartWrap">
-            <svg id="leanChart" viewBox="0 0 900 260" preserveAspectRatio="none" aria-label="Lean chart"></svg>
+            <svg id="leanChart" viewBox="0 0 900 320" preserveAspectRatio="xMidYMid meet" aria-label="Lean chart"></svg>
           </div>
         </div>
 
@@ -562,7 +563,7 @@
             </div>
 
             <div class="chartWrap">
-              <svg id="ratioChart" viewBox="0 0 900 260" preserveAspectRatio="none" aria-label="Ratio chart"></svg>
+              <svg id="ratioChart" viewBox="0 0 900 320" preserveAspectRatio="xMidYMid meet" aria-label="Ratio chart"></svg>
             </div>
           </div>
 
@@ -573,13 +574,12 @@
             </div>
 
             <div class="chartWrap">
-              <svg id="normChart" viewBox="0 0 900 260" preserveAspectRatio="none" aria-label="Normalized chart"></svg>
+              <svg id="normChart" viewBox="0 0 900 320" preserveAspectRatio="xMidYMid meet" aria-label="Normalized chart"></svg>
             </div>
           </div>
         </div>
       </div>
-        <div><a href="state_report_data.csv" download>Download CSV</a></div>
-      </div>
+              </div>
     </div>
   </div>
 
@@ -899,9 +899,13 @@ function lineChart(svgId, years, series, opts={}){
   const svg = $(svgId);
   svgClear(svg);
 
-  const W=900, H=260;
-  const padL=62, padR=18, padT=16, padB=44;
+  const W=900, H=320;
+  const padL=72, padR=22, padT=18, padB=58;
   const x0=padL, y0=padT, w=W-padL-padR, h=H-padT-padB;
+
+  const tickFont = opts.tickFont ?? 12;
+  const labelFont = opts.labelFont ?? 13;
+  const lastLabelFont = opts.lastLabelFont ?? 13;
 
   // tooltip helpers (shared)
   const tip = $("chartTip");
@@ -963,7 +967,7 @@ function lineChart(svgId, years, series, opts={}){
     const lbl = opts.yFormat === "pct"
       ? String(Math.round(t))
       : (Math.abs(t) < 1e-9 ? "0" : String(t).replace(/\.0+$/, ""));
-    const txt = svgEl("text",{x:x0-8,y:y+4,"text-anchor":"end","font-size":"11",fill:"var(--muted)"});
+    const txt = svgEl("text",{x:x0-8,y:y+4,"text-anchor":"end","font-size":String(tickFont),fill:"var(--muted)"});
     txt.textContent = lbl;
     svg.appendChild(txt);
   });
@@ -976,10 +980,14 @@ function lineChart(svgId, years, series, opts={}){
       stroke:"var(--grid)","stroke-width":"1",
       "vector-effect":"non-scaling-stroke"
     }));
-    const txt = svgEl("text",{x:x,y:y0+h+26,"text-anchor":"middle","font-size":"11",fill:"var(--muted)"});
+    const txt = svgEl("text",{x:x,y:y0+h+26,"text-anchor":"middle","font-size":String(tickFont),fill:"var(--muted)"});
     txt.textContent = yr;
     svg.appendChild(txt);
   });
+
+  // axes
+  svg.appendChild(svgEl("line",{x1:x0,y1:y0,x2:x0,y2:y0+h,stroke:"color-mix(in srgb, var(--muted), transparent 55%)","stroke-width":"1.4","vector-effect":"non-scaling-stroke"}));
+  svg.appendChild(svgEl("line",{x1:x0,y1:y0+h,x2:x0+w,y2:y0+h,stroke:"color-mix(in srgb, var(--muted), transparent 55%)","stroke-width":"1.4","vector-effect":"non-scaling-stroke"}));
 
   // baseline
   if (opts.baseline !== undefined && opts.baseline >= ymin && opts.baseline <= ymax){
@@ -997,7 +1005,8 @@ function lineChart(svgId, years, series, opts={}){
     const t = svgEl("text",{
       x:16,y:y0+h/2,
       "text-anchor":"middle",
-      "font-size":"12",
+      "font-size":String(labelFont),
+      "font-weight":"700",
       fill:"var(--muted)",
       transform:`rotate(-90 16 ${y0+h/2})`
     });
@@ -1090,7 +1099,7 @@ function lineChart(svgId, years, series, opts={}){
       const tx = svgEl("text",{
         x:x-8, y:y-10,
         "text-anchor":"end",
-        "font-size":"12",
+        "font-size":String(labelFont),
         "font-weight":"900",
         fill:s.color
       });
@@ -1106,7 +1115,7 @@ function lineChart(svgId, years, series, opts={}){
     series.forEach((s, i) => {
       const y = ly + i*16;
       g.appendChild(svgEl("line",{x1:lx,y1:y,x2:lx+18,y2:y,stroke:s.color,"stroke-width":"3","vector-effect":"non-scaling-stroke"}));
-      const t = svgEl("text",{x:lx+24,y:y+4,"font-size":"12",fill:"var(--ink)","font-weight":"800"});
+      const t = svgEl("text",{x:lx+24,y:y+4,"font-size":String(labelFont),fill:"var(--ink)","font-weight":"800"});
       t.textContent = s.label || `Series ${i+1}`;
       g.appendChild(t);
     });
@@ -1157,16 +1166,58 @@ function selectState(abbr, updateHash){
   buildTableNorm(row);
 
   const leanVals = YEARS_LEAN.map(y => safeNum(row[`lean_${y}`]) ?? 0);
-  lineChart("leanChart", YEARS_LEAN, [{ values: leanVals, color: "var(--red)", label: "Lean" }], { yLabel: "Lean (pts)", baseline: 0, smooth: true, areaFill: true, lastLabel: true, decimals: 1, valueFmt: (v)=>fmt(v,1) });
+  const leanLast = leanVals[leanVals.length - 1] ?? 0;
+  const leanLineColor = (leanLast < 0) ? "var(--red)" : "var(--blue)";
+  lineChart("leanChart", YEARS_LEAN, [
+    { values: leanVals, color: leanLineColor, label: "Lean" }
+  ], {
+    yLabel: "Lean vs nat (pp)",
+    baseline: 0,
+    smooth: true,
+    areaFill: true,
+    lastLabel: true,
+    signedTicks: true,
+    decimals: 1,
+    tickFmt: (t) => (t > 0 ? "+" : "") + fmt(t, 0),
+    valueFmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1)
+  });
 
   const ratioVals = YEARS_RATIO.map(y => safeNum(row[`ratioD_${y}`]) ?? 1);
-  lineChart("ratioChart", YEARS_RATIO, [{ values: ratioVals, color: "var(--blue)", label: "D ratio" }], { yLabel: "D ratio", baseline: 1, smooth: true, areaFill: true, lastLabel: true, decimals: 3, valueFmt: (v)=>fmt(v,3) });
+  const ratioLast = ratioVals[ratioVals.length - 1] ?? 1;
+  const ratioLineColor = (ratioLast < 1) ? "var(--red)" : "var(--blue)";
+  lineChart("ratioChart", YEARS_RATIO, [
+    { values: ratioVals, color: ratioLineColor, label: "D ratio" }
+  ], {
+    yLabel: "D ratio",
+    baseline: 1,
+    smooth: true,
+    areaFill: true,
+    lastLabel: true,
+    decimals: 3,
+    tickFmt: (t) => fmt(t, 2),
+    valueFmt: (v) => fmt(v, 3)
+  });
 
   const normD = YEARS_RATIO.map(y => safeNum(row[`normD_${y}`]) ?? 50);
   const normR = YEARS_RATIO.map(y => safeNum(row[`normR_${y}`]) ?? 50);
-  lineChart("normChart", YEARS_RATIO, [ { values: normD, color: "var(--blue)", label: "D" }, { values: normR, color: "var(--red)", label: "R" } ], { yLabel: "Share (%)", yFormat: "pct", baseline: 50, smooth: true, areaFill: false, lastLabel: true, decimals: 0 });
+  lineChart("normChart", YEARS_RATIO, [
+    { values: normD, color: "var(--blue)", label: "D" },
+    { values: normR, color: "var(--red)",  label: "R" }
+  ], {
+    yLabel: "Two-party share",
+    baseline: 50,
+    smooth: true,
+    areaFill: false,
+    lastLabel: true,
+    yFormat: "pct",
+    decimals: 0,
+    tickFmt: (t) => `${Math.round(t)}%`,
+    valueFmt: (v) => `${Math.round(v)}%`
+  });
 
-  if (updateHash) location.hash = abbr;
+  // KPI color cue (lean only)
+  $("kpiLean").style.color = (leanLast < 0) ? "var(--red)" : "var(--blue)";
+if (updateHash) location.hash = abbr;
 }
 
 function bestMatch(query){
