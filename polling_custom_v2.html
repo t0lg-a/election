@@ -1108,9 +1108,8 @@ const app = {
 
       syncDisabled();
     };
-
-    setup('approval', { maDays: CONFIG.approvalWindow, autoMin: false, minPolls: 12, compare: false, showDiff: false });
-    setup('gb',       { maDays: CONFIG.gbWindow,       autoMin: false, minPolls: 12, compare: false, showDiff: false });
+setup('approval', { maDays: CONFIG.approvalWindow, autoMin: true, minPolls: 24, compare: false, showDiff: false });
+setup('gb',       { maDays: CONFIG.gbWindow,       autoMin: true, minPolls: 24, compare: false, showDiff: false });
   },
 
   normalizeGB(list) {
