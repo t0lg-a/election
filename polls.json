@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-01-12T11:44:50.491Z",
+  "updatedAt": "2026-01-13T11:45:40.726Z",
   "approval": [
     {
       "id": "appdoninsm57hlnce",
@@ -3118,7 +3118,7 @@
       "poll_type": "approval",
       "sample_size": 2049,
       "population": "rv",
-      "url": "https://drive.google.com/file/d/1psBsAPSV3-diBTaAIE4_wiFjYwk5y/view",
+      "url": "https://drive.google.com/file/d/1psgeNBsAPSV3-diBTaAIE4_wiFjYwk5y/view",
       "created_at": "2025-03-24",
       "start_date": "2025-02-24",
       "end_date": "2025-03-02",
@@ -17712,6 +17712,60 @@
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
+    },
+    {
+      "id": "appdontip8senk9on",
+      "poll_type": "approval",
+      "sample_size": 1478,
+      "population": "a",
+      "url": "https://tippinsights.com/with-america-divided-can-trump-boost-his-approval-ratings-with-an-improving-economy-i-i-tipp-poll/",
+      "created_at": "2026-01-12",
+      "start_date": "2026-01-06",
+      "end_date": "2026-01-09",
+      "pollster": "TIPP Insights",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 40
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 51
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Issues & Insights"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonmoraglt3dhb",
+      "poll_type": "approval",
+      "sample_size": 2201,
+      "population": "rv",
+      "url": "https://pro.morningconsult.com/trackers/donald-trump-congress-policy-republicans-polling#01-12-2026",
+      "created_at": "2026-01-12",
+      "start_date": "2026-01-09",
+      "end_date": "2026-01-12",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 45
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 53
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
     }
   ],
   "genericBallot": [
@@ -17793,36 +17847,6 @@
       "partisan": null,
       "subject": "2026"
     },
-    
-    
-    {
-      "id": "gen2026q4gallup",
-      "poll_type": "generic-ballot",
-      "sample_size": 1000,
-      "population": "lv",
-      "url": "https://x.com/iapolls2022/status/2010694856767623639",
-      "created_at": "2026-01-12",
-      "start_date": "2026-01-01",
-      "end_date": "2026-01-11",
-      "pollster": "Gallup",
-      "answers": [
-        {
-          "choice": "Dem",
-          "pct": 48
-        },
-        {
-          "choice": "Rep",
-          "pct": 40
-        }
-      ],
-      "seat_name": "Generic",
-      "sponsors": [],
-      "internal": false,
-      "partisan": null,
-      "subject": "2026"
-    },
-    
-    
     {
       "id": "gen202rmg4ozl7t6b",
       "poll_type": "generic-ballot",
@@ -24225,6 +24249,60 @@
       "sponsors": [
         "The Economist"
       ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202rmg246nd3tm",
+      "poll_type": "generic-ballot",
+      "sample_size": 2000,
+      "population": "rv",
+      "url": "https://napolitannews.org/posts/generic-ballot-gop-43-percent-dem-44#01-08-2026",
+      "created_at": "2026-01-12",
+      "start_date": "2026-01-05",
+      "end_date": "2026-01-08",
+      "pollster": "RMG Research",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 47
+        },
+        {
+          "choice": "Rep",
+          "pct": 46
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Napolitan Institute"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202mor4n710c21",
+      "poll_type": "generic-ballot",
+      "sample_size": 2201,
+      "population": "rv",
+      "url": "https://pro.morningconsult.com/trackers/donald-trump-congress-policy-republicans-polling#01-12-2026",
+      "created_at": "2026-01-12",
+      "start_date": "2026-01-09",
+      "end_date": "2026-01-12",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 46
+        },
+        {
+          "choice": "Rep",
+          "pct": 43
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
       "internal": false,
       "partisan": null,
       "subject": "2026"
