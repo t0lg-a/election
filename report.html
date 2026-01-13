@@ -392,13 +392,13 @@
     .stripLbl{ font-size:11px; color:var(--muted); text-align:center; margin-top:4px; }
 
     .chartWrap{ margin-top:12px; border-top:1px solid var(--border); padding-top:12px; position:relative; }
-    svg{ width:100%; height:220px; display:block; }
+    svg{ width:100%; height:240px; display:block; }
 
     .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
     @media (max-width:1080px){
       .row2{ grid-template-columns:1fr; }
       .kpis{ width:100%; grid-template-columns:1fr; }
-      svg{ height:240px; }
+      svg{ height:260px; }
     }
 
     table{ width:100%; border-collapse:separate; border-spacing:0; margin-top:10px; font-size:12px; }
@@ -442,6 +442,23 @@
       white-space:nowrap;
       border:0;
     }
+  
+    .chartTip{
+      position:fixed;
+      z-index:50;
+      padding:8px 10px;
+      border-radius:10px;
+      background:var(--panel);
+      border:1px solid var(--border);
+      box-shadow:0 10px 30px rgba(0,0,0,.15);
+      font-size:12px;
+      pointer-events:none;
+      display:none;
+      max-width:220px;
+    }
+    .chartTip b{ font-weight:900; }
+    .chartTip .muted{ color:var(--muted); font-weight:650; }
+
   </style>
 </head>
 <body>
@@ -503,13 +520,6 @@
       </div>
 
       <div class="divider"></div>
-
-      <div class="mini">
-        Data file: <code>state_report_data.csv</code><br/>
-        Deep link: append <code>#NC</code> to the URL.<br/>
-        Hover a tile for a tooltip; arrow keys work when a tile is focused.
-      </div>
-
       <div class="status" id="statusMsg"></div>
     </div>
 
@@ -530,56 +540,44 @@
         </div>
 
         <div class="row" style="margin-left:auto;">
-          <button class="btn small primary" id="copyLinkBtn" title="Copy deep link">Copy link</button>
-          <button class="btn small" id="exportBtn" title="Download current state's row as JSON">Export JSON</button>
-        </div>
+          <button class="btn small primary" id="copyLinkBtn" title="Copy link">Copy link</button>
+</div>
       </div>
 
       <div class="content">
         <div class="card block">
           <h3>Relative partisan lean vs national</h3>
-          <p>Lean = (State D–R) − (National D–R), in percentage points</p>
-
-          <div class="stripRow" id="leanStrip"></div>
+<div class="stripRow" id="leanStrip"></div>
 
           <div class="chartWrap">
-            <svg id="leanChart" viewBox="0 0 900 240" preserveAspectRatio="none" aria-label="Lean chart"></svg>
+            <svg id="leanChart" viewBox="0 0 900 260" preserveAspectRatio="none" aria-label="Lean chart"></svg>
           </div>
         </div>
 
         <div class="row2">
           <div class="card block">
             <h3>State-to-national Democratic ratio</h3>
-            <p>Ratio = State D% / National D%</p>
-
-            <div style="overflow:auto;">
+<div style="overflow:auto;">
               <table id="ratioTable" aria-label="Ratio table"></table>
             </div>
 
             <div class="chartWrap">
-              <svg id="ratioChart" viewBox="0 0 900 240" preserveAspectRatio="none" aria-label="Ratio chart"></svg>
+              <svg id="ratioChart" viewBox="0 0 900 260" preserveAspectRatio="none" aria-label="Ratio chart"></svg>
             </div>
           </div>
 
           <div class="card block">
             <h3>Normalized result if national vote = 50–50</h3>
-            <p>D = 50×ratio, R = 100−D (implied)</p>
-
-            <div style="overflow:auto;">
+<div style="overflow:auto;">
               <table id="normTable" aria-label="Normalized table"></table>
             </div>
 
             <div class="chartWrap">
-              <svg id="normChart" viewBox="0 0 900 240" preserveAspectRatio="none" aria-label="Normalized chart"></svg>
+              <svg id="normChart" viewBox="0 0 900 260" preserveAspectRatio="none" aria-label="Normalized chart"></svg>
             </div>
           </div>
         </div>
       </div>
-
-      <div class="note">Note: Ratio-based projection is illustrative, not a forecast. Generated from provided inputs.</div>
-
-      <div class="footer">
-        <div>Source: your CSV inputs</div>
         <div><a href="state_report_data.csv" download>Download CSV</a></div>
       </div>
     </div>
@@ -901,29 +899,50 @@ function lineChart(svgId, years, series, opts={}){
   const svg = $(svgId);
   svgClear(svg);
 
-  const W=900, H=240;
-  const padL=62, padR=18, padT=14, padB=36;
+  const W=900, H=260;
+  const padL=62, padR=18, padT=16, padB=44;
   const x0=padL, y0=padT, w=W-padL-padR, h=H-padT-padB;
 
+  // tooltip helpers (shared)
+  const tip = $("chartTip");
+  const showTip = (x, y, html) => {
+    if (!tip) return;
+    tip.innerHTML = html;
+    tip.style.display = "block";
+    const ox = 14, oy = 14;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const r = tip.getBoundingClientRect();
+    let px = x + ox, py = y + oy;
+    if (px + r.width > vw - 8) px = x - r.width - ox;
+    if (py + r.height > vh - 8) py = y - r.height - oy;
+    tip.style.left = px + "px";
+    tip.style.top  = py + "px";
+  };
+  const hideTip = () => { if (tip) tip.style.display = "none"; };
+
+  // compute domain
   let all=[];
   series.forEach(s => all = all.concat(s.values.filter(v => Number.isFinite(v))));
   let ymin = all.length ? Math.min(...all) : 0;
   let ymax = all.length ? Math.max(...all) : 1;
-  const span = (ymax - ymin) || 1;
-  const pad = span * 0.20;
+
+  // baseline-aware padding
+  const span0 = (ymax - ymin) || 1;
+  const pad = span0 * 0.18;
   ymin -= pad; ymax += pad;
 
   if (opts.baseline !== undefined){
     ymin = Math.min(ymin, opts.baseline - pad*0.5);
     ymax = Math.max(ymax, opts.baseline + pad*0.5);
   }
+
   if (opts.yFormat === "pct"){
     ymin = Math.max(0, ymin);
     ymax = Math.min(100, ymax);
-    if ((ymax-ymin) < 28){
+    if ((ymax-ymin) < 26){
       const mid = (ymin+ymax)/2;
-      ymin = Math.max(0, mid-14);
-      ymax = Math.min(100, mid+14);
+      ymin = Math.max(0, mid-13);
+      ymax = Math.min(100, mid+13);
     }
   }
 
@@ -933,53 +952,166 @@ function lineChart(svgId, years, series, opts={}){
   const sx = (yr) => x0 + ((yr - years[0])/(years[years.length-1]-years[0]))*w;
   const sy = (v)  => y0 + (1 - ((v - ymin)/(ymax - ymin)))*h;
 
+  // background grid + y labels
   ticks.forEach(t => {
     const y = sy(t);
-    svg.appendChild(svgEl("line",{x1:x0,y1:y,x2:x0+w,y2:y,stroke:"var(--grid)","stroke-width":"1"}));
-    const lbl = opts.yFormat === "pct" ? String(Math.round(t)) : (Math.abs(t) < 1e-9 ? "0" : String(t).replace(/\.0+$/, ""));
+    svg.appendChild(svgEl("line",{
+      x1:x0,y1:y,x2:x0+w,y2:y,
+      stroke:"var(--grid)","stroke-width":"1",
+      "vector-effect":"non-scaling-stroke"
+    }));
+    const lbl = opts.yFormat === "pct"
+      ? String(Math.round(t))
+      : (Math.abs(t) < 1e-9 ? "0" : String(t).replace(/\.0+$/, ""));
     const txt = svgEl("text",{x:x0-8,y:y+4,"text-anchor":"end","font-size":"11",fill:"var(--muted)"});
     txt.textContent = lbl;
     svg.appendChild(txt);
   });
 
-  years.forEach(yr => {
+  // x grid + labels
+  years.forEach((yr,i) => {
     const x = sx(yr);
-    svg.appendChild(svgEl("line",{x1:x,y1:y0,x2:x,y2:y0+h,stroke:"var(--grid)","stroke-width":"1"}));
-    const txt = svgEl("text",{x:x,y:y0+h+22,"text-anchor":"middle","font-size":"11",fill:"var(--muted)"});
+    svg.appendChild(svgEl("line",{
+      x1:x,y1:y0,x2:x,y2:y0+h,
+      stroke:"var(--grid)","stroke-width":"1",
+      "vector-effect":"non-scaling-stroke"
+    }));
+    const txt = svgEl("text",{x:x,y:y0+h+26,"text-anchor":"middle","font-size":"11",fill:"var(--muted)"});
     txt.textContent = yr;
     svg.appendChild(txt);
   });
 
+  // baseline
   if (opts.baseline !== undefined && opts.baseline >= ymin && opts.baseline <= ymax){
     const y = sy(opts.baseline);
-    svg.appendChild(svgEl("line",{x1:x0,y1:y,x2:x0+w,y2:y,stroke:"color-mix(in srgb, var(--muted), transparent 40%)","stroke-width":"2"}));
+    svg.appendChild(svgEl("line",{
+      x1:x0,y1:y,x2:x0+w,y2:y,
+      stroke:"color-mix(in srgb, var(--muted), transparent 45%)",
+      "stroke-width":"2",
+      "vector-effect":"non-scaling-stroke"
+    }));
   }
 
+  // y-axis label
   if (opts.yLabel){
-    const t = svgEl("text",{x:16,y:y0+h/2,"text-anchor":"middle","font-size":"12",fill:"var(--muted)",transform:`rotate(-90 16 ${y0+h/2})`});
+    const t = svgEl("text",{
+      x:16,y:y0+h/2,
+      "text-anchor":"middle",
+      "font-size":"12",
+      fill:"var(--muted)",
+      transform:`rotate(-90 16 ${y0+h/2})`
+    });
     t.textContent = opts.yLabel;
     svg.appendChild(t);
   }
 
-  series.forEach(s => {
-    const pts = s.values.map((v,i) => [sx(years[i]), sy(v)]);
-    const d = pts.map((p,i)=> (i===0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(" ");
-    svg.appendChild(svgEl("path",{d,fill:"none",stroke:s.color,"stroke-width":"3.2"}));
+  const smoothD = (pts) => {
+    if (pts.length < 2) return "";
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for (let i=0; i<pts.length-1; i++){
+      const p0 = pts[i-1] || pts[i];
+      const p1 = pts[i];
+      const p2 = pts[i+1];
+      const p3 = pts[i+2] || p2;
+      const t = (opts.tension ?? 1);
+      const cp1x = p1[0] + (p2[0] - p0[0]) / 6 * t;
+      const cp1y = p1[1] + (p2[1] - p0[1]) / 6 * t;
+      const cp2x = p2[0] - (p3[0] - p1[0]) / 6 * t;
+      const cp2y = p2[1] - (p3[1] - p1[1]) / 6 * t;
+      d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2[0]} ${p2[1]}`;
+    }
+    return d;
+  };
 
+  // series render
+  series.forEach((s, si) => {
+    const pts = s.values.map((v,i) => [sx(years[i]), sy(v)]);
+
+    // area fill (subtle)
+    if (opts.areaFill){
+      const dBase = (opts.smooth ? smoothD(pts) : pts.map((p,i)=> (i===0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(" "));
+      const dArea = `${dBase} L ${pts[pts.length-1][0]} ${y0+h} L ${pts[0][0]} ${y0+h} Z`;
+      svg.appendChild(svgEl("path",{
+        d:dArea,
+        fill:s.color,
+        "fill-opacity":"0.10",
+        stroke:"none"
+      }));
+    }
+
+    const d = (opts.smooth ? smoothD(pts) : pts.map((p,i)=> (i===0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(" "));
+    svg.appendChild(svgEl("path",{
+      d, fill:"none",
+      stroke:s.color,
+      "stroke-width":"3.2",
+      "vector-effect":"non-scaling-stroke"
+    }));
+
+    // points (hollow)
     pts.forEach((p,i) => {
-      svg.appendChild(svgEl("circle",{cx:p[0],cy:p[1],r:4.2,fill:s.color}));
-      if (s.annotate){
-        const a = s.annotate(years[i], s.values[i], i);
-        const txt = svgEl("text",{
-          x:p[0]+a.dx,y:p[1]+a.dy,"text-anchor":"middle",
-          "font-size":a.size||11,"font-weight":a.bold?"900":"700",
-          fill:a.textColor||"var(--ink)"
-        });
-        txt.textContent = a.text;
-        svg.appendChild(txt);
-      }
+      const c = svgEl("circle",{
+        cx:p[0], cy:p[1],
+        r:4.6,
+        fill:"var(--panel)",
+        stroke:s.color,
+        "stroke-width":"2",
+        "vector-effect":"non-scaling-stroke",
+        tabindex:"0"
+      });
+      c.dataset.year = String(years[i]);
+      c.dataset.value = String(s.values[i]);
+      c.dataset.label = s.label || "";
+      c.addEventListener("pointerenter", (e) => {
+        const yr = c.dataset.year;
+        const val = Number(c.dataset.value);
+        const valTxt = opts.yFormat === "pct" ? `${Math.round(val)}%` : (opts.valueFmt ? opts.valueFmt(val) : fmt(val, opts.decimals ?? 2));
+        showTip(e.clientX, e.clientY, `<div><b>${s.label || svgId}</b></div><div class="muted">${yr}</div><div style="margin-top:4px;">${valTxt}</div>`);
+      });
+      c.addEventListener("pointermove", (e) => {
+        // keep tooltip following cursor
+        const yr = c.dataset.year;
+        const val = Number(c.dataset.value);
+        const valTxt = opts.yFormat === "pct" ? `${Math.round(val)}%` : (opts.valueFmt ? opts.valueFmt(val) : fmt(val, opts.decimals ?? 2));
+        showTip(e.clientX, e.clientY, `<div><b>${s.label || svgId}</b></div><div class="muted">${yr}</div><div style="margin-top:4px;">${valTxt}</div>`);
+      });
+      c.addEventListener("pointerleave", hideTip);
+      c.addEventListener("blur", hideTip);
+      svg.appendChild(c);
     });
+
+    // last value label (clean, non-clutter)
+    if (opts.lastLabel){
+      const i = years.length - 1;
+      const x = pts[i][0], y = pts[i][1];
+      const val = s.values[i];
+      const valTxt = opts.yFormat === "pct"
+        ? `${Math.round(val)}%`
+        : (opts.valueFmt ? opts.valueFmt(val) : fmt(val, opts.decimals ?? 2));
+      const tx = svgEl("text",{
+        x:x-8, y:y-10,
+        "text-anchor":"end",
+        "font-size":"12",
+        "font-weight":"900",
+        fill:s.color
+      });
+      tx.textContent = valTxt;
+      svg.appendChild(tx);
+    }
   });
+
+  // legend (only when multiple)
+  if (series.length > 1){
+    const g = svgEl("g",{});
+    let lx = x0 + 10, ly = y0 + 12;
+    series.forEach((s, i) => {
+      const y = ly + i*16;
+      g.appendChild(svgEl("line",{x1:lx,y1:y,x2:lx+18,y2:y,stroke:s.color,"stroke-width":"3","vector-effect":"non-scaling-stroke"}));
+      const t = svgEl("text",{x:lx+24,y:y+4,"font-size":"12",fill:"var(--ink)","font-weight":"800"});
+      t.textContent = s.label || `Series ${i+1}`;
+      g.appendChild(t);
+    });
+    svg.appendChild(g);
+  }
 }
 
 function buildTableRatio(row){
@@ -1025,25 +1157,14 @@ function selectState(abbr, updateHash){
   buildTableNorm(row);
 
   const leanVals = YEARS_LEAN.map(y => safeNum(row[`lean_${y}`]) ?? 0);
-  lineChart("leanChart", YEARS_LEAN, [{
-    values: leanVals,
-    color: "var(--red)",
-    annotate: (yr, v) => ({ text: (Math.abs(v) < 1e-9 ? "0" : fmt(v, 1)), dx: 0, dy: -10, bold: true })
-  }], { yLabel: "Lean (pts)", baseline: 0 });
+  lineChart("leanChart", YEARS_LEAN, [{ values: leanVals, color: "var(--red)", label: "Lean" }], { yLabel: "Lean (pts)", baseline: 0, smooth: true, areaFill: true, lastLabel: true, decimals: 1, valueFmt: (v)=>fmt(v,1) });
 
   const ratioVals = YEARS_RATIO.map(y => safeNum(row[`ratioD_${y}`]) ?? 1);
-  lineChart("ratioChart", YEARS_RATIO, [{
-    values: ratioVals,
-    color: "var(--blue)",
-    annotate: (yr, v) => ({ text: fmt(v, 3), dx: 0, dy: -10, bold: true })
-  }], { yLabel: "D ratio", baseline: 1 });
+  lineChart("ratioChart", YEARS_RATIO, [{ values: ratioVals, color: "var(--blue)", label: "D ratio" }], { yLabel: "D ratio", baseline: 1, smooth: true, areaFill: true, lastLabel: true, decimals: 3, valueFmt: (v)=>fmt(v,3) });
 
   const normD = YEARS_RATIO.map(y => safeNum(row[`normD_${y}`]) ?? 50);
   const normR = YEARS_RATIO.map(y => safeNum(row[`normR_${y}`]) ?? 50);
-  lineChart("normChart", YEARS_RATIO, [
-    { values: normD, color: "var(--blue)", annotate: (yr, v) => ({ text: `${Math.round(v)}%`, dx: 0, dy: 16, bold: true, textColor: "var(--blue)" }) },
-    { values: normR, color: "var(--red)",  annotate: (yr, v) => ({ text: `${Math.round(v)}%`, dx: 0, dy: -10, bold: true, textColor: "var(--red)" }) }
-  ], { yLabel: "Share (%)", yFormat: "pct" });
+  lineChart("normChart", YEARS_RATIO, [ { values: normD, color: "var(--blue)", label: "D" }, { values: normR, color: "var(--red)", label: "R" } ], { yLabel: "Share (%)", yFormat: "pct", baseline: 50, smooth: true, areaFill: false, lastLabel: true, decimals: 0 });
 
   if (updateHash) location.hash = abbr;
 }
@@ -1140,25 +1261,12 @@ function toggleTheme(){
 function copyDeepLink(){
   const abbr = CURRENT || "";
   const url = `${location.origin}${location.pathname}#${abbr}`;
-  navigator.clipboard?.writeText(url).then(() => showStatus("Deep link copied to clipboard.")).catch(() => {
+  navigator.clipboard?.writeText(url).then(() => showStatus("Link copied.")).catch(() => {
     // fallback: prompt
     window.prompt("Copy this link:", url);
   });
 }
 
-function exportJSON(){
-  if (!CURRENT) return;
-  const row = DATA.get(CURRENT);
-  if (!row) return;
-  const blob = new Blob([JSON.stringify(row, null, 2)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `state_${CURRENT}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-}
 
 async function init(){
   // theme
@@ -1179,8 +1287,6 @@ async function init(){
   });
 
   $("copyLinkBtn").addEventListener("click", copyDeepLink);
-  $("exportBtn").addEventListener("click", exportJSON);
-
   $("sortSel").addEventListener("change", renderStateList);
 
   // load CSV
@@ -1249,5 +1355,6 @@ async function init(){
 
 init();
 </script>
+  <div class="chartTip" id="chartTip"></div>
 </body>
 </html>
