@@ -3,303 +3,514 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <title>State Election Data Report</title>
   <style>
-    :root {
-      --bg: #F8FAFC;
-      --card: #FFFFFF;
-      --ink: #0F172A;
-      --muted: #64748B;
-      --border: #E2E8F0;
-      --shadow: 0 10px 24px rgba(15,23,42,0.08);
-      --blue: #2563EB;
-      --red: #DC2626;
-      --grid: #E5E7EB;
+    :root{
+      --bg:#F8FAFC;
+      --card:#FFFFFF;
+      --ink:#0F172A;
+      --muted:#64748B;
+      --border:#E2E8F0;
+      --shadow:0 10px 24px rgba(15,23,42,.08);
+      --blue:#2563EB;
+      --red:#DC2626;
+      --grid:#E5E7EB;
+      --focus:rgba(37,99,235,.65);
+      --chip:#F1F5F9;
+      --chip2:#E0F2FE;
+      --warn:#F59E0B;
+      --good:#16A34A;
+      --bad:#DC2626;
+      --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      color: var(--ink);
-      background: var(--bg);
+    html[data-theme="dark"]{
+      --bg:#0B1220;
+      --card:#0F172A;
+      --ink:#E2E8F0;
+      --muted:#94A3B8;
+      --border:#1F2A44;
+      --shadow:0 10px 24px rgba(0,0,0,.35);
+      --grid:#1F2A44;
+      --chip:#0B1A33;
+      --chip2:#0B2447;
     }
-    .shell {
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 18px;
-      padding: 18px;
-      min-height: 100vh;
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      color:var(--ink);
+      background:var(--bg);
     }
-    @media (max-width: 980px) {
-      .shell { grid-template-columns: 1fr; }
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-    }
-    .side {
-      padding: 14px;
-      position: sticky;
-      top: 12px;
-      align-self: start;
-    }
-    @media (max-width: 980px) {
-      .side { position: relative; top: auto; }
-    }
-    .title {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .title h1 {
-      font-size: 16px;
-      margin: 0;
-      letter-spacing: 0.2px;
-    }
-    .title .hint {
-      font-size: 12px;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-    .search {
-      display: flex;
-      gap: 8px;
-      margin: 10px 0 12px;
-    }
-    .search input {
-      flex: 1;
-      padding: 10px 10px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #fff;
-      font-size: 14px;
-      outline: none;
-    }
-    .search button {
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #fff;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .search button:hover { background: #F1F5F9; }
+    a{ color:var(--blue); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
 
-    .map {
-      width: 100%;
-      overflow: auto;
-      padding: 8px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: #fff;
+    .shell{
+      display:grid;
+      grid-template-columns:360px 1fr;
+      gap:18px;
+      padding:18px;
+      min-height:100vh;
     }
-    .gridmap {
-      display: grid;
-      grid-template-columns: repeat(12, 34px);
-      grid-auto-rows: 34px;
-      gap: 6px;
-      width: max-content;
-      margin: 0 auto;
+    @media (max-width:980px){ .shell{ grid-template-columns:1fr; } }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:var(--shadow);
     }
-    .cell {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      font-size: 11px;
-      cursor: pointer;
-      user-select: none;
-      transition: transform 80ms ease, box-shadow 120ms ease;
+    .side{
+      padding:14px;
+      position:sticky;
+      top:12px;
+      align-self:start;
     }
-    .cell:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 14px rgba(15,23,42,0.12);
+    @media (max-width:980px){ .side{ position:relative; top:auto; } }
+
+    .title{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
     }
-    .cell.active {
-      outline: 2px solid rgba(37, 99, 235, 0.55);
-      outline-offset: 2px;
+    .title h1{ font-size:16px; margin:0; letter-spacing:.2px; }
+    .title .hint{ font-size:12px; color:var(--muted); white-space:nowrap; }
+
+    .row{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
     }
-    .legend {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 12px;
+    .btn{
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:var(--card);
+      cursor:pointer;
+      font-weight:700;
+      color:var(--ink);
+      transition:transform 80ms ease, background 120ms ease;
     }
-    .legendbar {
-      height: 10px;
-      flex: 1;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: linear-gradient(90deg, #DC2626 0%, #F8FAFC 50%, #2563EB 100%);
+    .btn:hover{ background:var(--chip); }
+    .btn:active{ transform:translateY(1px); }
+    .btn.small{ padding:8px 10px; font-size:12px; }
+    .btn.primary{ border-color:rgba(37,99,235,.35); background:linear-gradient(180deg, rgba(37,99,235,.12), rgba(37,99,235,.04)); }
+    .btn.danger{ border-color:rgba(220,38,38,.35); background:linear-gradient(180deg, rgba(220,38,38,.12), rgba(220,38,38,.04)); }
+
+    :focus-visible{
+      outline:3px solid var(--focus);
+      outline-offset:2px;
+      border-radius:12px;
     }
 
-    .main { padding: 0; }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 16px 16px 12px;
-      border-bottom: 1px solid var(--border);
-      align-items: center;
+    .search{
+      display:flex;
+      gap:8px;
+      margin:10px 0 10px;
+      position:relative;
     }
-    .stateTitle {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
+    .search input{
+      flex:1;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:transparent;
+      font-size:14px;
+      outline:none;
+      color:var(--ink);
     }
-    .pill {
-      width: 46px;
-      height: 28px;
-      border-radius: 999px;
-      background: #E0F2FE;
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      border: 1px solid var(--border);
-      flex: 0 0 auto;
+    .search input::placeholder{ color:color-mix(in srgb, var(--muted), transparent 15%); }
+    .suggest{
+      position:absolute;
+      left:0;
+      right:0;
+      top:44px;
+      z-index:10;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      display:none;
+      max-height:220px;
     }
-    .stateTitle h2 {
-      margin: 0;
-      font-size: 18px;
-      line-height: 1.1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .suggest button{
+      width:100%;
+      text-align:left;
+      padding:10px 10px;
+      border:none;
+      background:transparent;
+      cursor:pointer;
+      color:var(--ink);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:650;
     }
-    .stateTitle .sub {
-      margin: 2px 0 0;
-      font-size: 12px;
-      color: var(--muted);
+    .suggest button:hover{ background:var(--chip); }
+    .suggest .meta{ color:var(--muted); font-weight:600; font-size:12px; }
+
+    .map{
+      width:100%;
+      overflow:auto;
+      padding:8px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:transparent;
+      position:relative;
     }
-    .kpis {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(120px, 1fr));
-      gap: 10px;
-      align-items: stretch;
-      width: 520px;
-      max-width: 100%;
+    .gridmap{
+      display:grid;
+      grid-template-columns:repeat(12, 34px);
+      grid-auto-rows:34px;
+      gap:6px;
+      width:max-content;
+      margin:0 auto;
+      padding:2px;
     }
-    .kpi {
-      background: #F1F5F9;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 10px;
-      font-size: 12px;
-      color: var(--muted);
+    .cell{
+      width:34px;
+      height:34px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      display:grid;
+      place-items:center;
+      font-weight:850;
+      font-size:11px;
+      cursor:pointer;
+      user-select:none;
+      transition:transform 80ms ease, box-shadow 120ms ease, filter 120ms ease;
     }
-    .kpi b {
-      display: block;
-      color: var(--ink);
-      font-size: 14px;
-      margin-top: 2px;
+    .cell:hover{
+      transform:translateY(-1px);
+      box-shadow:0 6px 14px rgba(15,23,42,.12);
+      filter:saturate(1.06);
+    }
+    html[data-theme="dark"] .cell:hover{ box-shadow:0 8px 16px rgba(0,0,0,.45); }
+    .cell.active{
+      outline:2px solid var(--focus);
+      outline-offset:2px;
     }
 
-    .content {
-      padding: 16px;
-      display: grid;
-      grid-template-rows: auto auto;
-      gap: 14px;
+    .tooltip{
+      position:absolute;
+      pointer-events:none;
+      transform:translate(-50%, -100%);
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      padding:10px 10px;
+      min-width:220px;
+      opacity:0;
+      transition:opacity 90ms ease;
     }
-    .block { padding: 14px; }
-    .block h3 { margin: 0; font-size: 14px; }
-    .block p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
-
-    .stripRow {
-      display: flex;
-      gap: 6px;
-      align-items: flex-end;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-    .stripCell {
-      width: 52px;
-      height: 30px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      font-size: 12px;
-    }
-    .stripLbl {
-      font-size: 11px;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 4px;
+    .tooltip.show{ opacity:1; }
+    .tooltip .t1{ font-weight:900; font-size:13px; display:flex; justify-content:space-between; gap:10px; }
+    .tooltip .t2{ margin-top:4px; color:var(--muted); font-size:12px; }
+    .tooltip .tags{ display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+    .tag{
+      font-size:11px;
+      font-weight:800;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--chip);
+      color:var(--ink);
+      white-space:nowrap;
     }
 
-    .chartWrap {
-      margin-top: 12px;
-      border-top: 1px solid var(--border);
-      padding-top: 12px;
+    .legend{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-top:10px;
+      color:var(--muted);
+      font-size:12px;
     }
-    svg { width: 100%; height: 220px; display: block; }
-
-    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media (max-width: 1080px) {
-      .row2 { grid-template-columns: 1fr; }
-      .kpis { width: 100%; grid-template-columns: 1fr; }
-      svg { height: 240px; }
+    .legendbar{
+      height:10px;
+      flex:1;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:linear-gradient(90deg, #DC2626 0%, var(--bg) 50%, #2563EB 100%);
+    }
+    .legendSmall{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:11px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
     }
 
-    table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; font-size: 12px; }
-    th, td { border: 1px solid var(--border); padding: 8px 8px; text-align: center; }
-    th { background: #F1F5F9; color: var(--muted); font-weight: 800; }
-    td.head { background: #F8FAFC; font-weight: 800; }
-    td.dhead { background: #DBEAFE; font-weight: 900; }
-    td.rhead { background: #FEE2E2; font-weight: 900; }
+    .divider{ height:1px; background:var(--border); margin:12px 0; }
 
-    .note { padding: 0 16px 14px; color: var(--muted); font-size: 12px; }
-    .footer {
-      padding: 10px 16px 16px;
-      color: var(--muted);
-      font-size: 12px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
+    .mini{
+      background:transparent;
+      border:1px dashed var(--border);
+      border-radius:14px;
+      padding:10px;
+      font-size:12px;
+      color:var(--muted);
     }
-    a { color: var(--blue); text-decoration: none; }
-    a:hover { text-decoration: underline; }
+    code{ font-family:var(--mono); font-size:12px; }
+
+    .listWrap{ display:none; margin-top:10px; }
+    .listWrap.show{ display:block; }
+    .listHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .select{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:8px 10px;
+      background:transparent;
+      color:var(--ink);
+      font-weight:700;
+      outline:none;
+    }
+    .stateList{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:6px;
+      max-height:240px;
+      overflow:auto;
+      padding:4px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:transparent;
+    }
+    .sItem{
+      border:1px solid var(--border);
+      background:transparent;
+      border-radius:12px;
+      padding:8px 8px;
+      cursor:pointer;
+      color:var(--ink);
+      font-weight:800;
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:center;
+    }
+    .sItem:hover{ background:var(--chip); }
+    .sItem.active{ outline:2px solid var(--focus); outline-offset:2px; }
+    .sItem span{ color:var(--muted); font-weight:700; font-size:11px; }
+
+    .main{ padding:0; }
+    .header{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      padding:16px 16px 12px;
+      border-bottom:1px solid var(--border);
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .stateTitle{ display:flex; align-items:center; gap:10px; min-width:0; }
+    .pill{
+      width:46px;
+      height:28px;
+      border-radius:999px;
+      background:var(--chip2);
+      display:grid;
+      place-items:center;
+      font-weight:900;
+      border:1px solid var(--border);
+      flex:0 0 auto;
+    }
+    .stateTitle h2{
+      margin:0;
+      font-size:18px;
+      line-height:1.1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .stateTitle .sub{ margin:2px 0 0; font-size:12px; color:var(--muted); }
+
+    .kpis{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(120px, 1fr));
+      gap:10px;
+      align-items:stretch;
+      width:520px;
+      max-width:100%;
+    }
+    .kpi{
+      background:var(--chip);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 10px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .kpi b{ display:block; color:var(--ink); font-size:14px; margin-top:2px; }
+    .kpi .badge{
+      display:inline-block;
+      margin-left:8px;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:900;
+      border:1px solid var(--border);
+      background:transparent;
+      color:var(--muted);
+      vertical-align:middle;
+    }
+
+    .content{
+      padding:16px;
+      display:grid;
+      grid-template-rows:auto auto;
+      gap:14px;
+    }
+    .block{ padding:14px; }
+    .block h3{ margin:0; font-size:14px; }
+    .block p{ margin:4px 0 0; color:var(--muted); font-size:12px; }
+
+    .stripRow{ display:flex; gap:6px; align-items:flex-end; margin-top:10px; flex-wrap:wrap; }
+    .stripCell{
+      width:52px; height:30px;
+      border-radius:10px;
+      border:1px solid var(--border);
+      display:grid;
+      place-items:center;
+      font-weight:900;
+      font-size:12px;
+    }
+    .stripLbl{ font-size:11px; color:var(--muted); text-align:center; margin-top:4px; }
+
+    .chartWrap{ margin-top:12px; border-top:1px solid var(--border); padding-top:12px; position:relative; }
+    svg{ width:100%; height:220px; display:block; }
+
+    .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media (max-width:1080px){
+      .row2{ grid-template-columns:1fr; }
+      .kpis{ width:100%; grid-template-columns:1fr; }
+      svg{ height:240px; }
+    }
+
+    table{ width:100%; border-collapse:separate; border-spacing:0; margin-top:10px; font-size:12px; }
+    th, td{ border:1px solid var(--border); padding:8px 8px; text-align:center; }
+    th{ background:var(--chip); color:var(--muted); font-weight:900; }
+    td.head{ background:color-mix(in srgb, var(--bg), transparent 25%); font-weight:900; }
+    td.dhead{ background:color-mix(in srgb, var(--blue), transparent 84%); font-weight:900; }
+    td.rhead{ background:color-mix(in srgb, var(--red), transparent 84%); font-weight:900; }
+
+    .note{ padding:0 16px 14px; color:var(--muted); font-size:12px; }
+    .footer{
+      padding:10px 16px 16px;
+      color:var(--muted);
+      font-size:12px;
+      border-top:1px solid var(--border);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .status{
+      margin-top:10px;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:transparent;
+      color:var(--muted);
+      font-size:12px;
+      display:none;
+    }
+    .status.show{ display:block; }
+    .srOnly{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
   </style>
 </head>
 <body>
+  <noscript>
+    <div style="padding:16px; max-width:960px; margin:0 auto; color:#111; font-family:system-ui;">
+      This page needs JavaScript enabled to load the CSV and render charts.
+    </div>
+  </noscript>
+
   <div class="shell">
     <div class="card side">
       <div class="title">
         <h1>US State Report</h1>
-        <div class="hint">Click a state</div>
+        <div class="hint" id="sideHint">Click a state</div>
       </div>
 
-      <div class="search">
-        <input id="searchBox" placeholder="Type: NC, Texas, District..." />
-        <button id="goBtn">Go</button>
+      <div class="row" style="justify-content:space-between; margin-bottom:6px;">
+        <button class="btn small" id="themeBtn" title="Toggle theme">Theme</button>
+        <div class="row">
+          <button class="btn small" id="listBtn" title="Show/hide state list">List</button>
+          <button class="btn small" id="resetBtn" title="Reset to default state">Reset</button>
+        </div>
+      </div>
+
+      <div class="search" role="search">
+        <label class="srOnly" for="searchBox">Search states</label>
+        <input id="searchBox" autocomplete="off" placeholder="Type: NC, Texas, District…" />
+        <button class="btn" id="goBtn">Go</button>
+        <div class="suggest" id="suggest"></div>
       </div>
 
       <div class="map">
-        <div id="gridmap" class="gridmap" aria-label="US grid map"></div>
+        <div id="gridmap" class="gridmap" aria-label="US grid map" role="grid"></div>
+        <div id="tip" class="tooltip" role="status" aria-live="polite"></div>
       </div>
 
       <div class="legend">
         <span>Lean 2024</span>
         <div class="legendbar" title="Red = more R than national; Blue = more D than national"></div>
       </div>
-
-      <div style="margin-top:10px; color: var(--muted); font-size: 12px;">
-        Data file: <code>state_report_data.csv</code><br/>
-        Tip: append <code>#NC</code> to the URL to link a state directly.
+      <div class="legendSmall">
+        <span>More R-leaning</span>
+        <span>More D-leaning</span>
       </div>
+
+      <div class="listWrap" id="listWrap">
+        <div class="listHead">
+          <div>Quick pick</div>
+          <select class="select" id="sortSel" aria-label="Sort states">
+            <option value="name">Name</option>
+            <option value="abbr">Abbrev</option>
+            <option value="leanDesc">Lean 2024 (D → R)</option>
+            <option value="leanAsc">Lean 2024 (R → D)</option>
+            <option value="ratioDesc">D ratio 2024 (high → low)</option>
+            <option value="ratioAsc">D ratio 2024 (low → high)</option>
+          </select>
+        </div>
+        <div class="stateList" id="stateList" aria-label="State list"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="mini">
+        Data file: <code>state_report_data.csv</code><br/>
+        Deep link: append <code>#NC</code> to the URL.<br/>
+        Hover a tile for a tooltip; arrow keys work when a tile is focused.
+      </div>
+
+      <div class="status" id="statusMsg"></div>
     </div>
 
     <div class="card main">
@@ -317,6 +528,11 @@
           <div class="kpi">D ratio 2024<b id="kpiRatio">—</b></div>
           <div class="kpi">50–50 (2028) D<b id="kpi5050">—</b></div>
         </div>
+
+        <div class="row" style="margin-left:auto;">
+          <button class="btn small primary" id="copyLinkBtn" title="Copy deep link">Copy link</button>
+          <button class="btn small" id="exportBtn" title="Download current state's row as JSON">Export JSON</button>
+        </div>
       </div>
 
       <div class="content">
@@ -327,7 +543,7 @@
           <div class="stripRow" id="leanStrip"></div>
 
           <div class="chartWrap">
-            <svg id="leanChart" viewBox="0 0 900 240" preserveAspectRatio="none"></svg>
+            <svg id="leanChart" viewBox="0 0 900 240" preserveAspectRatio="none" aria-label="Lean chart"></svg>
           </div>
         </div>
 
@@ -337,11 +553,11 @@
             <p>Ratio = State D% / National D%</p>
 
             <div style="overflow:auto;">
-              <table id="ratioTable"></table>
+              <table id="ratioTable" aria-label="Ratio table"></table>
             </div>
 
             <div class="chartWrap">
-              <svg id="ratioChart" viewBox="0 0 900 240" preserveAspectRatio="none"></svg>
+              <svg id="ratioChart" viewBox="0 0 900 240" preserveAspectRatio="none" aria-label="Ratio chart"></svg>
             </div>
           </div>
 
@@ -350,11 +566,11 @@
             <p>D = 50×ratio, R = 100−D (implied)</p>
 
             <div style="overflow:auto;">
-              <table id="normTable"></table>
+              <table id="normTable" aria-label="Normalized table"></table>
             </div>
 
             <div class="chartWrap">
-              <svg id="normChart" viewBox="0 0 900 240" preserveAspectRatio="none"></svg>
+              <svg id="normChart" viewBox="0 0 900 240" preserveAspectRatio="none" aria-label="Normalized chart"></svg>
             </div>
           </div>
         </div>
@@ -373,23 +589,44 @@
 const YEARS_LEAN = [2000, 2004, 2008, 2012, 2016, 2020, 2024];
 const YEARS_RATIO = [2000, 2004, 2008, 2012, 2016, 2020, 2024, 2028];
 const GRID_POS = {"WA": [0, 0], "MT": [1, 0], "ND": [2, 0], "MN": [3, 0], "WI": [4, 0], "MI": [5, 0], "VT": [6, 0], "NH": [7, 0], "ME": [8, 0], "OR": [0, 1], "ID": [1, 1], "SD": [2, 1], "IA": [3, 1], "IL": [4, 1], "IN": [5, 1], "OH": [6, 1], "PA": [7, 1], "NY": [8, 1], "MA": [9, 1], "CA": [0, 2], "NV": [1, 2], "WY": [2, 2], "NE": [3, 2], "MO": [4, 2], "KY": [5, 2], "WV": [6, 2], "VA": [7, 2], "NJ": [8, 2], "CT": [9, 2], "RI": [10, 2], "AZ": [1, 3], "UT": [2, 3], "CO": [3, 3], "KS": [4, 3], "AR": [5, 3], "TN": [6, 3], "NC": [7, 3], "SC": [8, 3], "DE": [9, 3], "MD": [10, 3], "DC": [11, 3], "NM": [2, 4], "OK": [3, 4], "LA": [4, 4], "MS": [5, 4], "AL": [6, 4], "GA": [7, 4], "FL": [8, 4], "TX": [3, 5], "AK": [0, 6], "HI": [1, 6]};
+
 let DATA = new Map(); // abbr -> row object
+let ORDERED = [];     // array of {abbr, name, lean_2024, ratioD_2024}
+let CURRENT = null;
 
-function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
-function lerp(a,b,t) { return a + (b-a)*t; }
+function $(id){ return document.getElementById(id); }
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function lerp(a,b,t){ return a + (b-a)*t; }
 
-function leanColor(v) {
+function safeNum(x){
+  const n = Number(x);
+  return Number.isFinite(n) ? n : null;
+}
+function fmt(v, digits=2){
+  const n = safeNum(v);
+  if (n === null) return "—";
+  const fixed = Math.abs(n) < 1e-9 ? 0 : n;
+  return fixed.toFixed(digits).replace(/\.00$/, "");
+}
+function pct(v){
+  const n = safeNum(v);
+  if (n === null) return "—";
+  return `${Math.round(n)}%`;
+}
+
+function leanColor(v){
   const vmin=-60, vmax=90;
-  if (v === "" || v === null || v === undefined || Number.isNaN(v)) return "#FFFFFF";
-  v = clamp(Number(v), vmin, vmax);
-  if (v < 0) {
-    const t = (v - vmin) / (0 - vmin);
+  const n = safeNum(v);
+  if (n === null) return "transparent";
+  let x = clamp(n, vmin, vmax);
+  if (x < 0){
+    const t = (x - vmin) / (0 - vmin);
     const r = lerp(0xDC, 0xF8, t);
     const g = lerp(0x26, 0xFA, t);
     const b = lerp(0x26, 0xFC, t);
     return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
   } else {
-    const t = (v - 0) / (vmax - 0);
+    const t = (x - 0) / (vmax - 0);
     const r = lerp(0xF8, 0x25, t);
     const g = lerp(0xFA, 0x63, t);
     const b = lerp(0xFC, 0xEB, t);
@@ -397,69 +634,209 @@ function leanColor(v) {
   }
 }
 
-function textColor(bg) {
-  const m = bg.match(/\d+/g);
-  if (!m) return "#0F172A";
-  const [r,g,b] = m.map(Number);
-  const lum = (0.2126*r + 0.7152*g + 0.0722*b)/255;
-  return lum < 0.62 ? "#FFFFFF" : "#0F172A";
-}
-
-function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/);
-  const header = lines[0].split(",");
-  const rows = [];
-  for (let i=1;i<lines.length;i++) {
-    const parts = lines[i].split(",");
-    const obj = {};
-    header.forEach((h,idx)=> obj[h] = (parts[idx] ?? "").trim());
-    rows.push(obj);
+function rgbFromCssColor(c){
+  if (!c) return null;
+  if (c.startsWith("rgb")){
+    const m = c.match(/\d+/g);
+    return m ? m.map(Number).slice(0,3) : null;
   }
-  return rows;
+  if (c.startsWith("#")){
+    const hex = c.slice(1);
+    if (hex.length === 3){
+      const r = parseInt(hex[0]+hex[0], 16);
+      const g = parseInt(hex[1]+hex[1], 16);
+      const b = parseInt(hex[2]+hex[2], 16);
+      return [r,g,b];
+    }
+    if (hex.length >= 6){
+      const r = parseInt(hex.slice(0,2), 16);
+      const g = parseInt(hex.slice(2,4), 16);
+      const b = parseInt(hex.slice(4,6), 16);
+      return [r,g,b];
+    }
+  }
+  return null;
 }
 
-function fmt(v, digits=2) {
-  if (v === "" || v === null || v === undefined) return "—";
-  const n = Number(v);
-  if (Number.isNaN(n)) return "—";
-  const fixed = Math.abs(n) < 1e-9 ? 0 : n;
-  return fixed.toFixed(digits).replace(/\.00$/, "");
+function textColor(bg){
+  const rgb = rgbFromCssColor(bg);
+  if (!rgb) return "var(--ink)";
+  const [r,g,b] = rgb;
+  const lum = (0.2126*r + 0.7152*g + 0.0722*b)/255;
+  return lum < 0.62 ? "#FFFFFF" : "var(--ink)";
 }
 
-function buildMap() {
-  const el = document.getElementById("gridmap");
+/* Robust-ish CSV parser (RFC4180 enough for quoted fields). Also: if a header repeats,
+   keep the first non-empty value and ignore later duplicates. */
+function parseCSV(text){
+  const rows = [];
+  let i=0, field="", row=[], inQuotes=false;
+  function endField(){
+    row.push(field);
+    field="";
+  }
+  function endRow(){
+    // ignore blank final row
+    if (row.length === 1 && row[0] === "") { row=[]; return; }
+    rows.push(row);
+    row=[];
+  }
+  text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  while (i < text.length){
+    const ch = text[i];
+    if (inQuotes){
+      if (ch === '"'){
+        if (text[i+1] === '"'){ field += '"'; i++; }
+        else { inQuotes=false; }
+      } else {
+        field += ch;
+      }
+    } else {
+      if (ch === '"'){ inQuotes=true; }
+      else if (ch === ","){ endField(); }
+      else if (ch === "\n"){ endField(); endRow(); }
+      else { field += ch; }
+    }
+    i++;
+  }
+  endField(); endRow();
+
+  const header = (rows[0] || []).map(h => String(h || "").trim());
+  const out = [];
+  for (let r=1; r<rows.length; r++){
+    const parts = rows[r];
+    const obj = {};
+    for (let c=0; c<header.length; c++){
+      const key = header[c] || `col_${c}`;
+      const val = (parts[c] ?? "").toString().trim();
+      if (!(key in obj) || obj[key] === "") obj[key] = val; // don't overwrite non-empty
+    }
+    out.push(obj);
+  }
+  return out;
+}
+
+function showStatus(msg, isError=false){
+  const el = $("statusMsg");
+  el.textContent = msg;
+  el.classList.add("show");
+  el.style.borderColor = isError ? "color-mix(in srgb, var(--bad), transparent 55%)" : "var(--border)";
+}
+
+function buildMap(){
+  const el = $("gridmap");
   el.innerHTML = "";
-  Object.keys(GRID_POS).forEach(abbr => {
+  for (const abbr of Object.keys(GRID_POS)){
     const [col,row] = GRID_POS[abbr];
-    const cell = document.createElement("div");
+    const cell = document.createElement("button");
+    cell.type = "button";
     cell.className = "cell";
     cell.dataset.abbr = abbr;
     cell.style.gridColumn = (col+1);
     cell.style.gridRow = (row+1);
     cell.textContent = abbr;
+    cell.setAttribute("role", "gridcell");
+    cell.setAttribute("aria-label", `State ${abbr}`);
     cell.addEventListener("click", () => selectState(abbr, true));
+    cell.addEventListener("mouseenter", (e) => showTip(abbr, e));
+    cell.addEventListener("mousemove", (e) => moveTip(e));
+    cell.addEventListener("mouseleave", hideTip);
+    cell.addEventListener("focus", (e) => showTip(abbr, e, true));
+    cell.addEventListener("blur", hideTip);
     el.appendChild(cell);
+  }
+
+  // arrow-key navigation within the grid
+  el.addEventListener("keydown", (e) => {
+    const active = document.activeElement;
+    if (!active || !active.classList.contains("cell")) return;
+    const abbr = active.dataset.abbr;
+    const pos = GRID_POS[abbr];
+    if (!pos) return;
+    const [cx, cy] = pos;
+    const dirs = {ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,-1], ArrowDown:[0,1]};
+    if (!(e.key in dirs)) return;
+    e.preventDefault();
+    const [dx,dy] = dirs[e.key];
+    // find nearest neighbor in direction
+    let best = null;
+    for (const [a,[x,y]] of Object.entries(GRID_POS)){
+      if (dx !== 0 && y === cy && (x - cx) * dx > 0){
+        const d = Math.abs(x - cx);
+        if (!best || d < best.d) best = {a, d};
+      }
+      if (dy !== 0 && x === cx && (y - cy) * dy > 0){
+        const d = Math.abs(y - cy);
+        if (!best || d < best.d) best = {a, d};
+      }
+    }
+    if (best){
+      const next = el.querySelector(`.cell[data-abbr="${best.a}"]`);
+      if (next) next.focus();
+    }
   });
+
   colorMap();
 }
 
-function colorMap() {
+function colorMap(){
   document.querySelectorAll(".cell").forEach(cell => {
     const abbr = cell.dataset.abbr;
     const row = DATA.get(abbr);
-    const v = row ? row["lean_2024"] : "";
+    const v = row ? row["lean_2024"] : null;
     const bg = leanColor(v);
     cell.style.background = bg;
     cell.style.color = textColor(bg);
   });
 }
 
-function setActiveCell(abbr) {
+function setActiveCell(abbr){
   document.querySelectorAll(".cell").forEach(c => c.classList.toggle("active", c.dataset.abbr === abbr));
+  document.querySelectorAll(".sItem").forEach(c => c.classList.toggle("active", c.dataset.abbr === abbr));
 }
 
-function makeLeanStrip(row) {
-  const strip = document.getElementById("leanStrip");
+function showTip(abbr, evt, fromFocus=false){
+  const row = DATA.get(abbr);
+  if (!row) return;
+  const tip = $("tip");
+  const name = row.name || abbr;
+  const lean = fmt(row.lean_2024, 2);
+  const ratio = fmt(row.ratioD_2024, 3);
+  const d50 = pct(row.normD_2028);
+  tip.innerHTML = `
+    <div class="t1"><span>${name}</span><span>${abbr}</span></div>
+    <div class="t2">Lean 2024: <b>${lean}</b> • D ratio 2024: <b>${ratio}</b> • 50–50 D (2028): <b>${d50}</b></div>
+    <div class="tags">
+      <span class="tag">Click to select</span>
+      <span class="tag">Enter = search</span>
+    </div>
+  `;
+  tip.classList.add("show");
+  if (fromFocus){
+    // place tooltip near the focused element
+    const rect = evt.target.getBoundingClientRect();
+    positionTip(rect.left + rect.width/2, rect.top);
+  } else {
+    moveTip(evt);
+  }
+}
+
+function positionTip(x, y){
+  const tip = $("tip");
+  const map = document.querySelector(".map");
+  const rect = map.getBoundingClientRect();
+  tip.style.left = `${x - rect.left + map.scrollLeft}px`;
+  tip.style.top = `${y - rect.top + map.scrollTop}px`;
+}
+
+function moveTip(evt){
+  if (!evt) return;
+  positionTip(evt.clientX, evt.clientY);
+}
+function hideTip(){ $("tip").classList.remove("show"); }
+
+function makeLeanStrip(row){
+  const strip = $("leanStrip");
   strip.innerHTML = "";
   YEARS_LEAN.forEach(y => {
     const v = row[`lean_${y}`];
@@ -468,28 +845,31 @@ function makeLeanStrip(row) {
     wrap.style.display = "grid";
     wrap.style.placeItems = "center";
     wrap.style.width = "58px";
+
     const cell = document.createElement("div");
     cell.className = "stripCell";
     cell.style.background = bg;
     cell.style.color = textColor(bg);
-    cell.textContent = (v === "" ? "—" : fmt(v, 2));
+    cell.textContent = fmt(v, 2);
+
     const lbl = document.createElement("div");
     lbl.className = "stripLbl";
     lbl.textContent = y;
+
     wrap.appendChild(cell);
     wrap.appendChild(lbl);
     strip.appendChild(wrap);
   });
 }
 
-function svgClear(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
-function svgEl(tag, attrs={}) {
+function svgClear(svg){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+function svgEl(tag, attrs={}){
   const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
   for (const [k,v] of Object.entries(attrs)) el.setAttribute(k, v);
   return el;
 }
 
-function niceStep(v) {
+function niceStep(v){
   if (v <= 0) return 1;
   const k = Math.floor(Math.log10(v));
   const base = Math.pow(10, k);
@@ -500,9 +880,8 @@ function niceStep(v) {
   else if (m <= 5) s = 5;
   return s * base;
 }
-
-function niceTicks(vmin, vmax, n=6) {
-  if (vmin === vmax) {
+function niceTicks(vmin, vmax, n=6){
+  if (vmin === vmax){
     const step = 1;
     return [vmin-step, vmin, vmin+step];
   }
@@ -511,35 +890,37 @@ function niceTicks(vmin, vmax, n=6) {
   const lo = Math.floor(vmin / step) * step;
   const hi = Math.ceil(vmax / step) * step;
   const ticks = [];
-  for (let t=lo, i=0; i<120; i++, t += step) {
+  for (let t=lo, i=0; i<120; i++, t += step){
     ticks.push(t);
     if (t >= hi - 1e-9) break;
   }
   return ticks;
 }
 
-function lineChart(svgId, years, series, opts={}) {
-  const svg = document.getElementById(svgId);
+function lineChart(svgId, years, series, opts={}){
+  const svg = $(svgId);
   svgClear(svg);
-  const W = 900, H = 240;
-  const padL = 62, padR = 18, padT = 14, padB = 36;
-  const x0 = padL, y0 = padT, w = W - padL - padR, h = H - padT - padB;
 
-  let all = [];
-  series.forEach(s => all = all.concat(s.values));
-  let ymin = Math.min(...all), ymax = Math.max(...all);
+  const W=900, H=240;
+  const padL=62, padR=18, padT=14, padB=36;
+  const x0=padL, y0=padT, w=W-padL-padR, h=H-padT-padB;
+
+  let all=[];
+  series.forEach(s => all = all.concat(s.values.filter(v => Number.isFinite(v))));
+  let ymin = all.length ? Math.min(...all) : 0;
+  let ymax = all.length ? Math.max(...all) : 1;
   const span = (ymax - ymin) || 1;
   const pad = span * 0.20;
   ymin -= pad; ymax += pad;
 
-  if (opts.baseline !== undefined) {
+  if (opts.baseline !== undefined){
     ymin = Math.min(ymin, opts.baseline - pad*0.5);
     ymax = Math.max(ymax, opts.baseline + pad*0.5);
   }
-  if (opts.yFormat === "pct") {
+  if (opts.yFormat === "pct"){
     ymin = Math.max(0, ymin);
     ymax = Math.min(100, ymax);
-    if ((ymax-ymin) < 28) {
+    if ((ymax-ymin) < 28){
       const mid = (ymin+ymax)/2;
       ymin = Math.max(0, mid-14);
       ymax = Math.min(100, mid+14);
@@ -549,52 +930,50 @@ function lineChart(svgId, years, series, opts={}) {
   const ticks = niceTicks(ymin, ymax, 6);
   ymin = ticks[0]; ymax = ticks[ticks.length-1];
 
-  const sx = (yr) => x0 + ( (yr - years[0]) / (years[years.length-1]-years[0]) ) * w;
-  const sy = (v)  => y0 + (1 - ( (v - ymin) / (ymax - ymin) )) * h;
+  const sx = (yr) => x0 + ((yr - years[0])/(years[years.length-1]-years[0]))*w;
+  const sy = (v)  => y0 + (1 - ((v - ymin)/(ymax - ymin)))*h;
 
   ticks.forEach(t => {
     const y = sy(t);
-    svg.appendChild(svgEl("line", {x1:x0, y1:y, x2:x0+w, y2:y, stroke:"var(--grid)", "stroke-width":"1"}));
+    svg.appendChild(svgEl("line",{x1:x0,y1:y,x2:x0+w,y2:y,stroke:"var(--grid)","stroke-width":"1"}));
     const lbl = opts.yFormat === "pct" ? String(Math.round(t)) : (Math.abs(t) < 1e-9 ? "0" : String(t).replace(/\.0+$/, ""));
-    const txt = svgEl("text", {x:x0-8, y:y+4, "text-anchor":"end", "font-size":"11", fill:"var(--muted)"});
+    const txt = svgEl("text",{x:x0-8,y:y+4,"text-anchor":"end","font-size":"11",fill:"var(--muted)"});
     txt.textContent = lbl;
     svg.appendChild(txt);
   });
 
   years.forEach(yr => {
     const x = sx(yr);
-    svg.appendChild(svgEl("line", {x1:x, y1:y0, x2:x, y2:y0+h, stroke:"var(--grid)", "stroke-width":"1"}));
-    const txt = svgEl("text", {x:x, y:y0+h+22, "text-anchor":"middle", "font-size":"11", fill:"var(--muted)"});
+    svg.appendChild(svgEl("line",{x1:x,y1:y0,x2:x,y2:y0+h,stroke:"var(--grid)","stroke-width":"1"}));
+    const txt = svgEl("text",{x:x,y:y0+h+22,"text-anchor":"middle","font-size":"11",fill:"var(--muted)"});
     txt.textContent = yr;
     svg.appendChild(txt);
   });
 
-  if (opts.baseline !== undefined && opts.baseline >= ymin && opts.baseline <= ymax) {
+  if (opts.baseline !== undefined && opts.baseline >= ymin && opts.baseline <= ymax){
     const y = sy(opts.baseline);
-    svg.appendChild(svgEl("line", {x1:x0, y1:y, x2:x0+w, y2:y, stroke:"#94A3B8", "stroke-width":"2"}));
+    svg.appendChild(svgEl("line",{x1:x0,y1:y,x2:x0+w,y2:y,stroke:"color-mix(in srgb, var(--muted), transparent 40%)","stroke-width":"2"}));
   }
 
-  if (opts.yLabel) {
-    const t = svgEl("text", {x:16, y:y0+h/2, "text-anchor":"middle", "font-size":"12", fill:"var(--muted)", transform:`rotate(-90 16 ${y0+h/2})`});
+  if (opts.yLabel){
+    const t = svgEl("text",{x:16,y:y0+h/2,"text-anchor":"middle","font-size":"12",fill:"var(--muted)",transform:`rotate(-90 16 ${y0+h/2})`});
     t.textContent = opts.yLabel;
     svg.appendChild(t);
   }
 
   series.forEach(s => {
     const pts = s.values.map((v,i) => [sx(years[i]), sy(v)]);
-    const d = pts.map((p,i) => (i===0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(" ");
-    svg.appendChild(svgEl("path", {d, fill:"none", stroke:s.color, "stroke-width":"3.2"}));
+    const d = pts.map((p,i)=> (i===0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(" ");
+    svg.appendChild(svgEl("path",{d,fill:"none",stroke:s.color,"stroke-width":"3.2"}));
 
     pts.forEach((p,i) => {
-      svg.appendChild(svgEl("circle", {cx:p[0], cy:p[1], r:4.2, fill:s.color}));
-      if (s.annotate) {
+      svg.appendChild(svgEl("circle",{cx:p[0],cy:p[1],r:4.2,fill:s.color}));
+      if (s.annotate){
         const a = s.annotate(years[i], s.values[i], i);
-        const txt = svgEl("text", {
-          x: p[0] + a.dx, y: p[1] + a.dy,
-          "text-anchor":"middle",
-          "font-size": a.size || 11,
-          "font-weight": a.bold ? "800" : "600",
-          fill: a.textColor || "var(--ink)"
+        const txt = svgEl("text",{
+          x:p[0]+a.dx,y:p[1]+a.dy,"text-anchor":"middle",
+          "font-size":a.size||11,"font-weight":a.bold?"900":"700",
+          fill:a.textColor||"var(--ink)"
         });
         txt.textContent = a.text;
         svg.appendChild(txt);
@@ -603,58 +982,64 @@ function lineChart(svgId, years, series, opts={}) {
   });
 }
 
-function buildTableRatio(row) {
-  const table = document.getElementById("ratioTable");
+function buildTableRatio(row){
+  const table = $("ratioTable");
   const head = `<tr><th></th>${YEARS_RATIO.map(y=>`<th>${y}</th>`).join("")}</tr>`;
   const vals = YEARS_RATIO.map(y => fmt(row[`ratioD_${y}`], 4));
   const body = `<tr><td class="head">D ratio</td>${vals.map(v=>`<td>${v}</td>`).join("")}</tr>`;
   table.innerHTML = head + body;
 }
 
-function buildTableNorm(row) {
-  const table = document.getElementById("normTable");
+function buildTableNorm(row){
+  const table = $("normTable");
   const head = `<tr><th></th>${YEARS_RATIO.map(y=>`<th>${y}</th>`).join("")}</tr>`;
-  const d = YEARS_RATIO.map(y => `${Math.round(Number(row[`normD_${y}`]))}%`);
-  const r = YEARS_RATIO.map(y => `${Math.round(Number(row[`normR_${y}`]))}%`);
+  const d = YEARS_RATIO.map(y => pct(row[`normD_${y}`]));
+  const r = YEARS_RATIO.map(y => pct(row[`normR_${y}`]));
   const body = `
     <tr><td class="dhead">D</td>${d.map(v=>`<td>${v}</td>`).join("")}</tr>
     <tr><td class="rhead">R</td>${r.map(v=>`<td>${v}</td>`).join("")}</tr>`;
   table.innerHTML = head + body;
 }
 
-function selectState(abbr, updateHash) {
+function updateKPIs(row){
+  const lean = safeNum(row.lean_latest);
+  const ratio = safeNum(row.ratio_latest);
+  $("kpiLean").textContent = lean === null ? "—" : fmt(lean, 2);
+  $("kpiRatio").textContent = ratio === null ? "—" : fmt(ratio, 3);
+  $("kpi5050").textContent = pct(row.normD_2028);
+}
+
+function selectState(abbr, updateHash){
   const row = DATA.get(abbr);
   if (!row) return;
+  CURRENT = abbr;
 
   setActiveCell(abbr);
 
-  document.getElementById("pill").textContent = abbr;
-  document.getElementById("stateName").textContent = row.name;
+  $("pill").textContent = abbr;
+  $("stateName").textContent = row.name || abbr;
 
-  document.getElementById("kpiLean").textContent = (row.lean_latest === "" ? "—" : fmt(row.lean_latest, 2));
-  document.getElementById("kpiRatio").textContent = fmt(row.ratio_latest, 3);
-  document.getElementById("kpi5050").textContent = `${Math.round(Number(row.normD_2028))}%`;
-
+  updateKPIs(row);
   makeLeanStrip(row);
   buildTableRatio(row);
   buildTableNorm(row);
 
-  const leanVals = YEARS_LEAN.map(y => Number(row[`lean_${y}`]));
+  const leanVals = YEARS_LEAN.map(y => safeNum(row[`lean_${y}`]) ?? 0);
   lineChart("leanChart", YEARS_LEAN, [{
-      values: leanVals,
-      color: "var(--red)",
-      annotate: (yr, v) => ({ text: (Math.abs(v) < 1e-9 ? "0" : String(v)), dx: 0, dy: -10, bold: true })
+    values: leanVals,
+    color: "var(--red)",
+    annotate: (yr, v) => ({ text: (Math.abs(v) < 1e-9 ? "0" : fmt(v, 1)), dx: 0, dy: -10, bold: true })
   }], { yLabel: "Lean (pts)", baseline: 0 });
 
-  const ratioVals = YEARS_RATIO.map(y => Number(row[`ratioD_${y}`]));
+  const ratioVals = YEARS_RATIO.map(y => safeNum(row[`ratioD_${y}`]) ?? 1);
   lineChart("ratioChart", YEARS_RATIO, [{
-      values: ratioVals,
-      color: "var(--blue)",
-      annotate: (yr, v) => ({ text: v.toFixed(3), dx: 0, dy: -10, bold: true })
+    values: ratioVals,
+    color: "var(--blue)",
+    annotate: (yr, v) => ({ text: fmt(v, 3), dx: 0, dy: -10, bold: true })
   }], { yLabel: "D ratio", baseline: 1 });
 
-  const normD = YEARS_RATIO.map(y => Number(row[`normD_${y}`]));
-  const normR = YEARS_RATIO.map(y => Number(row[`normR_${y}`]));
+  const normD = YEARS_RATIO.map(y => safeNum(row[`normD_${y}`]) ?? 50);
+  const normR = YEARS_RATIO.map(y => safeNum(row[`normR_${y}`]) ?? 50);
   lineChart("normChart", YEARS_RATIO, [
     { values: normD, color: "var(--blue)", annotate: (yr, v) => ({ text: `${Math.round(v)}%`, dx: 0, dy: 16, bold: true, textColor: "var(--blue)" }) },
     { values: normR, color: "var(--red)",  annotate: (yr, v) => ({ text: `${Math.round(v)}%`, dx: 0, dy: -10, bold: true, textColor: "var(--red)" }) }
@@ -663,42 +1048,203 @@ function selectState(abbr, updateHash) {
   if (updateHash) location.hash = abbr;
 }
 
-function bestMatch(query) {
+function bestMatch(query){
   query = (query || "").trim().toLowerCase();
   if (!query) return null;
   const ab = query.toUpperCase();
   if (DATA.has(ab)) return ab;
-  for (const [k,v] of DATA.entries()) if (v.name.toLowerCase() === query) return k;
-  for (const [k,v] of DATA.entries()) if (v.name.toLowerCase().includes(query)) return k;
+  for (const [k,v] of DATA.entries()) if ((v.name || "").toLowerCase() === query) return k;
+  for (const [k,v] of DATA.entries()) if ((v.name || "").toLowerCase().includes(query)) return k;
   return null;
 }
 
-async function init() {
-  const resp = await fetch("state_report_data.csv", {cache:"no-store"});
-  const text = await resp.text();
+function renderSuggest(matches){
+  const wrap = $("suggest");
+  if (!matches.length){
+    wrap.style.display = "none";
+    wrap.innerHTML = "";
+    return;
+  }
+  wrap.style.display = "block";
+  wrap.innerHTML = "";
+  matches.slice(0,10).forEach(m => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.innerHTML = `<span>${m.name}</span><span class="meta">${m.abbr}</span>`;
+    btn.addEventListener("click", () => {
+      $("searchBox").value = m.abbr;
+      wrap.style.display = "none";
+      selectState(m.abbr, true);
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+function getMatches(q){
+  q = (q || "").trim().toLowerCase();
+  if (!q) return [];
+  const ab = q.toUpperCase();
+  const out = [];
+  for (const s of ORDERED){
+    if (s.abbr === ab) out.unshift(s);
+    else if (s.abbr.toLowerCase().startsWith(q) || s.name.toLowerCase().includes(q)) out.push(s);
+  }
+  return out;
+}
+
+function renderStateList(){
+  const list = $("stateList");
+  const sortMode = $("sortSel").value;
+
+  const arr = ORDERED.slice();
+  const byNum = (key, dir) => arr.sort((a,b) => {
+    const av = safeNum(a[key]); const bv = safeNum(b[key]);
+    if (av === null && bv === null) return a.name.localeCompare(b.name);
+    if (av === null) return 1;
+    if (bv === null) return -1;
+    return dir*(bv-av);
+  });
+
+  if (sortMode === "name") arr.sort((a,b) => a.name.localeCompare(b.name));
+  else if (sortMode === "abbr") arr.sort((a,b) => a.abbr.localeCompare(b.abbr));
+  else if (sortMode === "leanDesc") byNum("lean_2024", 1);
+  else if (sortMode === "leanAsc") byNum("lean_2024", -1);
+  else if (sortMode === "ratioDesc") byNum("ratioD_2024", 1);
+  else if (sortMode === "ratioAsc") byNum("ratioD_2024", -1);
+
+  list.innerHTML = "";
+  arr.forEach(s => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "sItem";
+    btn.dataset.abbr = s.abbr;
+    btn.innerHTML = `<div>${s.abbr}</div><span>${fmt(s.lean_2024,1)}</span>`;
+    btn.addEventListener("click", () => selectState(s.abbr, true));
+    list.appendChild(btn);
+  });
+  if (CURRENT) setActiveCell(CURRENT);
+}
+
+function setTheme(theme){
+  const root = document.documentElement;
+  if (theme === "dark") root.setAttribute("data-theme", "dark");
+  else root.removeAttribute("data-theme");
+  localStorage.setItem("theme", theme);
+}
+function toggleTheme(){
+  const root = document.documentElement;
+  const isDark = root.getAttribute("data-theme") === "dark";
+  setTheme(isDark ? "light" : "dark");
+}
+
+function copyDeepLink(){
+  const abbr = CURRENT || "";
+  const url = `${location.origin}${location.pathname}#${abbr}`;
+  navigator.clipboard?.writeText(url).then(() => showStatus("Deep link copied to clipboard.")).catch(() => {
+    // fallback: prompt
+    window.prompt("Copy this link:", url);
+  });
+}
+
+function exportJSON(){
+  if (!CURRENT) return;
+  const row = DATA.get(CURRENT);
+  if (!row) return;
+  const blob = new Blob([JSON.stringify(row, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `state_${CURRENT}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+async function init(){
+  // theme
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "dark" || savedTheme === "light") setTheme(savedTheme);
+  else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+
+  $("themeBtn").addEventListener("click", toggleTheme);
+
+  $("listBtn").addEventListener("click", () => {
+    $("listWrap").classList.toggle("show");
+    renderStateList();
+  });
+
+  $("resetBtn").addEventListener("click", () => {
+    const def = DATA.has("NC") ? "NC" : (ORDERED[0]?.abbr || null);
+    if (def) selectState(def, true);
+  });
+
+  $("copyLinkBtn").addEventListener("click", copyDeepLink);
+  $("exportBtn").addEventListener("click", exportJSON);
+
+  $("sortSel").addEventListener("change", renderStateList);
+
+  // load CSV
+  let text = "";
+  try{
+    const resp = await fetch("state_report_data.csv", {cache:"no-store"});
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    text = await resp.text();
+  }catch(err){
+    showStatus(`Could not load state_report_data.csv. If you're using GitHub Pages, make sure the CSV is in the same folder as this HTML. (${err})`, true);
+    return;
+  }
+
   const rows = parseCSV(text);
-  rows.forEach(r => DATA.set(r.abbr, r));
+  if (!rows.length){
+    showStatus("CSV loaded but no rows were parsed. Check the file formatting.", true);
+    return;
+  }
+
+  rows.forEach(r => DATA.set((r.abbr || "").toUpperCase(), r));
+  ORDERED = rows
+    .filter(r => (r.abbr || "").trim().length)
+    .map(r => ({
+      abbr: (r.abbr || "").toUpperCase(),
+      name: r.name || (r.abbr || "").toUpperCase(),
+      lean_2024: safeNum(r.lean_2024),
+      ratioD_2024: safeNum(r.ratioD_2024)
+    }))
+    .sort((a,b) => a.name.localeCompare(b.name));
 
   buildMap();
   colorMap();
+  renderStateList();
 
-  const h = (location.hash || "").replace("#","").toUpperCase();
-  const first = DATA.has(h) ? h : (DATA.has("NC") ? "NC" : rows[0]?.abbr);
-  if (first) selectState(first, false);
+  // search + suggestions
+  const searchBox = $("searchBox");
+  searchBox.addEventListener("input", () => renderSuggest(getMatches(searchBox.value)));
+  searchBox.addEventListener("focus", () => renderSuggest(getMatches(searchBox.value)));
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".search")) $("suggest").style.display = "none";
+  });
 
-  document.getElementById("goBtn").addEventListener("click", () => {
-    const q = document.getElementById("searchBox").value;
+  $("goBtn").addEventListener("click", () => {
+    const q = searchBox.value;
     const m = bestMatch(q);
     if (m) selectState(m, true);
   });
-  document.getElementById("searchBox").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") document.getElementById("goBtn").click();
+  searchBox.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") $("goBtn").click();
+    if (e.key === "Escape") { $("suggest").style.display = "none"; searchBox.blur(); }
   });
 
   window.addEventListener("hashchange", () => {
-    const h2 = (location.hash || "").replace("#","").toUpperCase();
-    if (DATA.has(h2)) selectState(h2, false);
+    const h = (location.hash || "").replace("#","").toUpperCase();
+    if (DATA.has(h)) selectState(h, false);
   });
+
+  // default selection
+  const h = (location.hash || "").replace("#","").toUpperCase();
+  const first = DATA.has(h) ? h : (DATA.has("NC") ? "NC" : (ORDERED[0]?.abbr || null));
+  if (first) selectState(first, false);
+
+  showStatus(`Loaded ${rows.length} rows.`, false);
+  setTimeout(() => $("statusMsg").classList.remove("show"), 1500);
 }
 
 init();
