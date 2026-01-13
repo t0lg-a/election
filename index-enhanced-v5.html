@@ -1,0 +1,1742 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <title>State Election Data Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FAFBFD;
+      --bg-subtle: #F3F5F9;
+      --card: #FFFFFF;
+      --ink: #0D1117;
+      --ink-secondary: #24292F;
+      --muted: #57606A;
+      --muted-light: #8B949E;
+      --border: #D8DEE4;
+      --border-strong: #AFB8C1;
+      --shadow-sm: 0 1px 3px rgba(13, 17, 23, 0.04);
+      --shadow-md: 0 8px 32px rgba(13, 17, 23, 0.08), 0 2px 8px rgba(13, 17, 23, 0.04);
+      --shadow-lg: 0 24px 64px rgba(13, 17, 23, 0.12), 0 8px 24px rgba(13, 17, 23, 0.06);
+      --shadow-glow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+      --blue: #2563EB;
+      --blue-deep: #1D4ED8;
+      --blue-light: #DBEAFE;
+      --blue-muted: #93C5FD;
+      --red: #DC2626;
+      --red-deep: #B91C1C;
+      --red-light: #FEE2E2;
+      --red-muted: #FCA5A5;
+      --accent: #6366F1;
+      --good: #059669;
+      --warn: #D97706;
+      --chip: #F1F5F9;
+      --chip-hover: #E2E8F0;
+      --overlay: rgba(255, 255, 255, 0.8);
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    html[data-theme="dark"] {
+      --bg: #0D1117;
+      --bg-subtle: #161B22;
+      --card: #161B22;
+      --ink: #F0F6FC;
+      --ink-secondary: #C9D1D9;
+      --muted: #8B949E;
+      --muted-light: #6E7681;
+      --border: #30363D;
+      --border-strong: #484F58;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
+      --blue-light: rgba(37, 99, 235, 0.15);
+      --red-light: rgba(220, 38, 38, 0.15);
+      --chip: #21262D;
+      --chip-hover: #30363D;
+      --overlay: rgba(13, 17, 23, 0.85);
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: var(--font-body);
+      color: var(--ink);
+      background: var(--bg);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Animated gradient background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 400px;
+      background: linear-gradient(135deg, 
+        rgba(37, 99, 235, 0.04) 0%, 
+        rgba(99, 102, 241, 0.03) 50%, 
+        rgba(220, 38, 38, 0.04) 100%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    html[data-theme="dark"] body::before {
+      background: linear-gradient(135deg, 
+        rgba(37, 99, 235, 0.08) 0%, 
+        rgba(99, 102, 241, 0.05) 50%, 
+        rgba(220, 38, 38, 0.08) 100%);
+    }
+
+    a { color: var(--blue); text-decoration: none; transition: color 0.15s; }
+    a:hover { color: var(--blue-deep); }
+
+    /* Layout */
+    .shell {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 24px;
+      padding: 24px;
+      max-width: 1920px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+    @media (max-width: 1200px) { .shell { grid-template-columns: 360px 1fr; gap: 20px; padding: 20px; } }
+    @media (max-width: 1024px) { .shell { grid-template-columns: 1fr; } }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow-md);
+      transition: box-shadow 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+    }
+
+    /* Sidebar */
+    .side {
+      padding: 24px;
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      animation: slideInLeft 0.6s var(--ease-out);
+    }
+    @media (max-width: 1024px) { .side { position: relative; top: auto; } }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .side-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--accent) 100%);
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    
+    .brand h1 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+    }
+    
+    .side-hint {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* Controls Row */
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--ink);
+      font-family: var(--font-body);
+      transition: all 0.2s var(--ease-out);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover { 
+      background: var(--chip-hover); 
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+    .btn:active { transform: translateY(0); }
+    .btn.icon-only { padding: 10px; }
+    .btn svg { width: 16px; height: 16px; }
+    
+    .btn.primary {
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-deep) 100%);
+      border-color: var(--blue-deep);
+      color: white;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+    }
+    .btn.primary:hover {
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+      transform: translateY(-2px);
+    }
+
+    :focus-visible {
+      outline: none;
+      box-shadow: var(--shadow-glow);
+    }
+
+    /* Search */
+    .search-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    
+    .search {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .search-input {
+      flex: 1;
+      padding: 12px 16px;
+      padding-left: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      font-size: 14px;
+      font-weight: 500;
+      outline: none;
+      color: var(--ink);
+      font-family: var(--font-body);
+      transition: all 0.2s var(--ease-out);
+    }
+    .search-input::placeholder { color: var(--muted-light); }
+    .search-input:focus {
+      background: var(--card);
+      border-color: var(--blue);
+      box-shadow: var(--shadow-glow);
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    
+    .suggest {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 8px);
+      z-index: 50;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      display: none;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .suggest button {
+      width: 100%;
+      text-align: left;
+      padding: 12px 16px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--ink);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      font-family: var(--font-body);
+      transition: background 0.15s;
+    }
+    .suggest button:hover { background: var(--chip); }
+    .suggest button + button { border-top: 1px solid var(--border); }
+    .suggest .meta {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 13px;
+      font-family: var(--font-mono);
+    }
+
+    /* Grid Map */
+    .map-container {
+      background: var(--bg-subtle);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid var(--border);
+    }
+    
+    .gridmap {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-auto-rows: 32px;
+      gap: 5px;
+      width: 100%;
+    }
+    
+    .cell {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s var(--ease-out);
+      font-family: var(--font-mono);
+      letter-spacing: 0.02em;
+      position: relative;
+    }
+    .cell:hover {
+      transform: scale(1.15);
+      z-index: 10;
+      box-shadow: var(--shadow-md);
+    }
+    .cell.active {
+      transform: scale(1.2);
+      z-index: 20;
+      box-shadow: 0 0 0 3px var(--blue), var(--shadow-md);
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      transform: translate(-50%, -100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-lg);
+      padding: 14px 16px;
+      min-width: 240px;
+      opacity: 0;
+      transition: opacity 0.15s var(--ease-out);
+      z-index: 100;
+    }
+    .tooltip.show { opacity: 1; }
+    .tooltip .t1 {
+      font-weight: 700;
+      font-size: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .tooltip .t1 .abbr {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--chip);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .tooltip .t2 { margin-top: 8px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .tooltip .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      color: var(--ink-secondary);
+      white-space: nowrap;
+      font-family: var(--font-mono);
+    }
+    .tag.blue { background: var(--blue-light); color: var(--blue-deep); border-color: var(--blue-muted); }
+    .tag.red { background: var(--red-light); color: var(--red-deep); border-color: var(--red-muted); }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .legendbar {
+      height: 8px;
+      flex: 1;
+      border-radius: 999px;
+      background: linear-gradient(90deg, 
+        var(--red) 0%, 
+        var(--red-muted) 25%,
+        var(--bg) 50%, 
+        var(--blue-muted) 75%,
+        var(--blue) 100%);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .legend-labels span:first-child { color: var(--red); }
+    .legend-labels span:last-child { color: var(--blue); }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 20px 0;
+    }
+
+    /* State List */
+    .list-wrap { display: none; margin-top: 16px; }
+    .list-wrap.show { display: block; animation: fadeIn 0.3s var(--ease-out); }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .list-header label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    
+    .select {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      background: var(--card);
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 13px;
+      outline: none;
+      font-family: var(--font-body);
+      cursor: pointer;
+    }
+    
+    .state-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+    }
+    
+    .s-item {
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s var(--ease-out);
+      font-family: var(--font-body);
+    }
+    .s-item:hover { 
+      background: var(--chip); 
+      transform: translateX(2px);
+    }
+    .s-item.active {
+      border-color: var(--blue);
+      background: var(--blue-light);
+    }
+    .s-item span {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+      font-family: var(--font-mono);
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      color: var(--muted);
+      font-size: 13px;
+      display: none;
+      font-weight: 500;
+    }
+    .status.show { display: block; }
+
+    /* Main Panel */
+    .main {
+      animation: slideInRight 0.6s var(--ease-out);
+      animation-delay: 0.1s;
+      animation-fill-mode: backwards;
+    }
+    
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      background: linear-gradient(180deg, var(--card) 0%, var(--bg-subtle) 100%);
+      border-radius: 20px 20px 0 0;
+    }
+    
+    .state-title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .state-badge {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 16px;
+      font-family: var(--font-mono);
+      letter-spacing: 0.02em;
+      border: 2px solid var(--border);
+      transition: all 0.3s var(--ease-out);
+    }
+    
+    .state-info h2 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+    .state-info .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .kpis {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .kpi {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      min-width: 140px;
+      transition: all 0.2s var(--ease-out);
+    }
+    .kpi:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+    .kpi-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+    .kpi-value {
+      font-size: 22px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      letter-spacing: -0.02em;
+    }
+
+    /* Content */
+    .content {
+      padding: 24px;
+      display: grid;
+      gap: 20px;
+    }
+    
+    .block {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      transition: all 0.2s var(--ease-out);
+    }
+    .block:hover {
+      border-color: var(--border-strong);
+    }
+    
+    .block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    
+    .block h3 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--ink);
+    }
+    
+    .block p {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* Strip (lean indicators) */
+    .strip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .strip-cell {
+      min-width: 56px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 13px;
+      font-family: var(--font-mono);
+      transition: all 0.2s var(--ease-out);
+    }
+    .strip-cell:hover {
+      transform: scale(1.05);
+    }
+    .strip-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    /* Charts */
+    .chart-wrap {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    
+    svg {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 900 / 340;
+      min-height: 300px;
+      display: block;
+      overflow: visible;
+    }
+    svg text {
+      font-family: var(--font-body);
+      text-rendering: geometricPrecision;
+    }
+
+    /* Two-column layout */
+    .row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 1200px) { .row2 { grid-template-columns: 1fr; } }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 12px;
+      font-size: 13px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: center;
+    }
+    th {
+      background: var(--chip);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-weight: 500;
+    }
+    tr:last-child td { border-bottom: none; }
+    td.d-head {
+      background: var(--blue-light);
+      color: var(--blue-deep);
+      font-weight: 700;
+    }
+    td.r-head {
+      background: var(--red-light);
+      color: var(--red-deep);
+      font-weight: 700;
+    }
+
+    /* Chart Tooltip */
+    .chart-tip {
+      position: fixed;
+      z-index: 100;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-lg);
+      font-size: 13px;
+      pointer-events: none;
+      display: none;
+      max-width: 240px;
+    }
+    .chart-tip b { font-weight: 700; }
+    .chart-tip .muted { color: var(--muted); font-weight: 500; }
+
+    /* Screen reader only */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 20px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: var(--bg-subtle);
+      border-radius: 0 0 20px 20px;
+    }
+    .footer-text {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .footer-links {
+      display: flex;
+      gap: 16px;
+    }
+    .footer-links a {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-subtle); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    /* Loading animation */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .loading { animation: pulse 1.5s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+  <noscript>
+    <div style="padding:24px; max-width:800px; margin:40px auto; font-family:system-ui; text-align:center;">
+      <h2 style="margin-bottom:12px;">JavaScript Required</h2>
+      <p>This interactive dashboard requires JavaScript to load data and render visualizations.</p>
+    </div>
+  </noscript>
+
+  <div class="shell">
+    <!-- Sidebar -->
+    <div class="card side">
+      <div class="side-header">
+        <div class="brand">
+          <div class="brand-icon">US</div>
+          <h1>State Report</h1>
+        </div>
+        <span class="side-hint" id="sideHint">Select a state</span>
+      </div>
+
+      <div class="controls">
+        <button class="btn icon-only" id="themeBtn" title="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </button>
+        <button class="btn" id="listBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+          List
+        </button>
+        <button class="btn" id="resetBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+          </svg>
+          Reset
+        </button>
+      </div>
+
+      <div class="search-wrap">
+        <div class="search" role="search">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <label class="sr-only" for="searchBox">Search states</label>
+          <input class="search-input" id="searchBox" autocomplete="off" placeholder="Search states... (e.g., Texas, NC)" />
+          <button class="btn primary" id="goBtn">Go</button>
+        </div>
+        <div class="suggest" id="suggest"></div>
+      </div>
+
+      <div class="map-container">
+        <div id="gridmap" class="gridmap" aria-label="US grid map" role="grid"></div>
+        <div id="tip" class="tooltip" role="status" aria-live="polite"></div>
+      </div>
+
+      <div class="legend">
+        <span>R+</span>
+        <div class="legendbar" title="Partisan lean relative to national vote"></div>
+        <span>D+</span>
+      </div>
+      <div class="legend-labels">
+        <span>Republican-leaning</span>
+        <span>Democratic-leaning</span>
+      </div>
+
+      <div class="list-wrap" id="listWrap">
+        <div class="list-header">
+          <label>Quick Selection</label>
+          <select class="select" id="sortSel" aria-label="Sort states">
+            <option value="name">By Name</option>
+            <option value="abbr">By Abbrev</option>
+            <option value="leanDesc">Lean: D → R</option>
+            <option value="leanAsc">Lean: R → D</option>
+            <option value="ratioDesc">Ratio: High → Low</option>
+            <option value="ratioAsc">Ratio: Low → High</option>
+          </select>
+        </div>
+        <div class="state-list" id="stateList" aria-label="State list"></div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="status" id="statusMsg"></div>
+    </div>
+
+    <!-- Main Panel -->
+    <div class="card main">
+      <div class="header">
+        <div class="state-title">
+          <div class="state-badge" id="stateBadge">--</div>
+          <div class="state-info">
+            <h2 id="stateName">Select a state</h2>
+            <div class="subtitle" id="subtitle">Presidential elections 2000–2024 • Projection: 2028</div>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi">
+            <div class="kpi-label">Lean 2024</div>
+            <div class="kpi-value" id="kpiLean">—</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">D Ratio 2024</div>
+            <div class="kpi-value" id="kpiRatio">—</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">50-50 Proj. D%</div>
+            <div class="kpi-value" id="kpi5050">—</div>
+          </div>
+        </div>
+
+        <button class="btn" id="copyLinkBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          Copy Link
+        </button>
+      </div>
+
+      <div class="content">
+        <!-- Lean Chart Block -->
+        <div class="block">
+          <div class="block-header">
+            <div>
+              <h3>Partisan Lean vs National</h3>
+              <p>How the state votes relative to the national popular vote</p>
+            </div>
+          </div>
+          <div class="strip-row" id="leanStrip"></div>
+          <div class="chart-wrap">
+            <svg id="leanChart" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet" aria-label="Lean chart"></svg>
+          </div>
+        </div>
+
+        <!-- Two Column Charts -->
+        <div class="row2">
+          <div class="block">
+            <div class="block-header">
+              <div>
+                <h3>Democratic Ratio</h3>
+                <p>State D% ÷ National D%</p>
+              </div>
+            </div>
+            <div style="overflow:auto;">
+              <table id="ratioTable" aria-label="Ratio table"></table>
+            </div>
+            <div class="chart-wrap">
+              <svg id="ratioChart" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet" aria-label="Ratio chart"></svg>
+            </div>
+          </div>
+
+          <div class="block">
+            <div class="block-header">
+              <div>
+                <h3>Normalized Two-Party Share</h3>
+                <p>Projected result if national vote = 50–50</p>
+              </div>
+            </div>
+            <div style="overflow:auto;">
+              <table id="normTable" aria-label="Normalized table"></table>
+            </div>
+            <div class="chart-wrap">
+              <svg id="normChart" viewBox="0 0 900 340" preserveAspectRatio="xMidYMid meet" aria-label="Normalized chart"></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span class="footer-text">Data: Presidential election results 2000–2024. Projection methodology: ratio-based extrapolation.</span>
+        <div class="footer-links">
+          <a href="#" onclick="event.preventDefault();">Methodology</a>
+          <a href="#" onclick="event.preventDefault();">About</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-tip" id="chartTip"></div>
+
+<script>
+const YEARS_LEAN = [2000, 2004, 2008, 2012, 2016, 2020, 2024];
+const YEARS_RATIO = [2000, 2004, 2008, 2012, 2016, 2020, 2024, 2028];
+const GRID_POS = {
+  "WA": [0, 0], "MT": [1, 0], "ND": [2, 0], "MN": [3, 0], "WI": [4, 0], "MI": [5, 0], "VT": [6, 0], "NH": [7, 0], "ME": [8, 0],
+  "OR": [0, 1], "ID": [1, 1], "SD": [2, 1], "IA": [3, 1], "IL": [4, 1], "IN": [5, 1], "OH": [6, 1], "PA": [7, 1], "NY": [8, 1], "MA": [9, 1],
+  "CA": [0, 2], "NV": [1, 2], "WY": [2, 2], "NE": [3, 2], "MO": [4, 2], "KY": [5, 2], "WV": [6, 2], "VA": [7, 2], "NJ": [8, 2], "CT": [9, 2], "RI": [10, 2],
+  "AZ": [1, 3], "UT": [2, 3], "CO": [3, 3], "KS": [4, 3], "AR": [5, 3], "TN": [6, 3], "NC": [7, 3], "SC": [8, 3], "DE": [9, 3], "MD": [10, 3], "DC": [11, 3],
+  "NM": [2, 4], "OK": [3, 4], "LA": [4, 4], "MS": [5, 4], "AL": [6, 4], "GA": [7, 4], "FL": [8, 4],
+  "TX": [3, 5],
+  "AK": [0, 6], "HI": [1, 6]
+};
+
+let DATA = new Map();
+let ORDERED = [];
+let CURRENT = null;
+
+function $(id) { return document.getElementById(id); }
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function safeNum(x) {
+  const n = Number(x);
+  return Number.isFinite(n) ? n : null;
+}
+
+function fmt(v, digits = 2) {
+  const n = safeNum(v);
+  if (n === null) return "—";
+  const fixed = Math.abs(n) < 1e-9 ? 0 : n;
+  return fixed.toFixed(digits).replace(/\.00$/, "");
+}
+
+function pct(v) {
+  const n = safeNum(v);
+  if (n === null) return "—";
+  return `${Math.round(n)}%`;
+}
+
+function leanColor(v) {
+  const vmin = -60, vmax = 90;
+  const n = safeNum(v);
+  if (n === null) return "transparent";
+  let x = clamp(n, vmin, vmax);
+  
+  // Enhanced color palette
+  if (x < 0) {
+    const t = (x - vmin) / (0 - vmin);
+    // Red gradient: deep red to light
+    const r = lerp(180, 250, t);
+    const g = lerp(30, 245, t);
+    const b = lerp(50, 250, t);
+    return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+  } else {
+    const t = (x - 0) / (vmax - 0);
+    // Blue gradient: light to deep blue
+    const r = lerp(250, 30, t);
+    const g = lerp(245, 80, t);
+    const b = lerp(250, 200, t);
+    return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+  }
+}
+
+function rgbFromCssColor(c) {
+  if (!c) return null;
+  if (c.startsWith("rgb")) {
+    const m = c.match(/\d+/g);
+    return m ? m.map(Number).slice(0, 3) : null;
+  }
+  if (c.startsWith("#")) {
+    const hex = c.slice(1);
+    if (hex.length === 3) {
+      return [parseInt(hex[0]+hex[0], 16), parseInt(hex[1]+hex[1], 16), parseInt(hex[2]+hex[2], 16)];
+    }
+    if (hex.length >= 6) {
+      return [parseInt(hex.slice(0,2), 16), parseInt(hex.slice(2,4), 16), parseInt(hex.slice(4,6), 16)];
+    }
+  }
+  return null;
+}
+
+function textColor(bg) {
+  const rgb = rgbFromCssColor(bg);
+  if (!rgb) return "var(--ink)";
+  const [r, g, b] = rgb;
+  const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  return lum < 0.55 ? "#FFFFFF" : "var(--ink)";
+}
+
+function parseCSV(text) {
+  const rows = [];
+  let i = 0, field = "", row = [], inQuotes = false;
+  
+  function endField() { row.push(field); field = ""; }
+  function endRow() {
+    if (row.length === 1 && row[0] === "") { row = []; return; }
+    rows.push(row);
+    row = [];
+  }
+  
+  text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  while (i < text.length) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else { inQuotes = false; }
+      } else {
+        field += ch;
+      }
+    } else {
+      if (ch === '"') { inQuotes = true; }
+      else if (ch === ",") { endField(); }
+      else if (ch === "\n") { endField(); endRow(); }
+      else { field += ch; }
+    }
+    i++;
+  }
+  endField(); endRow();
+
+  const header = (rows[0] || []).map(h => String(h || "").trim());
+  const out = [];
+  for (let r = 1; r < rows.length; r++) {
+    const parts = rows[r];
+    const obj = {};
+    for (let c = 0; c < header.length; c++) {
+      const key = header[c] || `col_${c}`;
+      const val = (parts[c] ?? "").toString().trim();
+      if (!(key in obj) || obj[key] === "") obj[key] = val;
+    }
+    out.push(obj);
+  }
+  return out;
+}
+
+function showStatus(msg, isError = false) {
+  const el = $("statusMsg");
+  el.textContent = msg;
+  el.classList.add("show");
+  el.style.borderColor = isError ? "var(--red)" : "var(--border)";
+  el.style.background = isError ? "var(--red-light)" : "var(--chip)";
+}
+
+function buildMap() {
+  const el = $("gridmap");
+  el.innerHTML = "";
+  
+  for (const abbr of Object.keys(GRID_POS)) {
+    const [col, row] = GRID_POS[abbr];
+    const cell = document.createElement("button");
+    cell.type = "button";
+    cell.className = "cell";
+    cell.dataset.abbr = abbr;
+    cell.style.gridColumn = (col + 1);
+    cell.style.gridRow = (row + 1);
+    cell.textContent = abbr;
+    cell.setAttribute("role", "gridcell");
+    cell.setAttribute("aria-label", `State ${abbr}`);
+    cell.addEventListener("click", () => selectState(abbr, true));
+    cell.addEventListener("mouseenter", (e) => showTip(abbr, e));
+    cell.addEventListener("mousemove", (e) => moveTip(e));
+    cell.addEventListener("mouseleave", hideTip);
+    cell.addEventListener("focus", (e) => showTip(abbr, e, true));
+    cell.addEventListener("blur", hideTip);
+    el.appendChild(cell);
+  }
+
+  el.addEventListener("keydown", (e) => {
+    const active = document.activeElement;
+    if (!active || !active.classList.contains("cell")) return;
+    const abbr = active.dataset.abbr;
+    const [col, row] = GRID_POS[abbr];
+    let target = null;
+    
+    if (e.key === "ArrowRight") target = Object.entries(GRID_POS).find(([k, [c, r]]) => c === col + 1 && r === row);
+    else if (e.key === "ArrowLeft") target = Object.entries(GRID_POS).find(([k, [c, r]]) => c === col - 1 && r === row);
+    else if (e.key === "ArrowDown") target = Object.entries(GRID_POS).find(([k, [c, r]]) => c === col && r === row + 1);
+    else if (e.key === "ArrowUp") target = Object.entries(GRID_POS).find(([k, [c, r]]) => c === col && r === row - 1);
+    
+    if (target) {
+      e.preventDefault();
+      const nextCell = el.querySelector(`[data-abbr="${target[0]}"]`);
+      if (nextCell) nextCell.focus();
+    }
+  });
+}
+
+function colorMap() {
+  document.querySelectorAll(".gridmap .cell").forEach(cell => {
+    const abbr = cell.dataset.abbr;
+    const row = DATA.get(abbr);
+    if (!row) return;
+    const lean = safeNum(row.lean_2024);
+    const bg = leanColor(lean);
+    cell.style.background = bg;
+    cell.style.color = textColor(bg);
+    cell.style.borderColor = "rgba(0,0,0,0.08)";
+  });
+}
+
+function setActiveCell(abbr) {
+  document.querySelectorAll(".gridmap .cell").forEach(c => c.classList.remove("active"));
+  document.querySelectorAll(".state-list .s-item").forEach(c => c.classList.remove("active"));
+  const cell = document.querySelector(`.gridmap .cell[data-abbr="${abbr}"]`);
+  if (cell) cell.classList.add("active");
+  const item = document.querySelector(`.state-list .s-item[data-abbr="${abbr}"]`);
+  if (item) item.classList.add("active");
+}
+
+function showTip(abbr, e, isFocus = false) {
+  const row = DATA.get(abbr);
+  if (!row) return;
+  
+  const tip = $("tip");
+  const lean = safeNum(row.lean_2024);
+  const leanStr = lean === null ? "—" : (lean > 0 ? `D+${fmt(lean, 1)}` : `R+${fmt(Math.abs(lean), 1)}`);
+  const ratio = safeNum(row.ratioD_2024);
+  const ratioStr = ratio === null ? "—" : fmt(ratio, 3);
+  const leanClass = lean > 0 ? "blue" : "red";
+  
+  tip.innerHTML = `
+    <div class="t1">
+      <span>${row.name || abbr}</span>
+      <span class="abbr">${abbr}</span>
+    </div>
+    <div class="t2">
+      Presidential voting patterns 2000–2024
+    </div>
+    <div class="tags">
+      <span class="tag ${leanClass}">Lean: ${leanStr}</span>
+      <span class="tag">Ratio: ${ratioStr}</span>
+    </div>
+  `;
+  
+  tip.classList.add("show");
+  moveTip(e, isFocus);
+}
+
+function moveTip(e, isFocus = false) {
+  const tip = $("tip");
+  const mapRect = $("gridmap").parentElement.getBoundingClientRect();
+  
+  let x, y;
+  if (isFocus && e.target) {
+    const rect = e.target.getBoundingClientRect();
+    x = rect.left + rect.width / 2 - mapRect.left;
+    y = rect.top - mapRect.top - 10;
+  } else {
+    x = e.clientX - mapRect.left;
+    y = e.clientY - mapRect.top - 10;
+  }
+  
+  tip.style.left = `${x}px`;
+  tip.style.top = `${y}px`;
+}
+
+function hideTip() {
+  $("tip").classList.remove("show");
+}
+
+// Enhanced line chart with better styling
+function lineChart(id, years, series, opts = {}) {
+  const svg = $(id);
+  if (!svg) return;
+  
+  const W = 900, H = 340;
+  const margin = { top: 30, right: 80, bottom: 50, left: 70 };
+  const width = W - margin.left - margin.right;
+  const height = H - margin.top - margin.bottom;
+
+  const allVals = series.flatMap(s => s.values.filter(v => v !== null && v !== undefined));
+  let yMin = Math.min(...allVals);
+  let yMax = Math.max(...allVals);
+  
+  if (opts.baseline !== undefined) {
+    yMin = Math.min(yMin, opts.baseline);
+    yMax = Math.max(yMax, opts.baseline);
+  }
+  
+  const yPad = (yMax - yMin) * 0.15 || 1;
+  yMin -= yPad;
+  yMax += yPad;
+
+  const xScale = (i) => margin.left + (i / (years.length - 1)) * width;
+  const yScale = (v) => margin.top + height - ((v - yMin) / (yMax - yMin)) * height;
+
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  const gridColor = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
+  const axisColor = isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)";
+  const textColor = isDark ? "#8B949E" : "#57606A";
+
+  let html = `<defs>
+    <linearGradient id="${id}_blueGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:rgba(37,99,235,0.3)"/>
+      <stop offset="100%" style="stop-color:rgba(37,99,235,0)"/>
+    </linearGradient>
+    <linearGradient id="${id}_redGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:rgba(220,38,38,0.3)"/>
+      <stop offset="100%" style="stop-color:rgba(220,38,38,0)"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>`;
+
+  // Grid lines
+  const ticks = 5;
+  for (let i = 0; i <= ticks; i++) {
+    const y = margin.top + (i / ticks) * height;
+    html += `<line x1="${margin.left}" y1="${y}" x2="${W - margin.right}" y2="${y}" stroke="${gridColor}" stroke-width="1"/>`;
+  }
+
+  // Baseline
+  if (opts.baseline !== undefined) {
+    const by = yScale(opts.baseline);
+    html += `<line x1="${margin.left}" y1="${by}" x2="${W - margin.right}" y2="${by}" stroke="${axisColor}" stroke-width="1.5" stroke-dasharray="6,4"/>`;
+  }
+
+  // Y-axis labels
+  for (let i = 0; i <= ticks; i++) {
+    const val = yMin + ((ticks - i) / ticks) * (yMax - yMin);
+    const y = margin.top + (i / ticks) * height;
+    const label = opts.tickFmt ? opts.tickFmt(val) : fmt(val, opts.decimals ?? 1);
+    html += `<text x="${margin.left - 12}" y="${y + 4}" text-anchor="end" fill="${textColor}" font-size="12" font-weight="500">${label}</text>`;
+  }
+
+  // X-axis labels
+  years.forEach((yr, i) => {
+    const x = xScale(i);
+    html += `<text x="${x}" y="${H - 15}" text-anchor="middle" fill="${textColor}" font-size="12" font-weight="600">${yr}</text>`;
+  });
+
+  // Y-axis title
+  if (opts.yLabel) {
+    html += `<text x="20" y="${margin.top + height / 2}" text-anchor="middle" fill="${textColor}" font-size="12" font-weight="600" transform="rotate(-90, 20, ${margin.top + height / 2})">${opts.yLabel}</text>`;
+  }
+
+  // Draw series
+  series.forEach((s, si) => {
+    const points = s.values.map((v, i) => ({ x: xScale(i), y: yScale(v ?? 0), v })).filter(p => p.v !== null);
+    if (points.length < 2) return;
+
+    // Area fill
+    if (opts.areaFill) {
+      const baseY = opts.baseline !== undefined ? yScale(opts.baseline) : margin.top + height;
+      const gradId = s.color.includes("blue") || s.color.includes("2563") ? `${id}_blueGrad` : `${id}_redGrad`;
+      let areaPath = `M ${points[0].x} ${baseY}`;
+      
+      if (opts.smooth) {
+        areaPath += ` L ${points[0].x} ${points[0].y}`;
+        for (let i = 1; i < points.length; i++) {
+          const p0 = points[i - 1];
+          const p1 = points[i];
+          const cx = (p0.x + p1.x) / 2;
+          areaPath += ` C ${cx} ${p0.y}, ${cx} ${p1.y}, ${p1.x} ${p1.y}`;
+        }
+      } else {
+        points.forEach(p => areaPath += ` L ${p.x} ${p.y}`);
+      }
+      areaPath += ` L ${points[points.length - 1].x} ${baseY} Z`;
+      html += `<path d="${areaPath}" fill="url(#${gradId})" opacity="0.8"/>`;
+    }
+
+    // Line
+    let linePath = `M ${points[0].x} ${points[0].y}`;
+    if (opts.smooth) {
+      for (let i = 1; i < points.length; i++) {
+        const p0 = points[i - 1];
+        const p1 = points[i];
+        const cx = (p0.x + p1.x) / 2;
+        linePath += ` C ${cx} ${p0.y}, ${cx} ${p1.y}, ${p1.x} ${p1.y}`;
+      }
+    } else {
+      points.slice(1).forEach(p => linePath += ` L ${p.x} ${p.y}`);
+    }
+    html += `<path d="${linePath}" fill="none" stroke="${s.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>`;
+
+    // Points
+    points.forEach((p, i) => {
+      const isLast = i === points.length - 1;
+      html += `<circle cx="${p.x}" cy="${p.y}" r="${isLast ? 6 : 4}" fill="${s.color}" stroke="white" stroke-width="2"/>`;
+    });
+
+    // Last value label
+    if (opts.lastLabel && points.length) {
+      const last = points[points.length - 1];
+      const label = opts.valueFmt ? opts.valueFmt(last.v) : fmt(last.v, opts.decimals ?? 1);
+      html += `<text x="${last.x + 12}" y="${last.y + 5}" fill="${s.color}" font-size="14" font-weight="700">${label}</text>`;
+    }
+  });
+
+  svg.innerHTML = html;
+}
+
+function makeLeanStrip(row) {
+  const el = $("leanStrip");
+  el.innerHTML = "";
+  
+  YEARS_LEAN.forEach(yr => {
+    const val = safeNum(row[`lean_${yr}`]);
+    const bg = leanColor(val);
+    const txt = val === null ? "—" : (val > 0 ? `+${fmt(val, 1)}` : fmt(val, 1));
+    
+    const wrapper = document.createElement("div");
+    wrapper.style.textAlign = "center";
+    
+    const cell = document.createElement("div");
+    cell.className = "strip-cell";
+    cell.style.background = bg;
+    cell.style.color = textColor(bg);
+    cell.textContent = txt;
+    
+    const label = document.createElement("div");
+    label.className = "strip-label";
+    label.textContent = yr;
+    
+    wrapper.appendChild(cell);
+    wrapper.appendChild(label);
+    el.appendChild(wrapper);
+  });
+}
+
+function buildTableRatio(row) {
+  const table = $("ratioTable");
+  const head = `<tr><th></th>${YEARS_RATIO.map(y => `<th>${y}</th>`).join("")}</tr>`;
+  const vals = YEARS_RATIO.map(y => {
+    const v = safeNum(row[`ratioD_${y}`]);
+    return v === null ? "—" : fmt(v, 3);
+  });
+  const body = `<tr><td class="d-head">D</td>${vals.map(v => `<td>${v}</td>`).join("")}</tr>`;
+  table.innerHTML = head + body;
+}
+
+function buildTableNorm(row) {
+  const table = $("normTable");
+  const head = `<tr><th></th>${YEARS_RATIO.map(y => `<th>${y}</th>`).join("")}</tr>`;
+  const d = YEARS_RATIO.map(y => pct(row[`normD_${y}`]));
+  const r = YEARS_RATIO.map(y => pct(row[`normR_${y}`]));
+  const body = `
+    <tr><td class="d-head">D</td>${d.map(v => `<td>${v}</td>`).join("")}</tr>
+    <tr><td class="r-head">R</td>${r.map(v => `<td>${v}</td>`).join("")}</tr>`;
+  table.innerHTML = head + body;
+}
+
+function updateKPIs(row) {
+  const lean = safeNum(row.lean_latest);
+  const ratio = safeNum(row.ratio_latest);
+  
+  $("kpiLean").textContent = lean === null ? "—" : (lean > 0 ? `D+${fmt(lean, 1)}` : `R+${fmt(Math.abs(lean), 1)}`);
+  $("kpiRatio").textContent = ratio === null ? "—" : fmt(ratio, 3);
+  $("kpi5050").textContent = pct(row.normD_2028);
+  
+  // Color the lean KPI
+  $("kpiLean").style.color = lean > 0 ? "var(--blue)" : "var(--red)";
+}
+
+function selectState(abbr, updateHash) {
+  const row = DATA.get(abbr);
+  if (!row) return;
+  CURRENT = abbr;
+
+  setActiveCell(abbr);
+
+  // Update badge
+  const badge = $("stateBadge");
+  badge.textContent = abbr;
+  const lean = safeNum(row.lean_2024);
+  const bg = leanColor(lean);
+  badge.style.background = bg;
+  badge.style.color = textColor(bg);
+  badge.style.borderColor = lean > 0 ? "var(--blue)" : "var(--red)";
+
+  $("stateName").textContent = row.name || abbr;
+  updateKPIs(row);
+  makeLeanStrip(row);
+  buildTableRatio(row);
+  buildTableNorm(row);
+
+  // Lean chart
+  const leanVals = YEARS_LEAN.map(y => safeNum(row[`lean_${y}`]) ?? 0);
+  const leanLast = leanVals[leanVals.length - 1] ?? 0;
+  const leanLineColor = leanLast < 0 ? "var(--red)" : "var(--blue)";
+  lineChart("leanChart", YEARS_LEAN, [
+    { values: leanVals, color: leanLineColor, label: "Lean" }
+  ], {
+    yLabel: "Lean vs national (pp)",
+    baseline: 0,
+    smooth: true,
+    areaFill: true,
+    lastLabel: true,
+    signedTicks: true,
+    decimals: 1,
+    tickFmt: (t) => (t > 0 ? "+" : "") + fmt(t, 0),
+    valueFmt: (v) => (v > 0 ? "+" : "") + fmt(v, 1)
+  });
+
+  // Ratio chart
+  const ratioVals = YEARS_RATIO.map(y => safeNum(row[`ratioD_${y}`]) ?? 1);
+  const ratioLast = ratioVals[ratioVals.length - 1] ?? 1;
+  const ratioLineColor = ratioLast < 1 ? "var(--red)" : "var(--blue)";
+  lineChart("ratioChart", YEARS_RATIO, [
+    { values: ratioVals, color: ratioLineColor, label: "D ratio" }
+  ], {
+    yLabel: "D ratio",
+    baseline: 1,
+    smooth: true,
+    areaFill: true,
+    lastLabel: true,
+    decimals: 3,
+    tickFmt: (t) => fmt(t, 2),
+    valueFmt: (v) => fmt(v, 3)
+  });
+
+  // Normalized chart
+  const normD = YEARS_RATIO.map(y => safeNum(row[`normD_${y}`]) ?? 50);
+  const normR = YEARS_RATIO.map(y => safeNum(row[`normR_${y}`]) ?? 50);
+  lineChart("normChart", YEARS_RATIO, [
+    { values: normD, color: "var(--blue)", label: "D" },
+    { values: normR, color: "var(--red)", label: "R" }
+  ], {
+    yLabel: "Two-party share",
+    baseline: 50,
+    smooth: true,
+    areaFill: false,
+    lastLabel: true,
+    yFormat: "pct",
+    decimals: 0,
+    tickFmt: (t) => `${Math.round(t)}%`,
+    valueFmt: (v) => `${Math.round(v)}%`
+  });
+
+  if (updateHash) location.hash = abbr;
+}
+
+function bestMatch(query) {
+  query = (query || "").trim().toLowerCase();
+  if (!query) return null;
+  const ab = query.toUpperCase();
+  if (DATA.has(ab)) return ab;
+  for (const [k, v] of DATA.entries()) if ((v.name || "").toLowerCase() === query) return k;
+  for (const [k, v] of DATA.entries()) if ((v.name || "").toLowerCase().includes(query)) return k;
+  return null;
+}
+
+function renderSuggest(matches) {
+  const wrap = $("suggest");
+  if (!matches.length) {
+    wrap.style.display = "none";
+    wrap.innerHTML = "";
+    return;
+  }
+  wrap.style.display = "block";
+  wrap.innerHTML = "";
+  matches.slice(0, 10).forEach(m => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.innerHTML = `<span>${m.name}</span><span class="meta">${m.abbr}</span>`;
+    btn.addEventListener("click", () => {
+      $("searchBox").value = m.abbr;
+      wrap.style.display = "none";
+      selectState(m.abbr, true);
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+function getMatches(q) {
+  q = (q || "").trim().toLowerCase();
+  if (!q) return [];
+  const ab = q.toUpperCase();
+  const out = [];
+  for (const s of ORDERED) {
+    if (s.abbr === ab) out.unshift(s);
+    else if (s.abbr.toLowerCase().startsWith(q) || s.name.toLowerCase().includes(q)) out.push(s);
+  }
+  return out;
+}
+
+function renderStateList() {
+  const list = $("stateList");
+  const sortMode = $("sortSel").value;
+
+  const arr = ORDERED.slice();
+  const byNum = (key, dir) => arr.sort((a, b) => {
+    const av = safeNum(a[key]);
+    const bv = safeNum(b[key]);
+    if (av === null && bv === null) return a.name.localeCompare(b.name);
+    if (av === null) return 1;
+    if (bv === null) return -1;
+    return dir * (bv - av);
+  });
+
+  if (sortMode === "name") arr.sort((a, b) => a.name.localeCompare(b.name));
+  else if (sortMode === "abbr") arr.sort((a, b) => a.abbr.localeCompare(b.abbr));
+  else if (sortMode === "leanDesc") byNum("lean_2024", 1);
+  else if (sortMode === "leanAsc") byNum("lean_2024", -1);
+  else if (sortMode === "ratioDesc") byNum("ratioD_2024", 1);
+  else if (sortMode === "ratioAsc") byNum("ratioD_2024", -1);
+
+  list.innerHTML = "";
+  arr.forEach(s => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "s-item";
+    btn.dataset.abbr = s.abbr;
+    const leanStr = s.lean_2024 > 0 ? `+${fmt(s.lean_2024, 1)}` : fmt(s.lean_2024, 1);
+    btn.innerHTML = `<div>${s.abbr}</div><span>${leanStr}</span>`;
+    btn.addEventListener("click", () => selectState(s.abbr, true));
+    list.appendChild(btn);
+  });
+  if (CURRENT) setActiveCell(CURRENT);
+}
+
+function setTheme(theme) {
+  const root = document.documentElement;
+  if (theme === "dark") root.setAttribute("data-theme", "dark");
+  else root.removeAttribute("data-theme");
+  localStorage.setItem("theme", theme);
+  
+  // Redraw charts with new colors
+  if (CURRENT) {
+    const row = DATA.get(CURRENT);
+    if (row) {
+      setTimeout(() => {
+        selectState(CURRENT, false);
+      }, 50);
+    }
+  }
+}
+
+function toggleTheme() {
+  const root = document.documentElement;
+  const isDark = root.getAttribute("data-theme") === "dark";
+  setTheme(isDark ? "light" : "dark");
+}
+
+function copyDeepLink() {
+  const abbr = CURRENT || "";
+  const url = `${location.origin}${location.pathname}#${abbr}`;
+  navigator.clipboard?.writeText(url).then(() => {
+    showStatus("Link copied to clipboard!");
+    setTimeout(() => $("statusMsg").classList.remove("show"), 2000);
+  }).catch(() => {
+    window.prompt("Copy this link:", url);
+  });
+}
+
+async function init() {
+  // Theme
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "dark" || savedTheme === "light") setTheme(savedTheme);
+  else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+
+  $("themeBtn").addEventListener("click", toggleTheme);
+  $("listBtn").addEventListener("click", () => {
+    $("listWrap").classList.toggle("show");
+    renderStateList();
+  });
+  $("resetBtn").addEventListener("click", () => {
+    const def = DATA.has("NC") ? "NC" : (ORDERED[0]?.abbr || null);
+    if (def) selectState(def, true);
+  });
+  $("copyLinkBtn").addEventListener("click", copyDeepLink);
+  $("sortSel").addEventListener("change", renderStateList);
+
+  // Load CSV
+  let text = "";
+  try {
+    const resp = await fetch("state_report_data.csv", { cache: "no-store" });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    text = await resp.text();
+  } catch (err) {
+    showStatus(`Could not load state_report_data.csv. Make sure it's in the same folder. (${err})`, true);
+    return;
+  }
+
+  const rows = parseCSV(text);
+  if (!rows.length) {
+    showStatus("CSV loaded but no rows were parsed. Check the file format.", true);
+    return;
+  }
+
+  rows.forEach(r => DATA.set((r.abbr || "").toUpperCase(), r));
+  ORDERED = rows
+    .filter(r => (r.abbr || "").trim().length)
+    .map(r => ({
+      abbr: (r.abbr || "").toUpperCase(),
+      name: r.name || (r.abbr || "").toUpperCase(),
+      lean_2024: safeNum(r.lean_2024),
+      ratioD_2024: safeNum(r.ratioD_2024)
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  buildMap();
+  colorMap();
+  renderStateList();
+
+  // Search
+  const searchBox = $("searchBox");
+  searchBox.addEventListener("input", () => renderSuggest(getMatches(searchBox.value)));
+  searchBox.addEventListener("focus", () => renderSuggest(getMatches(searchBox.value)));
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".search-wrap")) $("suggest").style.display = "none";
+  });
+
+  $("goBtn").addEventListener("click", () => {
+    const q = searchBox.value;
+    const m = bestMatch(q);
+    if (m) selectState(m, true);
+  });
+  searchBox.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") $("goBtn").click();
+    if (e.key === "Escape") { $("suggest").style.display = "none"; searchBox.blur(); }
+  });
+
+  window.addEventListener("hashchange", () => {
+    const h = (location.hash || "").replace("#", "").toUpperCase();
+    if (DATA.has(h)) selectState(h, false);
+  });
+
+  // Default selection
+  const h = (location.hash || "").replace("#", "").toUpperCase();
+  const first = DATA.has(h) ? h : (DATA.has("NC") ? "NC" : (ORDERED[0]?.abbr || null));
+  if (first) selectState(first, false);
+
+  showStatus(`Loaded ${rows.length} states successfully.`, false);
+  setTimeout(() => $("statusMsg").classList.remove("show"), 2500);
+}
+
+init();
+</script>
+</body>
+</html>
