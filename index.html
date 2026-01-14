@@ -482,13 +482,18 @@
   </div>
 
   <script>
-    // Config: Added polling.html here
+
     const pages = [
       { id:"us",      group:"United States", dot:"us", name:"US Federal", desc:"House + Senate map, swing controls.", href:"./us.html",     tags:["House","Senate","Map"] },
       { id:"midterm", group:"United States", dot:"us", name:"Midterm",    desc:"Midterm model page (national + state).",  href:"./midterm.html", tags:["Map","Controls"] },
       { id:"texas",   group:"United States", dot:"us", name:"Texas",      desc:"Texas state-level model page.",            href:"./texas.html",  tags:["State","Map"] },
       { id:"polling", group:"United States", dot:"us", name:"Polling",    desc:"Aggregate polling data & charts.",         href:"./polling.html",tags:["Data","Charts"] },
-      
+{ id:"baylor", group:"United States", dot:"us",
+  name:"Baylor",
+  desc:"Baylor basketball dashboard (schedule + bid odds).",
+  href:"./baylor.html",
+  tags:["NCAA","Baylor","Charts"]
+},
       { id:"turkey",  group:"Europe",        dot:"eu", name:"Turkey",     desc:"Turkey model page.",                       href:"./turkey.html", tags:["Seats","Map"] },
       { id:"france",  group:"Europe",        dot:"eu", name:"France",     desc:"National-to-local ratios on real map.",    href:"./france.html", tags:["Seats","Map"] },
       { id:"germany", group:"Europe",        dot:"eu", name:"Germany",    desc:"Bundestag-style model page.",              href:"./germany.html",tags:["Seats","Map"] },
