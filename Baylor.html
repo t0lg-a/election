@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baylor Bears Basketball — Tournament Projections</title>
+  <style>
+    :root {
+      --bg-dark: #0a0e14;
+      --bg-card: rgba(15, 23, 42, 0.5);
+      --border: rgba(51, 65, 85, 0.5);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --emerald: #22c55e;
+      --emerald-dim: rgba(34, 197, 94, 0.2);
+      --yellow: #eab308;
+      --yellow-dim: rgba(234, 179, 8, 0.2);
+      --red: #ef4444;
+      --red-dim: rgba(239, 68, 68, 0.2);
+      --blue: #3b82f6;
+      --blue-dim: rgba(59, 130, 246, 0.2);
+      --amber: #f59e0b;
+      --amber-dim: rgba(245, 158, 11, 0.2);
+      --orange: #f97316;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .bg-gradient {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 20%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #eab308 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.5rem;
+      box-shadow: 0 10px 40px rgba(34, 197, 94, 0.3);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, #22c55e, #10b981, #eab308);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-subtitle {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .header-badges {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 0.375rem 0.75rem;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .badge span { color: var(--text); font-weight: 600; }
+
+    /* Quick Stats Bar */
+    .quick-stats {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+      backdrop-filter: blur(10px);
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      white-space: nowrap;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 2.5rem;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .controls-label {
+      color: var(--text-dim);
+      font-size: 0.875rem;
+      margin-right: 0.5rem;
+    }
+
+    .btn {
+      padding: 0.5rem 0.875rem;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      color: var(--text);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: rgba(51, 65, 85, 0.8);
+      transform: scale(1.02);
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-active {
+      background: linear-gradient(135deg, #059669, #10b981);
+      border-color: #10b981;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .search-input {
+      padding: 0.5rem 0.875rem;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      color: var(--text);
+      font-size: 0.875rem;
+      outline: none;
+      width: 160px;
+      margin-left: auto;
+    }
+
+    .search-input:focus {
+      border-color: var(--emerald);
+      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: inline-flex;
+      gap: 0.25rem;
+      padding: 0.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .tab {
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: none;
+      border-radius: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab:hover { color: var(--text); background: rgba(51, 65, 85, 0.5); }
+
+    .tab-active {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Main Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    @media (min-width: 1024px) {
+      .main-grid {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+    }
+
+    .card-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .card-body {
+      padding: 1.25rem;
+    }
+
+    .card-body-scroll {
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0.625rem;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--border), transparent);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 0.75rem;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -1.625rem;
+      top: 1rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      background: #1e293b;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.625rem;
+      font-weight: 700;
+      z-index: 1;
+    }
+
+    .timeline-dot.win {
+      background: var(--emerald);
+      border-color: #4ade80;
+    }
+
+    .timeline-dot.loss {
+      background: var(--red);
+      border-color: #f87171;
+    }
+
+    .timeline-content {
+      padding: 0.875rem 1rem;
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      transition: all 0.2s;
+    }
+
+    .timeline-content:hover {
+      border-color: rgba(100, 116, 139, 0.5);
+      background: rgba(30, 41, 59, 0.7);
+    }
+
+    .timeline-content.locked-win {
+      background: var(--emerald-dim);
+      border-color: rgba(34, 197, 94, 0.4);
+    }
+
+    .timeline-content.locked-loss {
+      background: var(--red-dim);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .timeline-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.375rem;
+    }
+
+    .timeline-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      border: 1px solid;
+    }
+
+    .tag-emerald { background: var(--emerald-dim); color: #4ade80; border-color: rgba(34, 197, 94, 0.3); }
+    .tag-yellow { background: var(--yellow-dim); color: #facc15; border-color: rgba(234, 179, 8, 0.3); }
+    .tag-red { background: var(--red-dim); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+    .tag-amber { background: var(--amber-dim); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+    .tag-blue { background: var(--blue-dim); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3); }
+
+    .timeline-actions {
+      display: flex;
+      gap: 0.375rem;
+      margin-left: auto;
+    }
+
+    .btn-wl {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.5rem;
+      border: none;
+      font-weight: 700;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #334155;
+      color: var(--text-muted);
+    }
+
+    .btn-wl:hover { transform: scale(1.05); }
+
+    .btn-wl.active-w {
+      background: var(--emerald);
+      color: white;
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn-wl.active-l {
+      background: var(--red);
+      color: white;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    }
+
+    .timeline-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    /* Gauge */
+    .gauge-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 0;
+    }
+
+    .gauge-svg {
+      width: 220px;
+      height: 130px;
+    }
+
+    .gauge-value {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-top: 0.5rem;
+      transition: color 0.3s;
+    }
+
+    .gauge-label {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .seed-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-weight: 700;
+      font-size: 1.125rem;
+    }
+
+    .seed-badge.top { background: var(--emerald-dim); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
+    .seed-badge.mid { background: var(--blue-dim); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .seed-badge.low { background: var(--amber-dim); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+
+    /* Distribution Chart */
+    .dist-chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 3px;
+      height: 140px;
+      padding: 0 0.5rem;
+    }
+
+    .dist-bar-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .dist-bar {
+      width: 18px;
+      border-radius: 3px 3px 0 0;
+      transition: all 0.5s ease-out;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .dist-bar:hover {
+      filter: brightness(1.2);
+      transform: scaleY(1.02);
+    }
+
+    .dist-bar-label {
+      font-size: 0.625rem;
+      color: var(--text-dim);
+      margin-top: 0.375rem;
+      font-family: monospace;
+    }
+
+    .dist-legend {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .dist-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .dist-legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    /* Seed Projection */
+    .seed-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .seed-number {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+      flex-shrink: 0;
+    }
+
+    .seed-bar-bg {
+      flex: 1;
+      height: 1.5rem;
+      background: rgba(51, 65, 85, 0.5);
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .seed-bar-fill {
+      height: 100%;
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 0.5rem;
+      transition: width 0.7s ease-out;
+    }
+
+    .seed-bar-text {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* Calendar Grid */
+    .calendar-month {
+      margin-bottom: 1.5rem;
+    }
+
+    .calendar-month-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .calendar-card {
+      padding: 0.75rem;
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .calendar-card:hover {
+      transform: scale(1.02);
+      border-color: rgba(100, 116, 139, 0.5);
+    }
+
+    .calendar-card.locked-win {
+      background: var(--emerald-dim);
+      border-color: rgba(34, 197, 94, 0.4);
+    }
+
+    .calendar-card.locked-loss {
+      background: var(--red-dim);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .calendar-date {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: monospace;
+    }
+
+    .calendar-opponent {
+      font-weight: 600;
+      margin: 0.25rem 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .calendar-info {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 0.375rem;
+    }
+
+    .calendar-result {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .calendar-card { position: relative; }
+
+    /* Path to Tournament */
+    .path-section {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .path-achieved {
+      background: var(--emerald-dim);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .path-possible {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--border);
+    }
+
+    .path-impossible {
+      background: var(--red-dim);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .path-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .path-games {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+      margin-top: 0.5rem;
+    }
+
+    .path-game {
+      padding: 0.25rem 0.5rem;
+      background: #334155;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+    }
+
+    .path-prob {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    /* Outcome Bars */
+    .outcome-row {
+      margin-bottom: 1rem;
+    }
+
+    .outcome-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.375rem;
+      font-size: 0.875rem;
+    }
+
+    .outcome-bar-bg {
+      height: 0.75rem;
+      background: rgba(51, 65, 85, 0.5);
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .outcome-bar-fill {
+      height: 100%;
+      border-radius: 1rem;
+      transition: width 0.7s ease-out;
+    }
+
+    /* Game Impact */
+    .impact-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .impact-game {
+      font-weight: 500;
+    }
+
+    .impact-stats {
+      display: flex;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+    }
+
+    /* SOS Grid */
+    .sos-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .sos-card {
+      padding: 0.75rem;
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      text-align: center;
+    }
+
+    .sos-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .sos-label {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+
+    /* Sidebar Mini List */
+    .mini-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: rgba(30, 41, 59, 0.3);
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    /* Mini Distribution */
+    .mini-dist {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 2px;
+      height: 60px;
+    }
+
+    .mini-dist-bar {
+      width: 10px;
+      border-radius: 2px 2px 0 0;
+      transition: height 0.3s;
+    }
+
+    .mini-dist-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.625rem;
+      color: var(--text-dim);
+      margin-top: 0.25rem;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 2rem 0;
+      color: var(--text-dim);
+      font-size: 0.75rem;
+    }
+
+    /* Confetti */
+    .confetti {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -20px;
+      animation: confetti-fall 3s ease-out forwards;
+    }
+
+    @keyframes confetti-fall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* Utility */
+    .text-emerald { color: var(--emerald); }
+    .text-yellow { color: var(--yellow); }
+    .text-red { color: var(--red); }
+    .text-blue { color: var(--blue); }
+    .text-amber { color: var(--amber); }
+    .text-orange { color: var(--orange); }
+    .text-muted { color: var(--text-muted); }
+    .text-dim { color: var(--text-dim); }
+    .font-mono { font-family: monospace; }
+    .font-bold { font-weight: 700; }
+
+    .hidden { display: none !important; }
+
+    .sidebar { display: flex; flex-direction: column; gap: 1rem; }
+
+    /* Scrollbar */
+    .card-body-scroll::-webkit-scrollbar { width: 6px; }
+    .card-body-scroll::-webkit-scrollbar-track { background: transparent; }
+    .card-body-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    .card-body-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    /* Tooltip */
+    .tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.625rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 100;
+    }
+
+    .dist-bar:hover .tooltip { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div id="confetti-container"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo">BU</div>
+        <div>
+          <h1>Baylor Bears</h1>
+          <p class="header-subtitle">2025-26 NCAA Tournament Projections</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <div class="badge">Record: <span>11-5</span></div>
+        <div class="badge">ESPN: <span class="font-mono">Jan 14, 2026</span></div>
+      </div>
+    </header>
+
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+      <div class="stat-item">
+        <span class="stat-label">Tournament</span>
+        <span class="stat-value text-emerald" id="stat-tournament">53.4%</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-label">Expected</span>
+        <span class="stat-value" id="stat-expected">18-12</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-label">Scenario</span>
+        <span class="stat-value" id="stat-scenario"><span class="text-emerald">0W</span>-<span class="text-red">0L</span></span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-label">Unlocked</span>
+        <span class="stat-value" id="stat-unlocked">15 games</span>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <span class="controls-label">Scenarios:</span>
+      <button class="btn" onclick="applyPreset('realistic')">↺ Reset</button>
+      <button class="btn" onclick="applyPreset('optimistic')">🔥 Best Case</button>
+      <button class="btn" onclick="applyPreset('pessimistic')">😰 Worst Case</button>
+      <button class="btn" onclick="applyPreset('sweepHome')">🏠 Home Sweep</button>
+      <button class="btn" onclick="applyPreset('roadWarrior')">🚗 Road Warrior</button>
+      <button class="btn" onclick="applyPreset('chaos')">🎲 Chaos</button>
+      <input type="search" class="search-input" placeholder="Search games..." id="search-input" oninput="handleSearch()">
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab tab-active" data-tab="timeline" onclick="switchTab('timeline')">📅 Timeline</button>
+      <button class="tab" data-tab="calendar" onclick="switchTab('calendar')">🗓️ Calendar</button>
+      <button class="tab" data-tab="analytics" onclick="switchTab('analytics')">📊 Analytics</button>
+      <button class="tab" data-tab="paths" onclick="switchTab('paths')">🎯 Paths</button>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+      <!-- Left Panel -->
+      <div class="left-panel">
+        <!-- Timeline Tab -->
+        <div class="card tab-content" id="tab-timeline">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Season Timeline</div>
+              <div class="card-subtitle">Click W/L to simulate outcomes</div>
+            </div>
+          </div>
+          <div class="card-body card-body-scroll">
+            <div class="timeline" id="timeline-container"></div>
+          </div>
+        </div>
+
+        <!-- Calendar Tab -->
+        <div class="card tab-content hidden" id="tab-calendar">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Calendar View</div>
+              <div class="card-subtitle">Click to cycle: → W → L → reset</div>
+            </div>
+          </div>
+          <div class="card-body card-body-scroll" id="calendar-container"></div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div class="tab-content hidden" id="tab-analytics">
+          <div class="card" style="margin-bottom: 1rem;">
+            <div class="card-header">
+              <div class="card-title">Win Distribution</div>
+            </div>
+            <div class="card-body">
+              <div class="dist-chart" id="dist-chart"></div>
+              <div class="dist-legend">
+                <div class="dist-legend-item"><div class="dist-legend-color" style="background: #ef4444"></div> Miss</div>
+                <div class="dist-legend-item"><div class="dist-legend-color" style="background: #f97316"></div> Bubble</div>
+                <div class="dist-legend-item"><div class="dist-legend-color" style="background: #eab308"></div> Likely</div>
+                <div class="dist-legend-item"><div class="dist-legend-color" style="background: #22c55e"></div> Lock</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Seed Projections</div>
+              </div>
+              <div class="card-body" id="seed-projections"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Strength of Schedule</div>
+              </div>
+              <div class="card-body">
+                <div class="sos-grid" id="sos-grid"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paths Tab -->
+        <div class="tab-content hidden" id="tab-paths">
+          <div class="card" style="margin-bottom: 1rem;">
+            <div class="card-header">
+              <div class="card-title">Path to the Tournament</div>
+              <div class="card-subtitle">Optimal games to secure a bid</div>
+            </div>
+            <div class="card-body" id="paths-container"></div>
+          </div>
+
+          <div class="card" style="margin-bottom: 1rem;">
+            <div class="card-header">
+              <div class="card-title">Outcome Probabilities</div>
+            </div>
+            <div class="card-body" id="outcomes-container"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Key Games Impact (Q1)</div>
+            </div>
+            <div class="card-body" id="impact-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="sidebar">
+        <!-- Tournament Gauge -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title" style="width: 100%; text-align: center;">NCAA Tournament</div>
+          </div>
+          <div class="card-body">
+            <div class="gauge-container">
+              <svg class="gauge-svg" viewBox="0 0 200 130" id="gauge-svg">
+                <defs>
+                  <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#ef4444"/>
+                    <stop offset="33%" stop-color="#f97316"/>
+                    <stop offset="66%" stop-color="#eab308"/>
+                    <stop offset="100%" stop-color="#22c55e"/>
+                  </linearGradient>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                  </filter>
+                </defs>
+                <path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="#1e293b" stroke-width="18" stroke-linecap="round"/>
+                <path d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke="url(#gaugeGrad)" stroke-width="12" stroke-linecap="round"/>
+                <g id="gauge-needle" filter="url(#glow)">
+                  <polygon points="100,50 96,105 104,105" fill="#22c55e"/>
+                </g>
+                <circle cx="100" cy="105" r="10" fill="#22c55e" id="gauge-center"/>
+                <circle cx="100" cy="105" r="5" fill="#0a0e14"/>
+              </svg>
+              <div class="gauge-value" id="gauge-value">53.4%</div>
+              <div class="gauge-label">Tournament Probability</div>
+              <div id="seed-badge"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mini Distribution -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Win Distribution</div>
+          </div>
+          <div class="card-body">
+            <div class="mini-dist" id="mini-dist"></div>
+            <div class="mini-dist-labels"><span>0</span><span>15</span></div>
+          </div>
+        </div>
+
+        <!-- Toughest Games -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Toughest Games</div>
+          </div>
+          <div class="card-body" id="toughest-games"></div>
+        </div>
+
+        <!-- Best Opportunities -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Best Opportunities</div>
+          </div>
+          <div class="card-body" id="best-opps"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Data: ESPN Matchup Predictor (Jan 14, 2026) | Seed projections based on historical patterns</p>
+      <p style="margin-top: 0.25rem;">Not affiliated with Baylor University</p>
+    </footer>
+  </div>
+
+  <script>
+    // ============== DATA ==============
+    const schedule = [
+      { id: 0, date: "Jan 16", game: "Kansas", away: true, site: "Away", win: 22.7, conf: true, quad: 1, oppRank: 4, oppRecord: "14-2", kenpom: 3, tv: "ESPN", time: "8:00 PM" },
+      { id: 1, date: "Jan 20", game: "Texas Tech", away: false, site: "Home", win: 51.8, conf: true, quad: 2, oppRank: 28, oppRecord: "12-4", kenpom: 25, tv: "ESPN2", time: "7:00 PM" },
+      { id: 2, date: "Jan 24", game: "TCU", away: false, site: "Home", win: 72.5, conf: true, quad: 3, oppRank: 67, oppRecord: "10-6", kenpom: 62, tv: "ESPN+", time: "2:00 PM" },
+      { id: 3, date: "Jan 28", game: "Cincinnati", away: true, site: "Away", win: 47.1, conf: true, quad: 2, oppRank: 35, oppRecord: "11-5", kenpom: 31, tv: "ESPN2", time: "9:00 PM" },
+      { id: 4, date: "Jan 31", game: "West Virginia", away: true, site: "Away", win: 40.5, conf: true, quad: 2, oppRank: 42, oppRecord: "10-6", kenpom: 38, tv: "CBS", time: "12:00 PM" },
+      { id: 5, date: "Feb 4", game: "Colorado", away: false, site: "Home", win: 84.2, conf: true, quad: 3, oppRank: 78, oppRecord: "9-7", kenpom: 72, tv: "ESPN+", time: "7:00 PM" },
+      { id: 6, date: "Feb 7", game: "Iowa State", away: true, site: "Away", win: 14.0, conf: true, quad: 1, oppRank: 2, oppRecord: "15-1", kenpom: 1, tv: "FOX", time: "4:00 PM" },
+      { id: 7, date: "Feb 10", game: "BYU", away: false, site: "Home", win: 38.0, conf: true, quad: 2, oppRank: 22, oppRecord: "13-4", kenpom: 19, tv: "ESPN", time: "8:00 PM" },
+      { id: 8, date: "Feb 14", game: "Louisville", away: false, site: "Neutral", win: 22.7, conf: false, quad: 1, oppRank: 18, oppRecord: "13-4", kenpom: 15, tv: "CBS", time: "3:30 PM" },
+      { id: 9, date: "Feb 17", game: "Kansas State", away: true, site: "Away", win: 52.8, conf: true, quad: 2, oppRank: 32, oppRecord: "11-5", kenpom: 29, tv: "ESPN2", time: "7:00 PM" },
+      { id: 10, date: "Feb 21", game: "Arizona State", away: false, site: "Home", win: 87.2, conf: true, quad: 4, oppRank: 95, oppRecord: "8-8", kenpom: 88, tv: "ESPN+", time: "1:00 PM" },
+      { id: 11, date: "Feb 24", game: "Arizona", away: false, site: "Home", win: 24.4, conf: true, quad: 1, oppRank: 12, oppRecord: "13-4", kenpom: 10, tv: "ESPN", time: "9:00 PM" },
+      { id: 12, date: "Feb 28", game: "UCF", away: true, site: "Away", win: 48.4, conf: true, quad: 2, oppRank: 38, oppRecord: "11-5", kenpom: 35, tv: "CBS", time: "12:00 PM" },
+      { id: 13, date: "Mar 4", game: "Houston", away: true, site: "Away", win: 11.1, conf: true, quad: 1, oppRank: 1, oppRecord: "16-1", kenpom: 2, tv: "ESPN", time: "8:00 PM" },
+      { id: 14, date: "Mar 7", game: "Utah", away: false, site: "Home", win: 87.8, conf: true, quad: 4, oppRank: 102, oppRecord: "7-9", kenpom: 96, tv: "ESPN+", time: "2:00 PM" },
+    ];
+
+    const bidChances = [2, 2, 2, 2, 2, 2, 18, 62.8, 79.5, 93, 98, 98, 98, 98, 98, 98];
+    
+    const seedMapping = [
+      { minWins: 26, seed: 1 }, { minWins: 24, seed: 2 }, { minWins: 22, seed: 3 },
+      { minWins: 21, seed: 4 }, { minWins: 20, seed: 5 }, { minWins: 19, seed: 6 },
+      { minWins: 18, seed: 7 }, { minWins: 17, seed: 8 }, { minWins: 16, seed: 10 },
+      { minWins: 15, seed: 11 }, { minWins: 14, seed: 12 }, { minWins: 0, seed: null },
+    ];
+
+    const presets = {
+      realistic: {},
+      optimistic: { 0: 1, 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 9: 1, 10: 1, 12: 1, 14: 1 },
+      pessimistic: { 0: 0, 6: 0, 7: 0, 8: 0, 11: 0, 13: 0 },
+      sweepHome: { 1: 1, 2: 1, 5: 1, 7: 1, 10: 1, 11: 1, 14: 1 },
+      roadWarrior: { 0: 1, 3: 1, 4: 1, 6: 1, 9: 1, 12: 1, 13: 1 },
+      chaos: { 0: 1, 6: 1, 8: 1, 11: 1, 13: 1, 2: 0, 5: 0, 10: 0, 14: 0 },
+    };
+
+    // ============== STATE ==============
+    let overrides = {};
+    let searchQuery = '';
+
+    // ============== CALCULATIONS ==============
+    function calculateDistribution() {
+      let dist = [1];
+      schedule.forEach((g, i) => {
+        const p = overrides[i] !== undefined ? overrides[i] : g.win / 100;
+        const newDist = new Array(dist.length + 1).fill(0);
+        dist.forEach((prob, wins) => {
+          newDist[wins] += prob * (1 - p);
+          newDist[wins + 1] += prob * p;
+        });
+        dist = newDist;
+      });
+      return dist;
+    }
+
+    function getSeed(totalWins) {
+      for (const { minWins, seed } of seedMapping) {
+        if (totalWins >= minWins) return seed;
+      }
+      return null;
+    }
+
+    function getColor(prob) {
+      if (prob >= 70) return '#22c55e';
+      if (prob >= 50) return '#eab308';
+      if (prob >= 30) return '#f97316';
+      return '#ef4444';
+    }
+
+    function getBucket(win) {
+      if (win >= 70) return { label: 'Must-win', class: 'emerald' };
+      if (win >= 40) return { label: 'Swing', class: 'yellow' };
+      return { label: 'Reach', class: 'red' };
+    }
+
+    function getBarColor(wins) {
+      if (wins < 6) return '#ef4444';
+      if (wins < 8) return '#f97316';
+      if (wins < 10) return '#eab308';
+      return '#22c55e';
+    }
+
+    function findPath(targetWins) {
+      const unlockedGames = schedule.filter((_, i) => overrides[i] === undefined);
+      const lockedWins = Object.values(overrides).filter(v => v === 1).length;
+      const neededWins = targetWins - lockedWins;
+      
+      if (neededWins <= 0) return { achieved: true, path: [], neededWins: 0 };
+      if (neededWins > unlockedGames.length) return { achieved: false, path: [], neededWins };
+      
+      const sorted = [...unlockedGames].sort((a, b) => b.win - a.win);
+      const path = sorted.slice(0, neededWins);
+      const probability = path.reduce((p, g) => p * (g.win / 100), 1);
+      
+      return { achieved: true, path, probability, neededWins };
+    }
+
+    // ============== RENDERING ==============
+    function render() {
+      const dist = calculateDistribution();
+      const expectedWins = dist.reduce((sum, p, i) => sum + p * i, 0);
+      const tournamentProb = dist.reduce((sum, p, i) => sum + p * bidChances[i], 0);
+      const lockedWins = Object.values(overrides).filter(v => v === 1).length;
+      const lockedLosses = Object.values(overrides).filter(v => v === 0).length;
+      const totalWins = 11 + expectedWins;
+      const projectedSeed = getSeed(Math.round(totalWins));
+
+      // Quick stats
+      document.getElementById('stat-tournament').textContent = tournamentProb.toFixed(1) + '%';
+      document.getElementById('stat-tournament').style.color = getColor(tournamentProb);
+      document.getElementById('stat-expected').textContent = `${Math.round(11 + expectedWins)}-${Math.round(20 - expectedWins)}`;
+      document.getElementById('stat-scenario').innerHTML = `<span class="text-emerald">${lockedWins}W</span>-<span class="text-red">${lockedLosses}L</span>`;
+      document.getElementById('stat-unlocked').textContent = `${15 - lockedWins - lockedLosses} games`;
+
+      // Gauge
+      const angle = (tournamentProb / 100) * 180 - 90;
+      const color = getColor(tournamentProb);
+      document.getElementById('gauge-needle').innerHTML = `<polygon points="100,50 96,105 104,105" fill="${color}"/>`;
+      document.getElementById('gauge-needle').style.transform = `rotate(${angle}deg)`;
+      document.getElementById('gauge-needle').style.transformOrigin = '100px 105px';
+      document.getElementById('gauge-center').setAttribute('fill', color);
+      document.getElementById('gauge-value').textContent = tournamentProb.toFixed(1) + '%';
+      document.getElementById('gauge-value').style.color = color;
+
+      // Seed badge
+      const seedBadge = document.getElementById('seed-badge');
+      if (projectedSeed) {
+        const seedClass = projectedSeed <= 4 ? 'top' : projectedSeed <= 8 ? 'mid' : 'low';
+        seedBadge.innerHTML = `<div class="seed-badge ${seedClass}"><span class="text-muted">Projected:</span> #${projectedSeed}</div>`;
+      } else {
+        seedBadge.innerHTML = '';
+      }
+
+      // Confetti
+      if (tournamentProb >= 90) {
+        triggerConfetti();
+      }
+
+      renderTimeline();
+      renderCalendar();
+      renderDistChart(dist);
+      renderMiniDist(dist);
+      renderSeedProjections(dist);
+      renderSOS();
+      renderPaths();
+      renderOutcomes(dist);
+      renderImpact();
+      renderToughest();
+      renderBestOpps();
+    }
+
+    function renderTimeline() {
+      const container = document.getElementById('timeline-container');
+      const filtered = schedule.filter(g => 
+        !searchQuery || (g.date + g.game + g.site + g.tv).toLowerCase().includes(searchQuery)
+      );
+
+      container.innerHTML = filtered.map(g => {
+        const override = overrides[g.id];
+        const bucket = getBucket(g.win);
+        const dotClass = override === 1 ? 'win' : override === 0 ? 'loss' : '';
+        const contentClass = override === 1 ? 'locked-win' : override === 0 ? 'locked-loss' : '';
+        
+        return `
+          <div class="timeline-item">
+            <div class="timeline-dot ${dotClass}">${override === 1 ? '✓' : override === 0 ? '✗' : ''}</div>
+            <div class="timeline-content ${contentClass}">
+              <div class="timeline-row">
+                <div style="flex: 1;">
+                  <div class="timeline-meta">
+                    <span class="font-mono">${g.date}</span>
+                    <span>•</span>
+                    <span>${g.time}</span>
+                    <span>•</span>
+                    <span>${g.tv}</span>
+                  </div>
+                  <div class="timeline-title">${g.away ? '@ ' : 'vs '}${g.game} <span class="text-dim">#${g.oppRank}</span></div>
+                  <div class="timeline-tags">
+                    ${g.quad === 1 ? '<span class="tag tag-amber">Q1</span>' : ''}
+                    ${g.conf ? '<span class="tag tag-emerald">BIG 12</span>' : ''}
+                    <span class="tag tag-${bucket.class}">${g.win}%</span>
+                  </div>
+                </div>
+                <div class="timeline-actions">
+                  <button class="btn-wl ${override === 1 ? 'active-w' : ''}" onclick="toggleGame(${g.id}, 1)">W</button>
+                  <button class="btn-wl ${override === 0 ? 'active-l' : ''}" onclick="toggleGame(${g.id}, 0)">L</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCalendar() {
+      const container = document.getElementById('calendar-container');
+      const months = [
+        { name: 'January 2026', games: schedule.filter(g => g.date.startsWith('Jan')) },
+        { name: 'February 2026', games: schedule.filter(g => g.date.startsWith('Feb')) },
+        { name: 'March 2026', games: schedule.filter(g => g.date.startsWith('Mar')) },
+      ];
+
+      container.innerHTML = months.map(month => `
+        <div class="calendar-month">
+          <div class="calendar-month-title">${month.name}</div>
+          <div class="calendar-grid">
+            ${month.games.filter(g => 
+              !searchQuery || (g.date + g.game).toLowerCase().includes(searchQuery)
+            ).map(g => {
+              const override = overrides[g.id];
+              const bucket = getBucket(g.win);
+              const cardClass = override === 1 ? 'locked-win' : override === 0 ? 'locked-loss' : '';
+              
+              return `
+                <div class="calendar-card ${cardClass}" onclick="cycleGame(${g.id})">
+                  ${override !== undefined ? `<div class="calendar-result" style="background: ${override === 1 ? 'var(--emerald)' : 'var(--red)'}">${override === 1 ? 'W' : 'L'}</div>` : ''}
+                  <div class="calendar-date">${g.date.split(' ')[1]}</div>
+                  <div class="calendar-opponent">${g.away ? '@' : 'vs'} ${g.game}</div>
+                  <div class="timeline-tags" style="margin-top: 0.5rem;">
+                    <span class="tag tag-${bucket.class}">${g.win}%</span>
+                    ${g.quad === 1 ? '<span class="tag tag-amber">Q1</span>' : ''}
+                  </div>
+                  <div class="calendar-info">${g.tv} • ${g.time}</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDistChart(dist) {
+      const container = document.getElementById('dist-chart');
+      const maxProb = Math.max(...dist);
+
+      container.innerHTML = dist.map((prob, wins) => {
+        const height = maxProb > 0 ? (prob / maxProb) * 100 : 0;
+        const color = getBarColor(wins);
+        const record = `${11 + wins}-${20 - wins}`;
+        
+        return `
+          <div class="dist-bar-container">
+            <div class="dist-bar" style="height: ${Math.max(height, 3)}%; background: ${color}; ${prob === maxProb ? `box-shadow: 0 0 15px ${color}80;` : ''}">
+              <div class="tooltip">${record}: ${(prob * 100).toFixed(1)}%</div>
+            </div>
+            <div class="dist-bar-label">${wins}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderMiniDist(dist) {
+      const container = document.getElementById('mini-dist');
+      const maxProb = Math.max(...dist);
+
+      container.innerHTML = dist.map((prob, wins) => {
+        const height = maxProb > 0 ? (prob / maxProb) * 100 : 0;
+        return `<div class="mini-dist-bar" style="height: ${Math.max(height, 3)}%; background: ${getBarColor(wins)};" title="${wins} wins: ${(prob * 100).toFixed(1)}%"></div>`;
+      }).join('');
+    }
+
+    function renderSeedProjections(dist) {
+      const container = document.getElementById('seed-projections');
+      const seedProbs = {};
+      
+      dist.forEach((prob, wins) => {
+        const seed = getSeed(11 + wins);
+        if (seed) seedProbs[seed] = (seedProbs[seed] || 0) + prob;
+      });
+
+      const seeds = Object.entries(seedProbs).sort((a, b) => Number(a[0]) - Number(b[0]));
+      const maxProb = Math.max(...Object.values(seedProbs));
+
+      container.innerHTML = seeds.map(([seed, prob]) => {
+        const s = Number(seed);
+        const colorClass = s <= 4 ? 'emerald' : s <= 8 ? 'blue' : 'amber';
+        const bgColor = s <= 4 ? 'var(--emerald-dim)' : s <= 8 ? 'var(--blue-dim)' : 'var(--amber-dim)';
+        const textColor = s <= 4 ? '#4ade80' : s <= 8 ? '#60a5fa' : '#fbbf24';
+        const gradFrom = s <= 4 ? '#059669' : s <= 8 ? '#2563eb' : '#d97706';
+        const gradTo = s <= 4 ? '#10b981' : s <= 8 ? '#3b82f6' : '#f59e0b';
+
+        return `
+          <div class="seed-row">
+            <div class="seed-number" style="background: ${bgColor}; color: ${textColor}; border: 1px solid ${textColor}40;">#${seed}</div>
+            <div class="seed-bar-bg">
+              <div class="seed-bar-fill" style="width: ${Math.max((prob / maxProb) * 100, 15)}%; background: linear-gradient(90deg, ${gradFrom}, ${gradTo});">
+                <span class="seed-bar-text">${(prob * 100).toFixed(1)}%</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderSOS() {
+      const avgKenpom = schedule.reduce((s, g) => s + g.kenpom, 0) / schedule.length;
+      const avgRank = schedule.reduce((s, g) => s + g.oppRank, 0) / schedule.length;
+      const q1Count = schedule.filter(g => g.quad === 1).length;
+      const homeGames = schedule.filter(g => !g.away && g.site !== 'Neutral').length;
+      const awayGames = schedule.filter(g => g.away).length;
+
+      document.getElementById('sos-grid').innerHTML = `
+        <div class="sos-card">
+          <div class="sos-value text-blue">${avgKenpom.toFixed(0)}</div>
+          <div class="sos-label">Avg KenPom</div>
+        </div>
+        <div class="sos-card">
+          <div class="sos-value" style="color: #a78bfa;">#${avgRank.toFixed(0)}</div>
+          <div class="sos-label">Avg NET Rank</div>
+        </div>
+        <div class="sos-card">
+          <div class="sos-value text-amber">${q1Count}</div>
+          <div class="sos-label">Q1 Games</div>
+        </div>
+        <div class="sos-card">
+          <div class="sos-value"><span class="text-emerald">${homeGames}</span>/<span class="text-red">${awayGames}</span></div>
+          <div class="sos-label">Home/Away</div>
+        </div>
+      `;
+    }
+
+    function renderPaths() {
+      const container = document.getElementById('paths-container');
+      const path9 = findPath(9);
+      const path8 = findPath(8);
+
+      const renderPath = (path, targetWins, label) => {
+        if (path.achieved && path.neededWins === 0) {
+          return `<div class="path-section path-achieved">
+            <div class="path-title"><span class="text-emerald">✓</span> ${label} already achieved!</div>
+          </div>`;
+        }
+        if (!path.achieved) {
+          return `<div class="path-section path-impossible">
+            <div class="path-title"><span class="text-red">✗</span> ${label} impossible with current locks</div>
+          </div>`;
+        }
+        const unlockedCount = schedule.filter((_, i) => overrides[i] === undefined).length;
+        return `<div class="path-section path-possible">
+          <div class="path-title">${label}</div>
+          <div class="text-dim" style="font-size: 0.75rem; margin-bottom: 0.5rem;">Win ${path.neededWins} of ${unlockedCount} unlocked games</div>
+          <div class="path-games">
+            ${path.path.map(g => `<span class="path-game">${g.away ? '@' : 'vs'} ${g.game} <span class="text-emerald">(${g.win}%)</span></span>`).join('')}
+          </div>
+          <div class="path-prob">Combined probability: <span class="font-bold font-mono">${(path.probability * 100).toFixed(2)}%</span></div>
+        </div>`;
+      };
+
+      container.innerHTML = renderPath(path9, 9, '20 wins (safe bid)') + renderPath(path8, 8, '19 wins (likely bid)');
+    }
+
+    function renderOutcomes(dist) {
+      const container = document.getElementById('outcomes-container');
+      const outcomes = [
+        { label: '≥21 wins (Lock)', range: [10, 16], color: 'emerald', grad: 'from-emerald-600 to-emerald-400' },
+        { label: '19-20 wins (Likely)', range: [8, 10], color: 'blue', grad: 'from-blue-600 to-blue-400' },
+        { label: '17-18 wins (Bubble)', range: [6, 8], color: 'yellow', grad: 'from-yellow-600 to-yellow-400' },
+        { label: '≤16 wins (Miss)', range: [0, 6], color: 'red', grad: 'from-red-600 to-red-400' },
+      ];
+
+      const colorMap = {
+        emerald: { text: '#4ade80', bg: 'linear-gradient(90deg, #059669, #10b981)' },
+        blue: { text: '#60a5fa', bg: 'linear-gradient(90deg, #2563eb, #3b82f6)' },
+        yellow: { text: '#facc15', bg: 'linear-gradient(90deg, #ca8a04, #eab308)' },
+        red: { text: '#f87171', bg: 'linear-gradient(90deg, #dc2626, #ef4444)' },
+      };
+
+      container.innerHTML = outcomes.map(o => {
+        const prob = dist.slice(o.range[0], o.range[1]).reduce((a, b) => a + b, 0);
+        const c = colorMap[o.color];
+        return `
+          <div class="outcome-row">
+            <div class="outcome-header">
+              <span style="color: ${c.text}; font-weight: 500;">${o.label}</span>
+              <span class="font-mono">${(prob * 100).toFixed(1)}%</span>
+            </div>
+            <div class="outcome-bar-bg">
+              <div class="outcome-bar-fill" style="width: ${prob * 100}%; background: ${c.bg};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderImpact() {
+      const container = document.getElementById('impact-container');
+      const q1Games = schedule.filter(g => g.quad === 1);
+
+      container.innerHTML = q1Games.map(g => {
+        const withWin = { ...overrides, [g.id]: 1 };
+        const withLoss = { ...overrides, [g.id]: 0 };
+        
+        let distWin = [1], distLoss = [1];
+        schedule.forEach((game, i) => {
+          const pW = withWin[i] !== undefined ? withWin[i] : game.win / 100;
+          const pL = withLoss[i] !== undefined ? withLoss[i] : game.win / 100;
+          const newDistW = new Array(distWin.length + 1).fill(0);
+          const newDistL = new Array(distLoss.length + 1).fill(0);
+          distWin.forEach((prob, wins) => { newDistW[wins] += prob * (1 - pW); newDistW[wins + 1] += prob * pW; });
+          distLoss.forEach((prob, wins) => { newDistL[wins] += prob * (1 - pL); newDistL[wins + 1] += prob * pL; });
+          distWin = newDistW;
+          distLoss = newDistL;
+        });
+
+        const winProb = distWin.reduce((s, p, i) => s + p * bidChances[i], 0);
+        const lossProb = distLoss.reduce((s, p, i) => s + p * bidChances[i], 0);
+        const swing = winProb - lossProb;
+
+        return `
+          <div class="impact-row">
+            <div class="impact-game">${g.away ? '@' : 'vs'} ${g.game} <span class="text-dim">#${g.oppRank}</span></div>
+            <div class="impact-stats">
+              <span class="text-emerald">W: ${winProb.toFixed(0)}%</span>
+              <span class="text-red">L: ${lossProb.toFixed(0)}%</span>
+              <span class="font-bold ${swing > 15 ? 'text-amber' : 'text-muted'}">Δ${swing.toFixed(0)}%</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderToughest() {
+      const container = document.getElementById('toughest-games');
+      const games = schedule
+        .filter(g => overrides[g.id] === undefined)
+        .sort((a, b) => a.win - b.win)
+        .slice(0, 5);
+
+      container.innerHTML = games.map(g => `
+        <div class="mini-list-item">
+          <div>${g.away ? '@' : 'vs'} ${g.game} <span class="text-dim">#${g.oppRank}</span></div>
+          <span class="font-mono text-red">${g.win}%</span>
+        </div>
+      `).join('');
+    }
+
+    function renderBestOpps() {
+      const container = document.getElementById('best-opps');
+      const games = schedule
+        .filter(g => overrides[g.id] === undefined)
+        .sort((a, b) => b.win - a.win)
+        .slice(0, 5);
+
+      container.innerHTML = games.map(g => `
+        <div class="mini-list-item">
+          <div>${g.away ? '@' : 'vs'} ${g.game}</div>
+          <span class="font-mono text-emerald">${g.win}%</span>
+        </div>
+      `).join('');
+    }
+
+    // ============== INTERACTIONS ==============
+    function toggleGame(id, value) {
+      if (overrides[id] === value) {
+        delete overrides[id];
+      } else {
+        overrides[id] = value;
+      }
+      render();
+    }
+
+    function cycleGame(id) {
+      if (overrides[id] === undefined) overrides[id] = 1;
+      else if (overrides[id] === 1) overrides[id] = 0;
+      else delete overrides[id];
+      render();
+    }
+
+    function applyPreset(name) {
+      overrides = { ...presets[name] };
+      render();
+    }
+
+    function handleSearch() {
+      searchQuery = document.getElementById('search-input').value.toLowerCase();
+      render();
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('tab-active'));
+      document.querySelector(`[data-tab="${tabId}"]`).classList.add('tab-active');
+      
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+    }
+
+    let confettiTriggered = false;
+    function triggerConfetti() {
+      if (confettiTriggered) return;
+      confettiTriggered = true;
+      
+      const container = document.getElementById('confetti-container');
+      container.innerHTML = '<div class="confetti"></div>';
+      const confetti = container.querySelector('.confetti');
+      
+      const colors = ['#22c55e', '#eab308', '#3b82f6', '#ec4899', '#8b5cf6', '#06b6d4'];
+      for (let i = 0; i < 60; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.width = (8 + Math.random() * 8) + 'px';
+        piece.style.height = (8 + Math.random() * 8) + 'px';
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        piece.style.animationDelay = Math.random() * 1.5 + 's';
+        piece.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+        confetti.appendChild(piece);
+      }
+      
+      setTimeout(() => {
+        container.innerHTML = '';
+        confettiTriggered = false;
+      }, 5000);
+    }
+
+    // ============== INIT ==============
+    render();
+  </script>
+</body>
+</html>
