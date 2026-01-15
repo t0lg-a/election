@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-01-14T11:47:33.884Z",
+  "updatedAt": "2026-01-15T11:46:09.938Z",
   "approval": [
     {
       "id": "appdoninsm57hlnce",
@@ -17822,6 +17822,168 @@
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonap-rfim7rva",
+      "poll_type": "approval",
+      "sample_size": 1203,
+      "population": "a",
+      "url": "https://apnorc.org/projects/fewer-want-the-u-s-to-take-an-active-role-in-global-affairs",
+      "created_at": "2026-01-14",
+      "start_date": "2026-01-08",
+      "end_date": "2026-01-11",
+      "pollster": "AP-NORC",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 40
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 59
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyouaky4eul5",
+      "poll_type": "approval",
+      "sample_size": 1709,
+      "population": "a",
+      "url": "https://www.scribd.com/document/980617250/Yahoo-YouGov-ICE-Poll-January-2026",
+      "created_at": "2026-01-14",
+      "start_date": "2026-01-08",
+      "end_date": "2026-01-12",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 40
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 56
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Yahoo News"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyoumypn0efn",
+      "poll_type": "approval",
+      "sample_size": 1149,
+      "population": "rv",
+      "url": "https://www.scribd.com/document/980617250/Yahoo-YouGov-ICE-Poll-January-2026",
+      "created_at": "2026-01-14",
+      "start_date": "2026-01-08",
+      "end_date": "2026-01-12",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 43
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 56
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Yahoo News"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonquix085r0yl",
+      "poll_type": "approval",
+      "sample_size": 1133,
+      "population": "rv",
+      "url": "https://poll.qu.edu/images/polling/us/us01142026_uphx88.pdf",
+      "created_at": "2026-01-14",
+      "start_date": "2026-01-08",
+      "end_date": "2026-01-12",
+      "pollster": "Quinnipiac University",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 40
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 54
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonipsj3ugshfw",
+      "poll_type": "approval",
+      "sample_size": 1217,
+      "population": "a",
+      "url": "https://www.ipsos.com/en-us/americans-oppose-using-military-force-take-possession-greenland",
+      "created_at": "2026-01-14",
+      "start_date": "2026-01-12",
+      "end_date": "2026-01-13",
+      "pollster": "Ipsos",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 41
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 58
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Reuters"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonzogyf5imlik",
+      "poll_type": "approval",
+      "sample_size": 891,
+      "population": "lv",
+      "url": "https://zogbyanalytics.com/news/1232-the-zogby-poll-r-latest-likely-voter-survey-results",
+      "created_at": "2026-01-14",
+      "start_date": "2026-01-02",
+      "end_date": "2026-01-07",
+      "pollster": "Zogby Analytics",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 43.5
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 55.1
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
     }
   ],
   "genericBallot": [
@@ -24441,6 +24603,34 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202ipshoed831k",
+      "poll_type": "generic-ballot",
+      "sample_size": 941,
+      "population": "rv",
+      "url": "https://www.reuters.com/data/which-party-do-americans-want-run-congress-2025-11-05",
+      "created_at": "2026-01-14",
+      "start_date": "2026-01-12",
+      "end_date": "2026-01-13",
+      "pollster": "Ipsos",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 40
+        },
+        {
+          "choice": "Rep",
+          "pct": 38
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Reuters"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "2026"
