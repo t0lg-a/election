@@ -5,7 +5,7 @@ path_id,state_name,congressional_district_number,d_ratio,r_ratio
 104,Alabama,4,0.3399,1.6635
 105,Alabama,5,0.7203,1.2831
 106,Alabama,6,0.625,1.3803
-107,Alabama,7,1.2676,0.7603
+107,Alabama,7,1.2675,0.7603
 200,Alaska,0,0.8573,1.0953
 401,Arizona,1,0.9932,1.0257
 402,Arizona,2,0.8698,1.1442
@@ -434,4 +434,5 @@ path_id,state_name,congressional_district_number,d_ratio,r_ratio
 5507,Wisconsin,7,0.7868,1.2149
 5508,Wisconsin,8,0.8538,1.1545
 5600,Wyoming,0,0.5404,1.4523
+
 
