@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-01-18T11:32:14.513Z",
+  "updatedAt": "2026-01-19T11:47:56.562Z",
   "approval": [
     {
       "id": "appdoninsm57hlnce",
@@ -18168,6 +18168,34 @@
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyou1k2jxt9f",
+      "poll_type": "approval",
+      "sample_size": 2523,
+      "population": "a",
+      "url": "https://assets1.cbsnewsstatic.com/hub/cms/prod_cms_alt/file/2026/01/18/cdcd747f-4147-4289-813f-d555f2aca600/cbs_news_poll___january_14-16__2026.pdf",
+      "created_at": "2026-01-18",
+      "start_date": "2026-01-14",
+      "end_date": "2026-01-16",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 41
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 59
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "CBS News"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
     }
   ],
   "genericBallot": [
@@ -24899,6 +24927,32 @@
       "sponsors": [
         "The Wall Street Journal"
       ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202cnnv1jpahum",
+      "poll_type": "generic-ballot",
+      "sample_size": 968,
+      "population": "rv",
+      "url": "https://s3.documentcloud.org/documents/26491962/cnn-poll-conducted-by-ssrs-2026-midterms-congress.pdf",
+      "created_at": "2026-01-18",
+      "start_date": "2026-01-09",
+      "end_date": "2026-01-12",
+      "pollster": "CNN/SSRS",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 46
+        },
+        {
+          "choice": "Rep",
+          "pct": 41
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
       "internal": false,
       "partisan": null,
       "subject": "2026"
