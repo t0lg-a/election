@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-01-19T11:47:56.562Z",
+  "updatedAt": "2026-01-20T11:50:28.800Z",
   "approval": [
     {
       "id": "appdoninsm57hlnce",
@@ -18196,6 +18196,32 @@
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonmorw7rzelsq",
+      "poll_type": "approval",
+      "sample_size": 2201,
+      "population": "rv",
+      "url": "https://pro.morningconsult.com/trackers/donald-trump-congress-policy-republicans-polling#01-18-2026",
+      "created_at": "2026-01-19",
+      "start_date": "2026-01-16",
+      "end_date": "2026-01-18",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 46
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 51
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
     }
   ],
   "genericBallot": [
@@ -24949,6 +24975,32 @@
         {
           "choice": "Rep",
           "pct": 41
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202moreswt9ang",
+      "poll_type": "generic-ballot",
+      "sample_size": 12505,
+      "population": "rv",
+      "url": "https://pro.morningconsult.com/trackers/2026-midterm-election-generic-ballot-polls#01-18-2026",
+      "created_at": "2026-01-19",
+      "start_date": "2026-01-12",
+      "end_date": "2026-01-18",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 44
+        },
+        {
+          "choice": "Rep",
+          "pct": 42
         }
       ],
       "seat_name": null,
