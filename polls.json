@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-01-20T11:50:28.800Z",
+  "updatedAt": "2026-01-21T11:51:11.654Z",
   "approval": [
     {
       "id": "appdoninsm57hlnce",
@@ -18222,35 +18222,91 @@
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
-    }
-  ],
-  "genericBallot": [
+    },
     {
-      "id": "gen202mcl59zqj4xe",
-      "poll_type": "generic-ballot",
-      "sample_size": 1000,
-      "population": "lv",
-      "url": "https://mclaughlinonline.com/2024/12/18/ma-poll-national-monthly-december-2024/",
-      "created_at": "2024-12-19",
-      "start_date": "2024-12-11",
-      "end_date": "2024-12-16",
-      "pollster": "McLaughlin & Associates",
+      "id": "appdonyouirkxj92x",
+      "poll_type": "approval",
+      "sample_size": 1722,
+      "population": "a",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econtoplines_ZEHeJBk.pdf",
+      "created_at": "2026-01-20",
+      "start_date": "2026-01-16",
+      "end_date": "2026-01-19",
+      "pollster": "YouGov",
       "answers": [
         {
-          "choice": "Dem",
-          "pct": 42
+          "choice": "Approve",
+          "pct": 37
         },
         {
-          "choice": "Rep",
-          "pct": 47
+          "choice": "Disapprove",
+          "pct": 57
         }
       ],
-      "seat_name": "Generic",
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyoubu240qb9",
+      "poll_type": "approval",
+      "sample_size": 1549,
+      "population": "rv",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econtoplines_ZEHeJBk.pdf",
+      "created_at": "2026-01-20",
+      "start_date": "2026-01-16",
+      "end_date": "2026-01-19",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 41
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 56
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyou1lu1pd5c",
+      "poll_type": "approval",
+      "sample_size": 1095,
+      "population": "a",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/Evaluations_of_Trump_s_Presidency_poll_results.pdf",
+      "created_at": "2026-01-20",
+      "start_date": "2026-01-16",
+      "end_date": "2026-01-18",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 39
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 57
+        }
+      ],
+      "seat_name": null,
       "sponsors": [],
       "internal": false,
       "partisan": null,
-      "subject": "2026"
-    },
+      "subject": "Donald Trump"
+    }
+  ],
+  "genericBallot": [
     {
       "id": "gen202cygqnc6obu6",
       "poll_type": "generic-ballot",
@@ -25005,6 +25061,62 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202youaopgshld",
+      "poll_type": "generic-ballot",
+      "sample_size": 1722,
+      "population": "a",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econtoplines_ZEHeJBk.pdf",
+      "created_at": "2026-01-20",
+      "start_date": "2026-01-16",
+      "end_date": "2026-01-19",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 39
+        },
+        {
+          "choice": "Rep",
+          "pct": 34
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202youljd2lcjf",
+      "poll_type": "generic-ballot",
+      "sample_size": 1549,
+      "population": "rv",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econtoplines_ZEHeJBk.pdf",
+      "created_at": "2026-01-20",
+      "start_date": "2026-01-16",
+      "end_date": "2026-01-19",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 43
+        },
+        {
+          "choice": "Rep",
+          "pct": 39
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "2026"
