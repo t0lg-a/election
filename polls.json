@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-01-23T11:47:44.325Z",
+  "updatedAt": "2026-01-24T11:38:39.808Z",
   "approval": [
     {
       "id": "appdontip8senk9on",
@@ -18462,6 +18462,34 @@
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonrmgq67csw6s",
+      "poll_type": "approval",
+      "sample_size": 3000,
+      "population": "rv",
+      "url": "https://napolitannews.org/jobapproval#01-21-2026",
+      "created_at": "2026-01-23",
+      "start_date": "2026-01-14",
+      "end_date": "2026-01-21",
+      "pollster": "RMG Research",
+      "answers": [
+        {
+          "choice": "Disapprove",
+          "pct": 51
+        },
+        {
+          "choice": "Approve",
+          "pct": 47
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Napolitan Institute"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
     }
   ],
   "genericBallot": [
@@ -25403,6 +25431,32 @@
         {
           "choice": "Rep",
           "pct": 40.7
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202ras4513ks5s",
+      "poll_type": "generic-ballot",
+      "sample_size": 2273,
+      "population": "lv",
+      "url": "https://data.ddhq.io/polls/2026/01/19/Rasmussen-Reports-National",
+      "created_at": "2026-01-23",
+      "start_date": "2026-01-07",
+      "end_date": "2026-01-08",
+      "pollster": "Rasmussen Reports",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 47
+        },
+        {
+          "choice": "Rep",
+          "pct": 41
         }
       ],
       "seat_name": null,
