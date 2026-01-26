@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Senate 2026 / 2028 / 2030</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+
+  <style>
+    :root{
+      --bg: #f3f5f8;
+      --card: #ffffff;
+      --card2:#fbfcfe;
+      --line: #dde3ee;
+      --text: #0f172a;
+      --muted:#5b6578;
+
+      --d:#2b6ef3;
+      --r:#e23b3b;
+
+      --shadow: 0 10px 24px rgba(16,24,40,.08);
+      --shadow2: 0 2px 10px rgba(16,24,40,.06);
+
+      --radius: 16px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ margin:0; padding:0; background:var(--bg); color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+
+    .wrap{ max-width: 1540px; margin: 18px auto; padding: 0 14px; }
+    .scroll{ overflow-x:auto; padding-bottom: 10px; }
+
+    /* Always 3 side-by-side; scroll if needed */
+    .grid3{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(380px, 1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .card{
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
+      padding: 14px 14px 12px 14px;
+    }
+
+    .label{
+      display:flex; justify-content:space-between; align-items:baseline; gap:10px;
+      margin-bottom:10px;
+    }
+    .label .left{ display:flex; flex-direction:column; gap:2px; }
+    .yr{ font-weight: 850; letter-spacing:.2px; }
+    .sub{ font-size:12px; color: var(--muted); }
+
+    .vals{ display:flex; gap:8px; align-items:center; }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+    }
+    .badge b{ font-variant-numeric: tabular-nums; }
+    .dot{ width:10px; height:10px; border-radius:999px; display:inline-block; }
+    .bD .dot{ background: var(--d); }
+    .bR .dot{ background: var(--r); }
+
+    /* Slider */
+    input[type="range"]{
+      width:100%;
+      accent-color: var(--d);
+      height: 26px;
+      margin: 4px 0 0 0;
+    }
+    input[type="range"]::-webkit-slider-thumb{
+      -webkit-appearance:none;
+      appearance:none;
+      width:18px; height:18px;
+      border-radius: 999px;
+      background: #fff;
+      border: 2px solid rgba(43,110,243,.75);
+      box-shadow: 0 6px 14px rgba(43,110,243,.18);
+      cursor:pointer;
+      margin-top:-6px;
+    }
+    input[type="range"]::-webkit-slider-runnable-track{
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(43,110,243,.35), rgba(43,110,243,.12));
+      border:1px solid var(--line);
+    }
+    input[type="range"]::-moz-range-thumb{
+      width:18px; height:18px;
+      border-radius:999px;
+      background:#fff;
+      border:2px solid rgba(43,110,243,.75);
+      box-shadow: 0 6px 14px rgba(43,110,243,.18);
+      cursor:pointer;
+    }
+    input[type="range"]::-moz-range-track{
+      height:8px;
+      border-radius:999px;
+      background: linear-gradient(90deg, rgba(43,110,243,.35), rgba(43,110,243,.12));
+      border:1px solid var(--line);
+    }
+
+    /* Seat totals */
+    .total{
+      height: 74px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 14px;
+      font-weight: 900;
+      letter-spacing: -.02em;
+      font-variant-numeric: tabular-nums;
+    }
+    .big{
+      font-size: 26px;
+      display:flex;
+      align-items:baseline;
+      gap:8px;
+    }
+    .big span{ font-size: 12px; font-weight: 850; letter-spacing:.12em; }
+    .big.d{ color: var(--d); }
+    .big.r{ color: var(--r); }
+    .sep{
+      width: 1px;
+      height: 34px;
+      background: var(--line);
+      border-radius: 999px;
+    }
+    .flipnote{
+      margin-top: 2px;
+      text-align:center;
+      font-size:12px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Maps */
+    .mapCard{ padding: 10px 10px 12px 10px; }
+    .mapHdr{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 4px 6px 10px 6px;
+    }
+    .mapHdr .t{ font-weight: 900; letter-spacing:.2px; }
+    .mapHdr .k{ font-size:12px; color: var(--muted); }
+    svg{ width:100%; height:340px; display:block; border-radius: 12px; background:#fff; }
+
+    .miniLegend{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 6px 0 6px;
+      color: var(--muted);
+      font-size: 12px;
+      justify-content: space-between;
+    }
+    .grad{
+      flex: 1;
+      height: 10px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: linear-gradient(90deg, #d73027, #f7f7f7, #4575b4);
+      margin: 0 10px;
+    }
+    .tick{
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    /* Tooltip */
+    .tt{
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      background: rgba(255,255,255,.98);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--text);
+      display:none;
+      min-width: 160px;
+    }
+    .tt .muted{ color: var(--muted); }
+    .tt .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+  </style>
+</head>
+
+<body>
+<div class="wrap scroll">
+
+  <!-- SLIDER - SLIDER - SLIDER -->
+  <div class="grid3" style="margin-bottom:14px;">
+    <div class="card">
+      <div class="label">
+        <div class="left">
+          <div class="yr">2026</div>
+          <div class="sub">Class II • Dem two-party %</div>
+        </div>
+        <div class="vals">
+          <div class="badge bD"><span class="dot"></span><b id="v26">50.0</b></div>
+          <div class="badge bR"><span class="dot"></span><b id="v26r">50.0</b></div>
+        </div>
+      </div>
+      <input id="s26" type="range" min="35" max="65" step="0.1" value="50.0">
+    </div>
+
+    <div class="card">
+      <div class="label">
+        <div class="left">
+          <div class="yr">2028</div>
+          <div class="sub">Class III • Dem two-party %</div>
+        </div>
+        <div class="vals">
+          <div class="badge bD"><span class="dot"></span><b id="v28">50.0</b></div>
+          <div class="badge bR"><span class="dot"></span><b id="v28r">50.0</b></div>
+        </div>
+      </div>
+      <input id="s28" type="range" min="35" max="65" step="0.1" value="50.0">
+    </div>
+
+    <div class="card">
+      <div class="label">
+        <div class="left">
+          <div class="yr">2030</div>
+          <div class="sub">Class I • Dem two-party %</div>
+        </div>
+        <div class="vals">
+          <div class="badge bD"><span class="dot"></span><b id="v30">50.0</b></div>
+          <div class="badge bR"><span class="dot"></span><b id="v30r">50.0</b></div>
+        </div>
+      </div>
+      <input id="s30" type="range" min="35" max="65" step="0.1" value="50.0">
+    </div>
+  </div>
+
+  <!-- SEAT TOTAL - SEAT TOTAL - SEAT TOTAL -->
+  <div class="grid3" style="margin-bottom:14px;">
+    <div class="card">
+      <div class="total">
+        <div class="big d"><span>D</span><span id="d26">—</span></div>
+        <div class="sep"></div>
+        <div class="big r"><span>R</span><span id="r26">—</span></div>
+      </div>
+      <div class="flipnote" id="f26">manual flips: 0</div>
+    </div>
+    <div class="card">
+      <div class="total">
+        <div class="big d"><span>D</span><span id="d28">—</span></div>
+        <div class="sep"></div>
+        <div class="big r"><span>R</span><span id="r28">—</span></div>
+      </div>
+      <div class="flipnote" id="f28">manual flips: 0</div>
+    </div>
+    <div class="card">
+      <div class="total">
+        <div class="big d"><span>D</span><span id="d30">—</span></div>
+        <div class="sep"></div>
+        <div class="big r"><span>R</span><span id="r30">—</span></div>
+      </div>
+      <div class="flipnote" id="f30">manual flips: 0</div>
+    </div>
+  </div>
+
+  <!-- MAP - MAP - MAP -->
+  <div class="grid3">
+    <div class="card mapCard">
+      <div class="mapHdr"><div class="t">2026</div><div class="k">click a state (up) to flip</div></div>
+      <svg id="m26"></svg>
+      <div class="miniLegend">
+        <span class="tick">R+20</span>
+        <span class="grad" aria-hidden="true"></span>
+        <span class="tick">D+20</span>
+      </div>
+    </div>
+
+    <div class="card mapCard">
+      <div class="mapHdr"><div class="t">2028</div><div class="k">click a state (up) to flip</div></div>
+      <svg id="m28"></svg>
+      <div class="miniLegend">
+        <span class="tick">R+20</span>
+        <span class="grad" aria-hidden="true"></span>
+        <span class="tick">D+20</span>
+      </div>
+    </div>
+
+    <div class="card mapCard">
+      <div class="mapHdr"><div class="t">2030</div><div class="k">click a state (up) to flip</div></div>
+      <svg id="m30"></svg>
+      <div class="miniLegend">
+        <span class="tick">R+20</span>
+        <span class="grad" aria-hidden="true"></span>
+        <span class="tick">D+20</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="tt" id="tt"></div>
+
+<script>
+/* Ratios (your input) */
+const ratios = {
+  AK:{D:0.8680,R:1.0938}, AL:{D:0.7062,R:1.2899}, AR:{D:0.6957,R:1.2871}, AZ:{D:0.9698,R:1.0472},
+  CA:{D:1.2014,R:0.7797}, CO:{D:1.1376,R:0.8556}, CT:{D:1.1694,R:0.8386}, DC:{D:1.8671,R:0.1332},
+  DE:{D:1.1740,R:0.8308}, FL:{D:0.8734,R:1.1317}, GA:{D:1.0101,R:1.0035}, HI:{D:1.2508,R:0.7825},
+  IA:{D:0.8786,R:1.1203}, ID:{D:0.6306,R:1.3452}, IL:{D:1.1234,R:0.8756}, IN:{D:0.8201,R:1.1727},
+  KS:{D:0.8650,R:1.1339}, KY:{D:0.7031,R:1.2866}, LA:{D:0.7914,R:1.2008}, MA:{D:1.2695,R:0.7218},
+  MD:{D:1.2998,R:0.6774}, ME:{D:1.0989,R:0.9122}, MI:{D:0.9996,R:0.9983}, MN:{D:1.0644,R:0.9338},
+  MO:{D:0.8312,R:1.1682}, MS:{D:0.7806,R:1.2203}, MT:{D:0.7971,R:1.1693}, NC:{D:0.9863,R:1.0159},
+  ND:{D:0.6321,R:1.3460}, NE:{D:0.8172,R:1.1798}, NH:{D:1.0558,R:0.9558}, NJ:{D:1.0672,R:0.9253},
+  NM:{D:1.0798,R:0.9235}, NV:{D:0.9815,R:1.0178}, NY:{D:1.1567,R:0.9026}, OH:{D:0.9079,R:1.1075},
+  OK:{D:0.6675,R:1.3109}, OR:{D:1.1575,R:0.8224}, PA:{D:1.0069,R:1.0078}, RI:{D:1.1495,R:0.8386},
+  SC:{D:0.8343,R:1.1673}, SD:{D:0.7107,R:1.2705}, TN:{D:0.7137,R:1.2842}, TX:{D:0.8789,R:1.1257},
+  UT:{D:0.8262,R:1.1971}, VA:{D:1.0755,R:0.9213}, VT:{D:1.3406,R:0.6500}, WA:{D:1.1951,R:0.7825},
+  WI:{D:1.0092,R:0.9959}, WV:{D:0.5845,R:1.3932}, WY:{D:0.5452,R:1.4375}
+};
+
+const nameToAbbr = {
+  "Alabama":"AL","Alaska":"AK","Arizona":"AZ","Arkansas":"AR","California":"CA","Colorado":"CO","Connecticut":"CT",
+  "Delaware":"DE","Florida":"FL","Georgia":"GA","Hawaii":"HI","Idaho":"ID","Illinois":"IL","Indiana":"IN","Iowa":"IA",
+  "Kansas":"KS","Kentucky":"KY","Louisiana":"LA","Maine":"ME","Maryland":"MD","Massachusetts":"MA","Michigan":"MI",
+  "Minnesota":"MN","Mississippi":"MS","Missouri":"MO","Montana":"MT","Nebraska":"NE","Nevada":"NV",
+  "New Hampshire":"NH","New Jersey":"NJ","New Mexico":"NM","New York":"NY","North Carolina":"NC","North Dakota":"ND",
+  "Ohio":"OH","Oklahoma":"OK","Oregon":"OR","Pennsylvania":"PA","Rhode Island":"RI","South Carolina":"SC",
+  "South Dakota":"SD","Tennessee":"TN","Texas":"TX","Utah":"UT","Vermont":"VT","Virginia":"VA","Washington":"WA",
+  "West Virginia":"WV","Wisconsin":"WI","Wyoming":"WY","District of Columbia":"DC"
+};
+
+const UI = {
+  s26: document.getElementById("s26"), s28: document.getElementById("s28"), s30: document.getElementById("s30"),
+  v26: document.getElementById("v26"), v28: document.getElementById("v28"), v30: document.getElementById("v30"),
+  v26r: document.getElementById("v26r"), v28r: document.getElementById("v28r"), v30r: document.getElementById("v30r"),
+
+  d26: document.getElementById("d26"), r26: document.getElementById("r26"),
+  d28: document.getElementById("d28"), r28: document.getElementById("r28"),
+  d30: document.getElementById("d30"), r30: document.getElementById("r30"),
+
+  f26: document.getElementById("f26"),
+  f28: document.getElementById("f28"),
+  f30: document.getElementById("f30"),
+
+  tt: document.getElementById("tt")
+};
+
+function fmt(n, d=1){ return Number(n).toFixed(d); }
+function seatKey(state, cls){ return `${state}-${cls}`; }
+
+function partyNorm(p){
+  // Independents counted as Democrats (Bernie + Angus)
+  if (p === "Independent") return "D";
+  if (p === "Republican") return "R";
+  return "D";
+}
+
+function getGB(){
+  return {
+    2026: parseFloat(UI.s26.value),
+    2028: parseFloat(UI.s28.value),
+    2030: parseFloat(UI.s30.value)
+  };
+}
+
+function setSliderLabels(){
+  const g = getGB();
+  UI.v26.textContent = fmt(g[2026],1); UI.v26r.textContent = fmt(100-g[2026],1);
+  UI.v28.textContent = fmt(g[2028],1); UI.v28r.textContent = fmt(100-g[2028],1);
+  UI.v30.textContent = fmt(g[2030],1); UI.v30r.textContent = fmt(100-g[2030],1);
+}
+
+/* Margin calc */
+function estimateMargin(state, gbDem){
+  const rr = ratios[state] || {D:1, R:1};
+  const D = gbDem * rr.D;
+  const R = (100 - gbDem) * rr.R;
+  const tot = D + R;
+  if (tot <= 0) return 0;
+  const demShare = (D / tot) * 100;
+  return (demShare - 50) * 2; // D margin points
+}
+
+/* margin-based diverging color (R -> white -> D) */
+const diverge = d3.interpolateRgbBasis(["#d73027", "#f7f7f7", "#4575b4"]);
+function marginColor(m){
+  const MAX = 20; // clamp
+  const x = Math.max(-MAX, Math.min(MAX, m));
+  const t = (x + MAX) / (2*MAX);
+  return diverge(t);
+}
+function fmtMargin(m){
+  if (m === 0) return "EVEN";
+  return (m > 0) ? `D+${fmt(m,1)}` : `R+${fmt(-m,1)}`;
+}
+
+/* Tooltip */
+function tipOn(html, x, y){
+  UI.tt.innerHTML = html;
+  UI.tt.style.display = "block";
+  const pad = 14;
+  UI.tt.style.left = Math.min(window.innerWidth - UI.tt.offsetWidth - pad, x + 12) + "px";
+  UI.tt.style.top  = Math.min(window.innerHeight - UI.tt.offsetHeight - pad, y + 12) + "px";
+}
+function tipOff(){ UI.tt.style.display = "none"; }
+
+/* Data loaded live */
+let senators = []; // {state, cls, party, key}
+let geoStates = null;
+
+/* Manual flips: click a state (up) to invert that seat result for that year */
+const manualFlips = {
+  2026: new Set(),
+  2028: new Set(),
+  2030: new Set()
+};
+
+function baselineHoldings(){
+  const h = new Map();
+  for (const s of senators) h.set(s.key, s.party);
+  return h;
+}
+function countHoldings(h){
+  let D=0,R=0;
+  for (const p of h.values()){
+    if (p==="D") D++;
+    else if (p==="R") R++;
+  }
+  return {D,R};
+}
+
+function computeSequential(){
+  const gb = getGB();
+  const holdings = baselineHoldings();
+
+  const out = {};
+  const steps = [
+    {year:2026, cls:2},
+    {year:2028, cls:3},
+    {year:2030, cls:1}
+  ];
+
+  for (const step of steps){
+    const up = senators.filter(s => s.cls === step.cls);
+    const margins = new Map(); // state -> margin (after manual flip sign)
+    const flipped = new Set(manualFlips[step.year]); // copy
+    for (const seat of up){
+      const inc = holdings.get(seat.key) || seat.party;
+
+      const mBase = estimateMargin(seat.state, gb[step.year]);
+      let winnerAuto = (mBase === 0) ? inc : (mBase > 0 ? "D" : "R");
+
+      // manual flip inverts winner
+      const isFlipped = flipped.has(seat.state);
+      const winnerFinal = isFlipped ? (winnerAuto === "D" ? "R" : "D") : winnerAuto;
+
+      holdings.set(seat.key, winnerFinal);
+
+      // flip sign for visualization (keeps "margin-based" but reflects the forced result)
+      const mFinal = isFlipped ? -mBase : mBase;
+      margins.set(seat.state, mFinal);
+    }
+    out[step.year] = {countsAfter: countHoldings(holdings), margins, flipped};
+  }
+  return out;
+}
+
+function renderMap(svgId, year, margins, flippedSet){
+  const svg = d3.select("#"+svgId);
+  svg.selectAll("*").remove();
+
+  const bbox = svg.node().getBoundingClientRect();
+  const w = Math.max(380, Math.floor(bbox.width));
+  const h = 340;
+
+  const proj = d3.geoAlbersUsa().fitSize([w, h], {type:"FeatureCollection", features: geoStates});
+  const path = d3.geoPath(proj);
+
+  svg.attr("viewBox", `0 0 ${w} ${h}`);
+
+  const g = svg.append("g");
+
+  g.selectAll("path")
+    .data(geoStates)
+    .join("path")
+    .attr("d", d => path(d))
+    .attr("fill", d => {
+      const st = nameToAbbr[d.properties.name];
+      if (!st) return "#eef2f7";
+      if (!margins.has(st)) return "#e9edf4"; // not up
+      return marginColor(margins.get(st));
+    })
+    .attr("stroke", d => {
+      const st = nameToAbbr[d.properties.name];
+      if (st && flippedSet.has(st)) return "#0f172a"; // highlight manual flips
+      return "#cbd3df";
+    })
+    .attr("stroke-width", d => {
+      const st = nameToAbbr[d.properties.name];
+      return (st && flippedSet.has(st)) ? 2.3 : 1.0;
+    })
+    .attr("opacity", d => {
+      const st = nameToAbbr[d.properties.name];
+      return (st && margins.has(st)) ? 1 : 0.55;
+    })
+    .style("cursor", d => {
+      const st = nameToAbbr[d.properties.name];
+      return (st && margins.has(st)) ? "pointer" : "default";
+    })
+    .on("mousemove", (event, d) => {
+      const st = nameToAbbr[d.properties.name];
+      if (!st || !margins.has(st)){
+        tipOn(`<div><b>${st || d.properties.name}</b></div><div class="muted">not up</div>`, event.clientX, event.clientY);
+        return;
+      }
+      const m = margins.get(st);
+      const flag = flippedSet.has(st) ? `<span class="muted">manual flip</span>` : `<span class="muted">auto</span>`;
+      tipOn(`<div><b>${st}</b> <span class="muted">(${year})</span></div><div class="mono">${fmtMargin(m)}</div><div>${flag}</div>`,
+        event.clientX, event.clientY
+      );
+    })
+    .on("mouseleave", tipOff)
+    .on("click", (event, d) => {
+      const st = nameToAbbr[d.properties.name];
+      if (!st || !margins.has(st)) return;
+
+      const set = manualFlips[year];
+      if (set.has(st)) set.delete(st);
+      else set.add(st);
+
+      renderAll();
+    });
+}
+
+function renderAll(){
+  setSliderLabels();
+
+  const res = computeSequential();
+
+  UI.d26.textContent = res[2026].countsAfter.D; UI.r26.textContent = res[2026].countsAfter.R;
+  UI.d28.textContent = res[2028].countsAfter.D; UI.r28.textContent = res[2028].countsAfter.R;
+  UI.d30.textContent = res[2030].countsAfter.D; UI.r30.textContent = res[2030].countsAfter.R;
+
+  UI.f26.textContent = `manual flips: ${manualFlips[2026].size}`;
+  UI.f28.textContent = `manual flips: ${manualFlips[2028].size}`;
+  UI.f30.textContent = `manual flips: ${manualFlips[2030].size}`;
+
+  renderMap("m26", 2026, res[2026].margins, res[2026].flipped);
+  renderMap("m28", 2028, res[2028].margins, res[2028].flipped);
+  renderMap("m30", 2030, res[2030].margins, res[2030].flipped);
+}
+
+/* Load current senators + US map */
+async function loadAll(){
+  const legURL  = "https://unitedstates.github.io/congress-legislators/legislators-current.json";
+  const topoURL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+  const today = new Date();
+
+  const [legs, topo] = await Promise.all([
+    fetch(legURL).then(r=>r.json()),
+    fetch(topoURL).then(r=>r.json())
+  ]);
+
+  senators = [];
+  for (const person of legs){
+    const terms = person.terms || [];
+    const currentSen = terms
+      .filter(t => t.type === "sen" && (!t.end || new Date(t.end) >= today))
+      .sort((a,b)=> new Date(b.start) - new Date(a.start))[0];
+    if (!currentSen) continue;
+
+    const state = currentSen.state;
+    const cls = Number(currentSen.class);
+    if (!state || !cls) continue;
+
+    senators.push({
+      state, cls,
+      party: partyNorm(currentSen.party || ""),
+      key: seatKey(state, cls)
+    });
+  }
+
+  const geo = topojson.feature(topo, topo.objects.states);
+  geoStates = geo.features.filter(f => nameToAbbr[f.properties.name]);
+
+  renderAll();
+}
+
+/* Events */
+UI.s26.addEventListener("input", renderAll);
+UI.s28.addEventListener("input", renderAll);
+UI.s30.addEventListener("input", renderAll);
+
+/* Rerender on resize */
+let resizeTimer = null;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (geoStates && senators.length) renderAll();
+  }, 120);
+});
+
+loadAll().catch(()=>{
+  UI.d26.textContent = UI.r26.textContent = "—";
+  UI.d28.textContent = UI.r28.textContent = "—";
+  UI.d30.textContent = UI.r30.textContent = "—";
+});
+</script>
+</body>
+</html>
