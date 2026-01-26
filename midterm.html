@@ -1345,7 +1345,7 @@ async function loadCSV(){
         DATA[mode].polls[st] = {
           D: pollD,
           R: pollR,
-          S: isFinite(pollS) ? pollS : 12
+          S: isFinite(pollS) ? pollS : 3
         };
       }
     }
@@ -1490,7 +1490,7 @@ function getStateModel(modeKey, st, cachedIndNat){
   const indPair = (indNat) ? computeIndicatorState(indNat, ratio) : null;
 
   const comps = [
-    { pair: gbPair,   w: WEIGHTS.gb,              sigma: 6 },
+    { pair: gbPair,   w: WEIGHTS.gb,              sigma: 5 },
     { pair: pollPair, w: pollPair ? WEIGHTS.polls : 0, sigma: pollSigma },
     { pair: indPair,  w: indPair ? WEIGHTS.ind : 0,     sigma: 5 },
   ];
@@ -1510,7 +1510,7 @@ function getHouseModel(did){
 
   const gbPair = computeGenericBallotState(gb, ratio);
   const combinedPair = gbPair;
-  const combinedSigma = 6;
+  const combinedSigma = 5;
 
   const mFinal = marginRD(combinedPair);
   const winProb = winProbFromMargin(mFinal);
@@ -2207,7 +2207,7 @@ function houseControlProbsMC(){
   const pD = demControl / sims;
   const pR = 1 - pD;
 
-  const hist = histogramFromSamplesBinned(seatSamples, 4, 2);
+  const hist = histogramFromSamplesBinned(seatSamples, 12, 2);
   return { pD: clamp(pD,0,1), pR: clamp(pR,0,1), hist };
 }
 
