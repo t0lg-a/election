@@ -33,7 +33,6 @@
     .wrap{ max-width: 1540px; margin: 18px auto; padding: 0 14px; }
     .scroll{ overflow-x:auto; padding-bottom: 10px; }
 
-    /* Always 3 side-by-side; scroll if needed */
     .grid3{
       display:grid;
       grid-template-columns: repeat(3, minmax(380px, 1fr));
@@ -74,7 +73,6 @@
     .bD .dot{ background: var(--d); }
     .bR .dot{ background: var(--r); }
 
-    /* Slider */
     input[type="range"]{
       width:100%;
       accent-color: var(--d);
@@ -113,7 +111,6 @@
       border:1px solid var(--line);
     }
 
-    /* Seat totals */
     .total{
       height: 74px;
       display:flex;
@@ -147,7 +144,6 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* Maps */
     .mapCard{ padding: 10px 10px 12px 10px; }
     .mapHdr{
       display:flex;
@@ -174,7 +170,8 @@
       height: 10px;
       border-radius: 999px;
       border:1px solid var(--line);
-      background: linear-gradient(90deg, #d73027, #f7f7f7, #4575b4);
+      /* bluer blue */
+      background: linear-gradient(90deg, #d73027, #f7f7f7, #1d4ed8);
       margin: 0 10px;
     }
     .tick{
@@ -182,7 +179,6 @@
       white-space: nowrap;
     }
 
-    /* Tooltip */
     .tt{
       position: fixed;
       pointer-events: none;
@@ -211,7 +207,7 @@
       <div class="label">
         <div class="left">
           <div class="yr">2026</div>
-          <div class="sub">Class II • Dem two-party %</div>
+          <div class="sub">Class II + OH special (Class III) • Dem two-party %</div>
         </div>
         <div class="vals">
           <div class="badge bD"><span class="dot"></span><b id="v26">50.0</b></div>
@@ -316,7 +312,11 @@
 <div class="tt" id="tt"></div>
 
 <script>
-/* Ratios (your input) */
+/* Tossup visual rule (YELLOW fill only) */
+const TOSSUP_CUTOFF = 2.0;
+const TOSSUP_YELLOW = "#ffd54a";
+
+/* Ratios */
 const ratios = {
   AK:{D:0.8680,R:1.0938}, AL:{D:0.7062,R:1.2899}, AR:{D:0.6957,R:1.2871}, AZ:{D:0.9698,R:1.0472},
   CA:{D:1.2014,R:0.7797}, CO:{D:1.1376,R:0.8556}, CT:{D:1.1694,R:0.8386}, DC:{D:1.8671,R:0.1332},
@@ -364,7 +364,6 @@ function fmt(n, d=1){ return Number(n).toFixed(d); }
 function seatKey(state, cls){ return `${state}-${cls}`; }
 
 function partyNorm(p){
-  // Independents counted as Democrats (Bernie + Angus)
   if (p === "Independent") return "D";
   if (p === "Republican") return "R";
   return "D";
@@ -377,7 +376,6 @@ function getGB(){
     2030: parseFloat(UI.s30.value)
   };
 }
-
 function setSliderLabels(){
   const g = getGB();
   UI.v26.textContent = fmt(g[2026],1); UI.v26r.textContent = fmt(100-g[2026],1);
@@ -385,7 +383,7 @@ function setSliderLabels(){
   UI.v30.textContent = fmt(g[2030],1); UI.v30r.textContent = fmt(100-g[2030],1);
 }
 
-/* Margin calc */
+/* margin */
 function estimateMargin(state, gbDem){
   const rr = ratios[state] || {D:1, R:1};
   const D = gbDem * rr.D;
@@ -396,15 +394,18 @@ function estimateMargin(state, gbDem){
   return (demShare - 50) * 2; // D margin points
 }
 
-/* margin-based diverging color (R -> white -> D) */
-const diverge = d3.interpolateRgbBasis(["#d73027", "#f7f7f7", "#4575b4"]);
+/* bluer blue */
+const diverge = d3.interpolateRgbBasis(["#d73027", "#f7f7f7", "#1d4ed8"]);
 function marginColor(m){
-  const MAX = 20; // clamp
+  if (Math.abs(m) < TOSSUP_CUTOFF) return TOSSUP_YELLOW; // map stays yellow for tossups
+  const MAX = 20;
   const x = Math.max(-MAX, Math.min(MAX, m));
   const t = (x + MAX) / (2*MAX);
   return diverge(t);
 }
-function fmtMargin(m){
+
+/* IMPORTANT: always show numeric margin in tooltip (even if tossup) */
+function fmtMarginNumeric(m){
   if (m === 0) return "EVEN";
   return (m > 0) ? `D+${fmt(m,1)}` : `R+${fmt(-m,1)}`;
 }
@@ -419,16 +420,12 @@ function tipOn(html, x, y){
 }
 function tipOff(){ UI.tt.style.display = "none"; }
 
-/* Data loaded live */
-let senators = []; // {state, cls, party, key}
+/* live data */
+let senators = [];
 let geoStates = null;
 
-/* Manual flips: click a state (up) to invert that seat result for that year */
-const manualFlips = {
-  2026: new Set(),
-  2028: new Set(),
-  2030: new Set()
-};
+/* manual flips */
+const manualFlips = { 2026:new Set(), 2028:new Set(), 2030:new Set() };
 
 function baselineHoldings(){
   const h = new Map();
@@ -444,38 +441,31 @@ function countHoldings(h){
   return {D,R};
 }
 
+/* seats up (OH special in 2026: OH class III also runs in 2026 and again in 2028) */
+function seatsUp(year){
+  if (year === 2026) return senators.filter(s => (s.cls === 2) || (s.state === "OH" && s.cls === 3));
+  if (year === 2028) return senators.filter(s => s.cls === 3);
+  return senators.filter(s => s.cls === 1);
+}
+
 function computeSequential(){
   const gb = getGB();
   const holdings = baselineHoldings();
-
   const out = {};
-  const steps = [
-    {year:2026, cls:2},
-    {year:2028, cls:3},
-    {year:2030, cls:1}
-  ];
-
-  for (const step of steps){
-    const up = senators.filter(s => s.cls === step.cls);
-    const margins = new Map(); // state -> margin (after manual flip sign)
-    const flipped = new Set(manualFlips[step.year]); // copy
+  for (const year of [2026,2028,2030]){
+    const up = seatsUp(year);
+    const margins = new Map();
+    const flipped = new Set(manualFlips[year]);
     for (const seat of up){
       const inc = holdings.get(seat.key) || seat.party;
-
-      const mBase = estimateMargin(seat.state, gb[step.year]);
-      let winnerAuto = (mBase === 0) ? inc : (mBase > 0 ? "D" : "R");
-
-      // manual flip inverts winner
+      const mBase = estimateMargin(seat.state, gb[year]);
+      const winnerAuto = (mBase === 0) ? inc : (mBase > 0 ? "D" : "R");
       const isFlipped = flipped.has(seat.state);
       const winnerFinal = isFlipped ? (winnerAuto === "D" ? "R" : "D") : winnerAuto;
-
       holdings.set(seat.key, winnerFinal);
-
-      // flip sign for visualization (keeps "margin-based" but reflects the forced result)
-      const mFinal = isFlipped ? -mBase : mBase;
-      margins.set(seat.state, mFinal);
+      margins.set(seat.state, isFlipped ? -mBase : mBase);
     }
-    out[step.year] = {countsAfter: countHoldings(holdings), margins, flipped};
+    out[year] = {countsAfter: countHoldings(holdings), margins, flipped};
   }
   return out;
 }
@@ -490,25 +480,22 @@ function renderMap(svgId, year, margins, flippedSet){
 
   const proj = d3.geoAlbersUsa().fitSize([w, h], {type:"FeatureCollection", features: geoStates});
   const path = d3.geoPath(proj);
-
   svg.attr("viewBox", `0 0 ${w} ${h}`);
 
-  const g = svg.append("g");
-
-  g.selectAll("path")
+  svg.append("g")
+    .selectAll("path")
     .data(geoStates)
     .join("path")
     .attr("d", d => path(d))
     .attr("fill", d => {
       const st = nameToAbbr[d.properties.name];
       if (!st) return "#eef2f7";
-      if (!margins.has(st)) return "#e9edf4"; // not up
+      if (!margins.has(st)) return "#e9edf4";
       return marginColor(margins.get(st));
     })
     .attr("stroke", d => {
       const st = nameToAbbr[d.properties.name];
-      if (st && flippedSet.has(st)) return "#0f172a"; // highlight manual flips
-      return "#cbd3df";
+      return (st && flippedSet.has(st)) ? "#0f172a" : "#cbd3df";
     })
     .attr("stroke-width", d => {
       const st = nameToAbbr[d.properties.name];
@@ -530,7 +517,12 @@ function renderMap(svgId, year, margins, flippedSet){
       }
       const m = margins.get(st);
       const flag = flippedSet.has(st) ? `<span class="muted">manual flip</span>` : `<span class="muted">auto</span>`;
-      tipOn(`<div><b>${st}</b> <span class="muted">(${year})</span></div><div class="mono">${fmtMargin(m)}</div><div>${flag}</div>`,
+      const note = (Math.abs(m) < TOSSUP_CUTOFF) ? `<div class="muted">map shown as yellow (&lt;2%)</div>` : ``;
+      tipOn(
+        `<div><b>${st}</b> <span class="muted">(${year})</span></div>
+         <div class="mono">${fmtMarginNumeric(m)}</div>
+         ${note}
+         <div>${flag}</div>`,
         event.clientX, event.clientY
       );
     })
@@ -538,18 +530,14 @@ function renderMap(svgId, year, margins, flippedSet){
     .on("click", (event, d) => {
       const st = nameToAbbr[d.properties.name];
       if (!st || !margins.has(st)) return;
-
       const set = manualFlips[year];
-      if (set.has(st)) set.delete(st);
-      else set.add(st);
-
+      set.has(st) ? set.delete(st) : set.add(st);
       renderAll();
     });
 }
 
 function renderAll(){
   setSliderLabels();
-
   const res = computeSequential();
 
   UI.d26.textContent = res[2026].countsAfter.D; UI.r26.textContent = res[2026].countsAfter.R;
@@ -565,7 +553,6 @@ function renderAll(){
   renderMap("m30", 2030, res[2030].margins, res[2030].flipped);
 }
 
-/* Load current senators + US map */
 async function loadAll(){
   const legURL  = "https://unitedstates.github.io/congress-legislators/legislators-current.json";
   const topoURL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
@@ -588,11 +575,7 @@ async function loadAll(){
     const cls = Number(currentSen.class);
     if (!state || !cls) continue;
 
-    senators.push({
-      state, cls,
-      party: partyNorm(currentSen.party || ""),
-      key: seatKey(state, cls)
-    });
+    senators.push({ state, cls, party: partyNorm(currentSen.party || ""), key: seatKey(state, cls) });
   }
 
   const geo = topojson.feature(topo, topo.objects.states);
@@ -601,12 +584,10 @@ async function loadAll(){
   renderAll();
 }
 
-/* Events */
 UI.s26.addEventListener("input", renderAll);
 UI.s28.addEventListener("input", renderAll);
 UI.s30.addEventListener("input", renderAll);
 
-/* Rerender on resize */
 let resizeTimer = null;
 window.addEventListener("resize", () => {
   clearTimeout(resizeTimer);
