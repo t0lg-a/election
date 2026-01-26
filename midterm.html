@@ -2319,7 +2319,7 @@ function chamberControlProbs(modeKey, cachedIndNat){
     pD += tie;
   }
 
-  const hist = dist ? ((modeKey === "governor") ? histogramFromProbDistRange(dist, baseD, 20, 30) : histogramFromProbDist(dist, baseD)) : null;
+  const hist = dist ? ((modeKey === "governor") ? histogramFromProbDistRange(dist, baseD, 22, 30) : histogramFromProbDist(dist, baseD)) : null;
   return { pD: clamp(pD,0,1), pR: clamp(pR,0,1), hist };
 }
 
