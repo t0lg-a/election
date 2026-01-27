@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-01-26T11:36:16.643Z",
+  "updatedAt": "2026-01-27T11:39:58.044Z",
   "approval": [
     {
       "id": "appdontip8senk9on",
@@ -18490,6 +18490,112 @@
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyoumv29190e",
+      "poll_type": "approval",
+      "sample_size": 2226,
+      "population": "a",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/Trump_Issue_Handling_poll_results_84DsE0W.pdf",
+      "created_at": "2026-01-27",
+      "start_date": "2026-01-16",
+      "end_date": "2026-01-22",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Disapprove",
+          "pct": 58
+        },
+        {
+          "choice": "Approve",
+          "pct": 38
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonreskozw540d",
+      "poll_type": "approval",
+      "sample_size": 1002,
+      "population": "a",
+      "url": "https://researchco.ca/2026/01/26/amendment",
+      "created_at": "2026-01-27",
+      "start_date": "2026-01-13",
+      "end_date": "2026-01-15",
+      "pollster": "Research Co.",
+      "answers": [
+        {
+          "choice": "Disapprove",
+          "pct": 53
+        },
+        {
+          "choice": "Approve",
+          "pct": 42
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonech5dx0pl4u",
+      "poll_type": "approval",
+      "sample_size": 1029,
+      "population": "lv",
+      "url": "https://echelonin.wpenginepowered.com/wp-content/uploads/January-2026-Voter-Omnibus-Topline.pdf",
+      "created_at": "2026-01-27",
+      "start_date": "2026-01-22",
+      "end_date": "2026-01-26",
+      "pollster": "Echelon Insights",
+      "answers": [
+        {
+          "choice": "Disapprove",
+          "pct": 57
+        },
+        {
+          "choice": "Approve",
+          "pct": 41
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonips35ma8bgb",
+      "poll_type": "approval",
+      "sample_size": 1139,
+      "population": "a",
+      "url": "https://www.reuters.com/data/trumps-approval-rating-2025-01-21",
+      "created_at": "2026-01-27",
+      "start_date": "2026-01-23",
+      "end_date": "2026-01-25",
+      "pollster": "Ipsos",
+      "answers": [
+        {
+          "choice": "Disapprove",
+          "pct": 59
+        },
+        {
+          "choice": "Approve",
+          "pct": 38
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Reuters"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
     }
   ],
   "genericBallot": [
@@ -25461,6 +25567,86 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202reszwfu9xpw",
+      "poll_type": "generic-ballot",
+      "sample_size": 1002,
+      "population": "a",
+      "url": "https://researchco.ca/2026/01/26/amendment",
+      "created_at": "2026-01-27",
+      "start_date": "2026-01-13",
+      "end_date": "2026-01-15",
+      "pollster": "Research Co.",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 42
+        },
+        {
+          "choice": "Rep",
+          "pct": 36
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202echg6wqrhp3",
+      "poll_type": "generic-ballot",
+      "sample_size": 1029,
+      "population": "lv",
+      "url": "https://echelonin.wpenginepowered.com/wp-content/uploads/January-2026-Voter-Omnibus-Topline.pdf",
+      "created_at": "2026-01-27",
+      "start_date": "2026-01-22",
+      "end_date": "2026-01-26",
+      "pollster": "Echelon Insights",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 49
+        },
+        {
+          "choice": "Rep",
+          "pct": 44
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202ipst0vqxwzr",
+      "poll_type": "generic-ballot",
+      "sample_size": 906,
+      "population": "rv",
+      "url": "https://www.reuters.com/data/trumps-approval-rating-2025-01-21",
+      "created_at": "2026-01-27",
+      "start_date": "2026-01-23",
+      "end_date": "2026-01-25",
+      "pollster": "Ipsos",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 41
+        },
+        {
+          "choice": "Rep",
+          "pct": 37
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Reuters"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "2026"
