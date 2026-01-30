@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-01-29T11:47:15.842Z",
+  "updatedAt": "2026-01-30T00:19:43.571Z",
   "approval": [
     {
       "id": "appdontip8senk9on",
@@ -18842,6 +18842,58 @@
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonthean8n5ggy",
+      "poll_type": "approval",
+      "sample_size": 1515,
+      "population": "rv",
+      "url": "https://www.theargumentmag.com/p/immigration-is-turning-into-a-disaster",
+      "created_at": "2026-01-29",
+      "start_date": "2026-01-26",
+      "end_date": "2026-01-27",
+      "pollster": "The Argument/Verasight",
+      "answers": [
+        {
+          "choice": "Disapprove",
+          "pct": 57
+        },
+        {
+          "choice": "Approve",
+          "pct": 42
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonpew3a95a67c",
+      "poll_type": "approval",
+      "sample_size": 8512,
+      "population": "a",
+      "url": "https://docs.google.com/spreadsheets/d/1VkONJuHHujySkkXJmJbyd5jR-z1ZPoXG8-THGRNyJVo/edit?gid=0#gid=0",
+      "created_at": "2026-01-29",
+      "start_date": "2026-01-20",
+      "end_date": "2026-01-26",
+      "pollster": "Pew Research Center",
+      "answers": [
+        {
+          "choice": "Disapprove",
+          "pct": 61
+        },
+        {
+          "choice": "Approve",
+          "pct": 37
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
     }
   ],
   "genericBallot": [
@@ -26051,6 +26103,84 @@
         {
           "choice": "Rep",
           "pct": 43
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202kffnllpfo8t",
+      "poll_type": "generic-ballot",
+      "sample_size": 1141,
+      "population": "rv",
+      "url": "https://files.kff.org/attachment/topline-kff-health-tracking-poll-jan-2026.pdf",
+      "created_at": "2026-01-29",
+      "start_date": "2026-01-13",
+      "end_date": "2026-01-20",
+      "pollster": "KFF",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 49
+        },
+        {
+          "choice": "Rep",
+          "pct": 42
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202thew0pr38sc",
+      "poll_type": "generic-ballot",
+      "sample_size": null,
+      "population": "lv",
+      "url": "https://www.theargumentmag.com/p/immigration-is-turning-into-a-disaster",
+      "created_at": "2026-01-29",
+      "start_date": "2026-01-26",
+      "end_date": "2026-01-27",
+      "pollster": "The Argument/Verasight",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 55
+        },
+        {
+          "choice": "Rep",
+          "pct": 45
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202theea14xh0m",
+      "poll_type": "generic-ballot",
+      "sample_size": 1515,
+      "population": "rv",
+      "url": "https://www.theargumentmag.com/p/immigration-is-turning-into-a-disaster",
+      "created_at": "2026-01-29",
+      "start_date": "2026-01-26",
+      "end_date": "2026-01-27",
+      "pollster": "The Argument/Verasight",
+      "answers": [
+        {
+          "choice": "Rep",
+          "pct": 48
+        },
+        {
+          "choice": "Dem",
+          "pct": 52
         }
       ],
       "seat_name": null,
