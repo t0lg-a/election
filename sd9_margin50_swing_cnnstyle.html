@@ -1,0 +1,970 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>TX SD9 Precinct Map — Results • Normalized • Swing • Trend</title>
+
+  <!-- Leaflet -->
+  <link rel="preconnect" href="https://unpkg.com"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- D3 -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    :root{
+      --bg: #f7f8fb;
+      --panel: rgba(255,255,255,0.92);
+      --panel2: rgba(255,255,255,0.84);
+      --ink: #0f172a;
+      --muted: rgba(15,23,42,0.65);
+      --border: rgba(15,23,42,0.10);
+      --shadow: 0 16px 46px rgba(2,6,23,0.12);
+
+      --dem: #1d4ed8;  /* blue */
+      --gop: #dc2626;  /* red */
+      --neutral: rgba(148,163,184,0.30);
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --ui: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+
+      --radius: 16px;
+    }
+
+    html, body{ height:100%; margin:0; background:var(--bg); color:var(--ink); font-family:var(--ui); }
+    #app{ height:100%; width:100%; display:grid; grid-template-rows:auto 1fr; }
+
+    /* Top bar (CNN-ish: clean, high-contrast) */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:10px 14px;
+      background:#ffffff;
+      border-bottom:1px solid var(--border);
+      position:relative;
+      z-index:1000;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 240px;
+    }
+    .brandBadge{
+      width:10px; height:10px; border-radius:999px;
+      background: linear-gradient(90deg, var(--gop), var(--dem));
+      box-shadow: 0 6px 18px rgba(2,6,23,0.15);
+    }
+    .brandTitle{
+      font-weight: 950;
+      letter-spacing: 0.2px;
+      font-size: 13px;
+      line-height: 1.1;
+    }
+    .brandSub{
+      font-weight: 700;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.1;
+      margin-top: 2px;
+    }
+
+    .status{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      background: rgba(248,250,252,0.9);
+      box-shadow: 0 10px 26px rgba(2,6,23,0.06);
+      white-space: nowrap;
+    }
+    .dot{
+      width:9px; height:9px; border-radius:999px;
+      background: var(--neutral);
+      border:1px solid rgba(2,6,23,0.10);
+    }
+    .dot.ok{ background: #16a34a; }
+    .dot.warn{ background: #f59e0b; }
+
+    /* Main grid */
+    .main{
+      display:grid;
+      grid-template-columns: 440px 1fr;
+      gap: 12px;
+      padding: 12px;
+      height:100%;
+      box-sizing:border-box;
+    }
+
+    /* Left panel */
+    .panel{
+      background: var(--panel);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height: 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .panelHead{
+      padding: 12px 12px 10px 12px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.86));
+    }
+
+    .selLine{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 10px;
+    }
+
+    .selPrec{
+      font-weight: 950;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+    }
+    .selMeta{
+      font-weight: 800;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .tabs{
+      display:flex;
+      gap: 6px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .tab{
+      border:1px solid var(--border);
+      background: rgba(248,250,252,0.92);
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 11px;
+      cursor: pointer;
+      user-select:none;
+      color: rgba(15,23,42,0.78);
+      transition: transform 80ms ease, border-color 120ms ease, background 120ms ease;
+    }
+    .tab:hover{ border-color: rgba(37,99,235,0.30); }
+    .tab:active{ transform: translateY(1px); }
+    .tab.active{
+      background: #ffffff;
+      border-color: rgba(29,78,216,0.28);
+      color: rgba(15,23,42,0.92);
+      box-shadow: 0 10px 22px rgba(2,6,23,0.08);
+    }
+
+    .panelBody{
+      padding: 12px;
+      overflow:auto;
+      min-height: 0;
+      background: var(--panel2);
+    }
+
+    .section{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.88);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 10px 22px rgba(2,6,23,0.06);
+    }
+
+    .sectionTitle{
+      font-weight: 950;
+      font-size: 12px;
+      letter-spacing: 0.35px;
+      text-transform: uppercase;
+      margin: 0 0 10px 0;
+    }
+    .desc{
+      margin: 6px 0 0 0;
+      font-weight: 700;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .kvs{
+      display:grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .kv{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      align-items:center;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px dashed rgba(148,163,184,0.35);
+    }
+    .kv:last-child{ border-bottom:none; }
+    .k{
+      font-weight: 800;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .v{
+      font-weight: 950;
+      font-size: 12px;
+      font-family: var(--mono);
+      color: rgba(15,23,42,0.95);
+    }
+
+    /* Result bar */
+    .barWrap{
+      border:1px solid rgba(15,23,42,0.10);
+      background: rgba(148,163,184,0.10);
+      border-radius: 999px;
+      height: 12px;
+      overflow:hidden;
+      display:flex;
+      margin-top: 10px;
+    }
+    .barD{ background: rgba(29,78,216,0.95); }
+    .barR{ background: rgba(220,38,38,0.95); }
+
+    .barLabel{
+      display:flex;
+      justify-content:space-between;
+      margin-top: 8px;
+      font-size: 11px;
+      font-weight: 900;
+      color: rgba(15,23,42,0.80);
+    }
+    .barLabel span{ font-family: var(--mono); font-weight: 950; }
+
+    .bigMetric{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap: 10px;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(15,23,42,0.10);
+      background: rgba(248,250,252,0.75);
+    }
+    .bigMetric .label{
+      font-weight: 900;
+      font-size: 11px;
+      color: rgba(15,23,42,0.70);
+      letter-spacing: 0.25px;
+      text-transform: uppercase;
+    }
+    .bigMetric .num{
+      font-weight: 950;
+      font-size: 20px;
+      font-family: var(--mono);
+    }
+    .num.dem{ color: var(--dem); }
+    .num.gop{ color: var(--gop); }
+    .num.neu{ color: rgba(15,23,42,0.78); }
+
+    /* search */
+    .searchRow{
+      margin-top: 10px;
+      display:flex;
+      gap: 8px;
+      align-items:center;
+    }
+    input[type="text"]{
+      width: 100%;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      padding: 10px 10px;
+      background: rgba(255,255,255,0.90);
+      font-weight: 800;
+      font-size: 12px;
+      outline:none;
+    }
+    .btn{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.90);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 950;
+      font-size: 12px;
+      cursor:pointer;
+      user-select:none;
+      white-space: nowrap;
+    }
+    .btn:hover{ border-color: rgba(29,78,216,0.30); }
+    .btn:active{ transform: translateY(1px); }
+
+    /* Map container */
+    .mapCard{
+      position: relative;
+      border-radius: var(--radius);
+      overflow:hidden;
+      border:1px solid var(--border);
+      box-shadow: var(--shadow);
+      background: #ffffff;
+      min-height: 0;
+    }
+    #map{ height:100%; width:100%; }
+
+    /* Map overlay legend */
+    .legend{
+      position:absolute;
+      right: 12px;
+      bottom: 12px;
+      z-index: 900;
+      background: rgba(255,255,255,0.92);
+      border:1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 16px 42px rgba(2,6,23,0.10);
+      padding: 10px 12px;
+      width: 310px;
+      backdrop-filter: blur(10px);
+    }
+    .legendT{
+      font-weight: 950;
+      font-size: 12px;
+      letter-spacing: 0.35px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .legendS{
+      font-weight: 800;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .legend svg text{
+      font-family: var(--ui);
+      fill: rgba(15,23,42,0.65);
+      font-weight: 900;
+    }
+
+    /* Tooltip */
+    .leaflet-tooltip{
+      background: rgba(255,255,255,0.96);
+      color: rgba(15,23,42,0.94);
+      border: 1px solid rgba(15,23,42,0.12);
+      box-shadow: 0 16px 42px rgba(2,6,23,0.14);
+      border-radius: 14px;
+      padding: 10px 12px;
+      backdrop-filter: blur(8px);
+    }
+    .ttTitle{ font-weight: 950; font-size: 12px; margin-bottom: 8px; }
+    .ttGrid{ display:grid; grid-template-columns: 1fr auto; gap: 6px 10px; }
+    .ttK{ font-weight: 800; font-size: 11px; color: rgba(15,23,42,0.65); }
+    .ttV{ font-weight: 950; font-size: 11px; font-family: var(--mono); }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .main{ grid-template-columns: 1fr; }
+      .panel{ height: 52vh; }
+      .mapCard{ height: calc(48vh - 12px); }
+    }
+  </style>
+</head>
+
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brandBadge"></div>
+      <div>
+        <div class="brandTitle">Texas State Senate District 9</div>
+        <div class="brandSub">Precinct-level: Results • 50/50 normalized • Swing • Trend</div>
+      </div>
+    </div>
+    <div class="status">
+      <div class="chip"><span class="dot" id="dotLoad"></span><span id="loadText">Loading CSV + GeoJSON…</span></div>
+      <div class="chip"><span class="dot ok"></span>Map: trend = Δmargin50 (2026−2022)</div>
+      <div class="chip"><span class="dot warn"></span>Opacity fixed: 0.95 · Clamp fixed: ±40</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="panel">
+      <div class="panelHead">
+        <div class="selLine">
+          <div>
+            <div class="selPrec">Precinct <span id="selPrec">—</span></div>
+            <div class="selMeta" id="selMeta">Click a precinct on the map to see tabbed details.</div>
+          </div>
+          <div class="selMeta">TX SD9</div>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Details tabs">
+          <div class="tab active" data-tab="tabTrend" role="tab" aria-selected="true">Trend</div>
+          <div class="tab" data-tab="tabSwing" role="tab" aria-selected="false">Swing</div>
+          <div class="tab" data-tab="tab2026" role="tab" aria-selected="false">2026</div>
+          <div class="tab" data-tab="tab2022" role="tab" aria-selected="false">2022</div>
+          <div class="tab" data-tab="tabAbout" role="tab" aria-selected="false">About</div>
+        </div>
+
+        <div class="searchRow">
+          <input id="searchBox" type="text" placeholder="Jump to precinct (e.g., 1001) → Enter"/>
+          <button class="btn" id="btnFit">Fit</button>
+        </div>
+      </div>
+
+      <div class="panelBody">
+        <!-- Trend -->
+        <div class="section" id="tabTrend">
+          <div class="sectionTitle">Trend (50/50 normalized)</div>
+
+          <div class="bigMetric">
+            <div class="label">Δ margin50 (2026 − 2022)</div>
+            <div class="num neu" id="trendVal">—</div>
+          </div>
+          <p class="desc">
+            Trend is computed on the 50/50 synthetic baseline (normalized results). Blue = trending Democratic, red = trending Republican.
+          </p>
+
+          <div class="kvs">
+            <div class="kv"><div class="k">2022 D50 / R50</div><div class="v" id="n22pct">—</div></div>
+            <div class="kv"><div class="k">2022 margin50</div><div class="v" id="n22m">—</div></div>
+            <div class="kv"><div class="k">2026 D50 / R50</div><div class="v" id="n26pct">—</div></div>
+            <div class="kv"><div class="k">2026 margin50</div><div class="v" id="n26m">—</div></div>
+            <div class="kv"><div class="k">Δ D50 (2026 − 2022)</div><div class="v" id="d50swing">—</div></div>
+          </div>
+
+          <div class="barWrap" aria-hidden="true">
+            <div class="barD" id="barN26D" style="width:0%"></div>
+            <div class="barR" id="barN26R" style="width:0%"></div>
+          </div>
+          <div class="barLabel">
+            <div>2026 normalized</div>
+            <div><span id="barN26Lab">—</span></div>
+          </div>
+        </div>
+
+        <!-- Swing -->
+        <div class="section" id="tabSwing" style="display:none;">
+          <div class="sectionTitle">Swing (actual election results)</div>
+
+          <div class="bigMetric">
+            <div class="label">Δ margin (D−R) (2026 − 2022)</div>
+            <div class="num neu" id="rawSwingVal">—</div>
+          </div>
+
+          <p class="desc">
+            Swing uses the raw two-party percentages. Trend (in the Trend tab) uses 50/50-normalized values (margin50).
+          </p>
+
+          <div class="kvs">
+            <div class="kv"><div class="k">2022 D% / R%</div><div class="v" id="r22pct">—</div></div>
+            <div class="kv"><div class="k">2022 margin (D−R)</div><div class="v" id="r22m">—</div></div>
+            <div class="kv"><div class="k">2026 D% / R%</div><div class="v" id="r26pct">—</div></div>
+            <div class="kv"><div class="k">2026 margin (D−R)</div><div class="v" id="r26m">—</div></div>
+            <div class="kv"><div class="k">Δ D% (2026 − 2022)</div><div class="v" id="dpctSwing">—</div></div>
+          </div>
+
+          <div class="barWrap" aria-hidden="true">
+            <div class="barD" id="bar26D" style="width:0%"></div>
+            <div class="barR" id="bar26R" style="width:0%"></div>
+          </div>
+          <div class="barLabel">
+            <div>2026 actual</div>
+            <div><span id="bar26Lab">—</span></div>
+          </div>
+        </div>
+
+        <!-- 2026 -->
+        <div class="section" id="tab2026" style="display:none;">
+          <div class="sectionTitle">2026 results</div>
+          <div class="kvs">
+            <div class="kv"><div class="k">D% / R%</div><div class="v" id="r26pct2">—</div></div>
+            <div class="kv"><div class="k">margin (D−R)</div><div class="v" id="r26m2">—</div></div>
+            <div class="kv"><div class="k">D50 / R50</div><div class="v" id="n26pct2">—</div></div>
+            <div class="kv"><div class="k">margin50</div><div class="v" id="n26m2">—</div></div>
+          </div>
+          <div class="barWrap" aria-hidden="true">
+            <div class="barD" id="bar26D2" style="width:0%"></div>
+            <div class="barR" id="bar26R2" style="width:0%"></div>
+          </div>
+          <div class="barLabel">
+            <div>2026 actual</div>
+            <div><span id="bar26Lab2">—</span></div>
+          </div>
+          <p class="desc">Both actual and 50/50-normalized metrics are shown for the same precinct.</p>
+        </div>
+
+        <!-- 2022 -->
+        <div class="section" id="tab2022" style="display:none;">
+          <div class="sectionTitle">2022 results</div>
+          <div class="kvs">
+            <div class="kv"><div class="k">D% / R%</div><div class="v" id="r22pct2">—</div></div>
+            <div class="kv"><div class="k">margin (D−R)</div><div class="v" id="r22m2">—</div></div>
+            <div class="kv"><div class="k">D50 / R50</div><div class="v" id="n22pct2">—</div></div>
+            <div class="kv"><div class="k">margin50</div><div class="v" id="n22m2">—</div></div>
+          </div>
+          <div class="barWrap" aria-hidden="true">
+            <div class="barD" id="bar22D2" style="width:0%"></div>
+            <div class="barR" id="bar22R2" style="width:0%"></div>
+          </div>
+          <div class="barLabel">
+            <div>2022 actual</div>
+            <div><span id="bar22Lab2">—</span></div>
+          </div>
+          <p class="desc">2022 baseline used for swing and trend computations.</p>
+        </div>
+
+        <!-- About -->
+        <div class="section" id="tabAbout" style="display:none;">
+          <div class="sectionTitle">About this page</div>
+          <div class="kvs">
+            <div class="kv"><div class="k">Map coloring</div><div class="v">trend = Δmargin50</div></div>
+            <div class="kv"><div class="k">Clamp</div><div class="v">±40 points</div></div>
+            <div class="kv"><div class="k">Opacity</div><div class="v">0.95</div></div>
+            <div class="kv"><div class="k">Join key</div><div class="v">Precinct (numeric)</div></div>
+          </div>
+          <p class="desc">
+            Files are loaded dynamically (good for GitHub Pages). Put the CSV + GeoJSON next to this HTML, or update the paths in <span style="font-family:var(--mono);font-weight:950;">CONFIG</span>.
+            The GeoJSON is filtered to Senate = 9.
+          </p>
+          <div class="kvs">
+            <div class="kv"><div class="k">Expected CSV</div><div class="v mono">sd9_precinct_5050_swing.csv</div></div>
+            <div class="kv"><div class="k">Expected GeoJSON</div><div class="v mono">tarrant.geojson</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mapCard">
+      <div id="map"></div>
+      <div class="legend">
+        <div class="legendT">Map legend</div>
+        <div class="legendS">
+          <span style="color:var(--dem); font-weight:950;">Blue</span> = trend Democratic •
+          <span style="color:var(--gop); font-weight:950;">Red</span> = trend Republican •
+          Neutral near 0.
+          <br/>Trend = <span style="font-family:var(--mono); font-weight:950;">margin50_swing</span> (2026 − 2022), clamp ±40.
+        </div>
+        <svg id="legendSvg" width="286" height="58"></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+  // =========================
+  // CONFIG: update these on GitHub if needed
+  // =========================
+  const CONFIG = {
+    csvPath: "sd9_precinct_5050_swing.csv",
+    geojsonPath: "tarrant.geojson",
+    senateDistrict: "9",
+    clamp: 40,        // points
+    opacity: 0.95     // fill opacity
+  };
+
+  // =========================
+  // Utilities
+  // =========================
+  const fmt = (x, d=1) => (x==null || !isFinite(x)) ? "—" : (+x).toFixed(d);
+  const fmt2 = (x, d=2) => (x==null || !isFinite(x)) ? "—" : (+x).toFixed(d);
+  const fmtS = (x, d=2) => (x==null || !isFinite(x)) ? "—" : ((+x>=0?"+":"") + (+x).toFixed(d));
+  const clamp01 = (x) => Math.max(0, Math.min(1, x));
+  const byId = (id) => document.getElementById(id);
+
+  function setStatus(ok, msg){
+    const dot = byId("dotLoad");
+    const text = byId("loadText");
+    dot.classList.remove("ok","warn");
+    dot.classList.add(ok ? "ok" : "warn");
+    text.textContent = msg;
+  }
+
+  // Tabs
+  function setTab(activeId){
+    document.querySelectorAll(".tab").forEach(t => {
+      const isActive = t.dataset.tab === activeId;
+      t.classList.toggle("active", isActive);
+      t.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+    document.querySelectorAll(".section").forEach(sec => {
+      sec.style.display = (sec.id === activeId) ? "" : "none";
+    });
+  }
+  document.querySelectorAll(".tab").forEach(t => {
+    t.addEventListener("click", () => setTab(t.dataset.tab));
+  });
+
+  // =========================
+  // Data loading + join
+  // =========================
+  let DATA = {};       // keyed by precinct string, merged row
+  let GEO = null;      // SD9-only FeatureCollection
+  let geoLayer = null;
+  let selected = null;
+
+  function toPrecinctInt(v){
+    const m = String(v ?? "").trim().match(/^(\d+)/);
+    return m ? +m[1] : null;
+  }
+  function num(v){
+    const x = +v;
+    return isFinite(x) ? x : null;
+  }
+
+  async function loadAll(){
+    try{
+      setStatus(false, "Loading CSV + GeoJSON…");
+      const [rows, geo] = await Promise.all([
+        d3.csv(CONFIG.csvPath),
+        d3.json(CONFIG.geojsonPath)
+      ]);
+
+      // CSV: normalize + merge duplicates by precinct_int
+      const tmp = new Map(); // precinct_int -> accumulator
+      const lab = new Map();
+
+      rows.forEach(r => {
+        const pInt = toPrecinctInt(r.precinct);
+        if (pInt == null) return;
+
+        if (!tmp.has(pInt)){
+          tmp.set(pInt, { n:0, sums:{} });
+          lab.set(pInt, new Set());
+        }
+        lab.get(pInt).add(String(r.precinct));
+
+        const acc = tmp.get(pInt);
+        acc.n += 1;
+
+        // numeric columns (we only care about the known set; ignore others)
+        const cols = [
+          "2022_D_pct","2022_R_pct","2022_D50","2022_R50","2022_margin50",
+          "2026_D_pct","2026_R_pct","2026_D50","2026_R50","2026_margin50",
+          "D50_swing","margin50_swing"
+        ];
+        cols.forEach(c => {
+          const v = num(r[c]);
+          if (v == null) return;
+          acc.sums[c] = (acc.sums[c] ?? 0) + v;
+        });
+      });
+
+      // finalize: mean by precinct_int
+      DATA = {};
+      for (const [pInt, acc] of tmp.entries()){
+        const out = { precinct: String(pInt), labels: Array.from(lab.get(pInt)).sort() };
+        const n = acc.n || 1;
+        Object.entries(acc.sums).forEach(([k, s]) => out[k] = s / n);
+
+        // ensure derived fields: raw margins + swings
+        out["2022_margin_raw"] = (out["2022_D_pct"] ?? null) != null && (out["2022_R_pct"] ?? null) != null
+          ? out["2022_D_pct"] - out["2022_R_pct"] : null;
+        out["2026_margin_raw"] = (out["2026_D_pct"] ?? null) != null && (out["2026_R_pct"] ?? null) != null
+          ? out["2026_D_pct"] - out["2026_R_pct"] : null;
+        out["margin_raw_swing"] = (out["2026_margin_raw"] ?? null) != null && (out["2022_margin_raw"] ?? null) != null
+          ? out["2026_margin_raw"] - out["2022_margin_raw"] : null;
+        out["D_pct_swing"] = (out["2026_D_pct"] ?? null) != null && (out["2022_D_pct"] ?? null) != null
+          ? out["2026_D_pct"] - out["2022_D_pct"] : null;
+
+        // ensure margin50 if missing but D50 exists
+        if ((out["2022_margin50"] == null) && (out["2022_D50"] != null)) out["2022_margin50"] = 2*out["2022_D50"] - 100;
+        if ((out["2026_margin50"] == null) && (out["2026_D50"] != null)) out["2026_margin50"] = 2*out["2026_D50"] - 100;
+
+        // ensure swings if missing
+        if ((out["D50_swing"] == null) && (out["2026_D50"] != null) && (out["2022_D50"] != null)) out["D50_swing"] = out["2026_D50"] - out["2022_D50"];
+        if ((out["margin50_swing"] == null) && (out["2026_margin50"] != null) && (out["2022_margin50"] != null)) out["margin50_swing"] = out["2026_margin50"] - out["2022_margin50"];
+
+        DATA[String(pInt)] = out;
+      }
+
+      // GeoJSON: filter to Senate == CONFIG.senateDistrict
+      const feats = (geo.features || []).filter(f => String(f.properties?.Senate ?? "").trim() === String(CONFIG.senateDistrict));
+      GEO = { type: "FeatureCollection", features: feats };
+
+      setStatus(true, `Loaded ${rows.length.toLocaleString()} CSV rows • ${feats.length.toLocaleString()} SD${CONFIG.senateDistrict} precinct polygons`);
+      initMap();
+      initLegend();
+      initSelectionDefault();
+    }catch(err){
+      console.error(err);
+      setStatus(false, "Load failed. Check file paths and GitHub Pages CORS.");
+      alert("Load failed. Make sure the CSV + GeoJSON paths are correct and served over HTTP(S).");
+    }
+  }
+
+  // =========================
+  // Map
+  // =========================
+  const map = L.map("map", { zoomControl: true, preferCanvas: true });
+
+  // light basemap
+  L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    { attribution: "&copy; OpenStreetMap contributors &copy; CARTO" }
+  ).addTo(map);
+
+  function colorForTrend(val){
+    if (val == null || !isFinite(val)) return "rgba(148,163,184,0.22)";
+    // RdBu: 0 -> red, 1 -> blue; we want negative red, positive blue centered at 0
+    let t = (val + CONFIG.clamp) / (2*CONFIG.clamp);
+    t = clamp01(t);
+    return d3.interpolateRdBu(t);
+  }
+
+  function styleFeature(feat){
+    const p = String(feat.properties?.Precinct);
+    const r = DATA[p] || null;
+    const v = r ? r.margin50_swing : null;
+    const isSel = (selected === p);
+    return {
+      color: isSel ? "rgba(29,78,216,0.92)" : "rgba(15,23,42,0.30)",
+      weight: isSel ? 2.6 : 0.9,
+      opacity: 1,
+      fillColor: colorForTrend(v),
+      fillOpacity: r ? CONFIG.opacity : 0.10,
+      lineJoin: "round"
+    };
+  }
+
+  function tooltipHTML(p){
+    const r = DATA[p] || null;
+    const trend = r ? r.margin50_swing : null;
+    const swing = r ? r.margin_raw_swing : null;
+    return `
+      <div class="ttTitle">Precinct <span style="font-family:var(--mono);font-weight:950;">${p}</span></div>
+      <div class="ttGrid">
+        <div class="ttK">Trend (Δmargin50)</div><div class="ttV">${fmtS(trend,2)}</div>
+        <div class="ttK">Swing (Δmargin)</div><div class="ttV">${fmtS(swing,2)}</div>
+        <div class="ttK">2026 D% / R%</div><div class="ttV">${r ? `${fmt(r["2026_D_pct"],1)} / ${fmt(r["2026_R_pct"],1)}` : "—"}</div>
+        <div class="ttK">2022 D% / R%</div><div class="ttV">${r ? `${fmt(r["2022_D_pct"],1)} / ${fmt(r["2022_R_pct"],1)}` : "—"}</div>
+      </div>
+    `;
+  }
+
+  const renderer = L.canvas({ padding: 0.5 });
+
+  function initMap(){
+    if (geoLayer) geoLayer.remove();
+
+    geoLayer = L.geoJSON(GEO, {
+      renderer,
+      style: styleFeature,
+      onEachFeature: (feat, layer) => {
+        const p = String(feat.properties?.Precinct);
+        layer.bindTooltip(tooltipHTML(p), { sticky: true, direction: "auto", opacity: 1 });
+
+        layer.on("mouseover", () => {
+          if (selected !== p) layer.setStyle({ weight: 1.8, color: "rgba(15,23,42,0.45)" });
+        });
+        layer.on("mouseout", () => {
+          if (selected !== p) geoLayer.resetStyle(layer);
+        });
+        layer.on("click", () => {
+          selected = p;
+          geoLayer.setStyle(styleFeature);
+          // Update tooltip content to keep values consistent if data changes
+          layer.setTooltipContent(tooltipHTML(p));
+          updatePanel(p);
+        });
+      }
+    }).addTo(map);
+
+    map.fitBounds(geoLayer.getBounds(), { padding: [40,40] });
+
+    byId("btnFit").addEventListener("click", () => {
+      map.fitBounds(geoLayer.getBounds(), { padding: [40,40] });
+    });
+
+    byId("searchBox").addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      const q = e.target.value.trim();
+      if (!q) return;
+      const m = q.match(/(\d+)/);
+      const p = m ? m[1] : q;
+      zoomToPrecinct(p);
+    });
+  }
+
+  function zoomToPrecinct(p){
+    let found = null;
+    geoLayer.eachLayer(l => {
+      if (String(l.feature.properties?.Precinct) === String(p)) found = l;
+    });
+    if (!found){
+      alert(`Precinct ${p} not found in this GeoJSON (SD${CONFIG.senateDistrict}).`);
+      return;
+    }
+    selected = String(p);
+    geoLayer.setStyle(styleFeature);
+    updatePanel(String(p));
+    map.fitBounds(found.getBounds(), { padding: [40,40] });
+  }
+
+  // =========================
+  // Legend
+  // =========================
+  function initLegend(){
+    const svg = d3.select("#legendSvg");
+    svg.selectAll("*").remove();
+
+    const w = 286, h = 58;
+    const padL = 10, padR = 10, barY = 10, barH = 12, barW = w - padL - padR;
+
+    const defs = svg.append("defs");
+    const grad = defs.append("linearGradient")
+      .attr("id","grad").attr("x1","0%").attr("x2","100%").attr("y1","0%").attr("y2","0%");
+    const stops = d3.range(0, 1.0001, 0.05);
+    grad.selectAll("stop")
+      .data(stops).enter().append("stop")
+      .attr("offset", d => `${d*100}%`)
+      .attr("stop-color", d => d3.interpolateRdBu(d));
+
+    svg.append("rect")
+      .attr("x", padL).attr("y", barY)
+      .attr("width", barW).attr("height", barH)
+      .attr("rx", 6).attr("ry", 6)
+      .attr("fill", "url(#grad)")
+      .attr("stroke", "rgba(15,23,42,0.14)");
+
+    const x = d3.scaleLinear().domain([-CONFIG.clamp, CONFIG.clamp]).range([padL, padL+barW]);
+    const ticks = [-CONFIG.clamp, -CONFIG.clamp/2, 0, CONFIG.clamp/2, CONFIG.clamp];
+
+    svg.append("g")
+      .attr("transform", `translate(0, ${barY + barH + 22})`)
+      .call(d3.axisBottom(x).tickValues(ticks).tickFormat(d => (d===0 ? "0" : d3.format("+.0f")(d))))
+      .call(g => g.select(".domain").remove())
+      .call(g => g.selectAll("line").attr("stroke","rgba(15,23,42,0.18)"));
+  }
+
+  // =========================
+  // Panel updates
+  // =========================
+  function setText(id, s){ const el = byId(id); if (el) el.textContent = s; }
+  function setBar(dId, rId, dVal, rVal){
+    const d = byId(dId), r = byId(rId);
+    if (!d || !r) return;
+    const dd = (dVal==null || !isFinite(dVal)) ? 0 : Math.max(0, Math.min(100, +dVal));
+    const rr = (rVal==null || !isFinite(rVal)) ? 0 : Math.max(0, Math.min(100, +rVal));
+    d.style.width = dd.toFixed(2) + "%";
+    r.style.width = rr.toFixed(2) + "%";
+  }
+  function metricClass(v){
+    if (v==null || !isFinite(v)) return "neu";
+    if (v > 0.0001) return "dem";
+    if (v < -0.0001) return "gop";
+    return "neu";
+  }
+
+  function updatePanel(p){
+    setText("selPrec", p);
+    const r = DATA[p] || null;
+
+    if (!r){
+      setText("selMeta", "No data row for this precinct id in CSV.");
+      setText("trendVal","—");
+      setText("rawSwingVal","—");
+      setText("n22pct","—"); setText("n22m","—"); setText("n26pct","—"); setText("n26m","—"); setText("d50swing","—");
+      setText("r22pct","—"); setText("r22m","—"); setText("r26pct","—"); setText("r26m","—"); setText("dpctSwing","—");
+      setText("r26pct2","—"); setText("r26m2","—"); setText("n26pct2","—"); setText("n26m2","—");
+      setText("r22pct2","—"); setText("r22m2","—"); setText("n22pct2","—"); setText("n22m2","—");
+      setText("barN26Lab","—"); setText("bar26Lab","—"); setText("bar26Lab2","—"); setText("bar22Lab2","—");
+      setBar("barN26D","barN26R",0,0);
+      setBar("bar26D","bar26R",0,0);
+      setBar("bar26D2","bar26R2",0,0);
+      setBar("bar22D2","bar22R2",0,0);
+      return;
+    }
+
+    const labels = (r.labels && r.labels.length) ? r.labels.join(", ") : p;
+    setText("selMeta", `CSV labels: ${labels}`);
+
+    // Trend tab (normalized)
+    const trend = r.margin50_swing;
+    const trendEl = byId("trendVal");
+    trendEl.textContent = fmtS(trend,2);
+    trendEl.classList.remove("dem","gop","neu");
+    trendEl.classList.add(metricClass(trend));
+
+    setText("n22pct", `${fmt(r["2022_D50"],1)} / ${fmt(r["2022_R50"],1)}`);
+    setText("n22m", fmtS(r["2022_margin50"],2));
+    setText("n26pct", `${fmt(r["2026_D50"],1)} / ${fmt(r["2026_R50"],1)}`);
+    setText("n26m", fmtS(r["2026_margin50"],2));
+    setText("d50swing", fmtS(r["D50_swing"],2));
+    setBar("barN26D","barN26R", r["2026_D50"], r["2026_R50"]);
+    setText("barN26Lab", `D50 ${fmt(r["2026_D50"],1)}  |  R50 ${fmt(r["2026_R50"],1)}`);
+
+    // Swing tab (raw)
+    const swing = r.margin_raw_swing;
+    const swingEl = byId("rawSwingVal");
+    swingEl.textContent = fmtS(swing,2);
+    swingEl.classList.remove("dem","gop","neu");
+    swingEl.classList.add(metricClass(swing));
+
+    setText("r22pct", `${fmt(r["2022_D_pct"],1)} / ${fmt(r["2022_R_pct"],1)}`);
+    setText("r22m", fmtS(r["2022_margin_raw"],2));
+    setText("r26pct", `${fmt(r["2026_D_pct"],1)} / ${fmt(r["2026_R_pct"],1)}`);
+    setText("r26m", fmtS(r["2026_margin_raw"],2));
+    setText("dpctSwing", fmtS(r["D_pct_swing"],2));
+    setBar("bar26D","bar26R", r["2026_D_pct"], r["2026_R_pct"]);
+    setText("bar26Lab", `D ${fmt(r["2026_D_pct"],1)}  |  R ${fmt(r["2026_R_pct"],1)}`);
+
+    // 2026 tab
+    setText("r26pct2", `${fmt(r["2026_D_pct"],1)} / ${fmt(r["2026_R_pct"],1)}`);
+    setText("r26m2", fmtS(r["2026_margin_raw"],2));
+    setText("n26pct2", `${fmt(r["2026_D50"],1)} / ${fmt(r["2026_R50"],1)}`);
+    setText("n26m2", fmtS(r["2026_margin50"],2));
+    setBar("bar26D2","bar26R2", r["2026_D_pct"], r["2026_R_pct"]);
+    setText("bar26Lab2", `D ${fmt(r["2026_D_pct"],1)}  |  R ${fmt(r["2026_R_pct"],1)}`);
+
+    // 2022 tab
+    setText("r22pct2", `${fmt(r["2022_D_pct"],1)} / ${fmt(r["2022_R_pct"],1)}`);
+    setText("r22m2", fmtS(r["2022_margin_raw"],2));
+    setText("n22pct2", `${fmt(r["2022_D50"],1)} / ${fmt(r["2022_R50"],1)}`);
+    setText("n22m2", fmtS(r["2022_margin50"],2));
+    setBar("bar22D2","bar22R2", r["2022_D_pct"], r["2022_R_pct"]);
+    setText("bar22Lab2", `D ${fmt(r["2022_D_pct"],1)}  |  R ${fmt(r["2022_R_pct"],1)}`);
+
+    // Keep tooltips accurate on selection
+    if (geoLayer){
+      geoLayer.eachLayer(l => {
+        const id = String(l.feature.properties?.Precinct);
+        if (id === p) l.setTooltipContent(tooltipHTML(p));
+      });
+    }
+  }
+
+  function initSelectionDefault(){
+    // pick a precinct with data AND in GEO if possible
+    const geoKeys = new Set((GEO.features || []).map(f => String(f.properties?.Precinct)));
+    const candidates = Object.keys(DATA).filter(k => geoKeys.has(k)).sort((a,b)=>+a-+b);
+    if (!candidates.length) return;
+    selected = candidates[0];
+    if (geoLayer) geoLayer.setStyle(styleFeature);
+    updatePanel(selected);
+  }
+
+  // =========================
+  // Boot
+  // =========================
+  loadAll();
+</script>
+</body>
+</html>
