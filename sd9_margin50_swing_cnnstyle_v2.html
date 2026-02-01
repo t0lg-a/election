@@ -1,0 +1,1300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>TX SD9 Precinct Map — Results • Normalized • Swing • Trend</title>
+
+  <link rel="preconnect" href="https://unpkg.com"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    :root{
+      --bg: #f6f7fb;
+      --ink: #0f172a;
+      --muted: rgba(15,23,42,0.66);
+      --border: rgba(15,23,42,0.10);
+      --shadow: 0 18px 52px rgba(2,6,23,0.12);
+
+      --panel: rgba(255,255,255,0.94);
+      --panel2: rgba(255,255,255,0.86);
+
+      --dem: #1d4ed8;
+      --gop: #dc2626;
+      --neu: rgba(15,23,42,0.70);
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --ui: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+
+      --radius: 16px;
+      --pad: 12px;
+    }
+
+    html, body{ height:100%; margin:0; background:var(--bg); color:var(--ink); font-family:var(--ui); }
+    #app{ height:100%; display:grid; grid-template-rows:auto 1fr; }
+
+    /* CNN-ish top bar */
+    .topbar{
+      background:#ffffff;
+      border-bottom:1px solid var(--border);
+      padding: 10px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+      position:relative;
+      z-index: 1100;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 240px;
+    }
+    .brandMark{
+      width: 12px; height: 12px; border-radius: 999px;
+      background: linear-gradient(90deg, var(--gop), var(--dem));
+      box-shadow: 0 10px 22px rgba(2,6,23,0.18);
+    }
+    .brandTitle{
+      font-weight: 950;
+      font-size: 13px;
+      letter-spacing: 0.25px;
+      line-height: 1.05;
+    }
+    .brandSub{
+      margin-top: 2px;
+      font-weight: 800;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.1;
+    }
+
+    .rightChips{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      gap: 8px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 10px;
+      border:1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(248,250,252,0.92);
+      box-shadow: 0 12px 26px rgba(2,6,23,0.06);
+      font-weight: 900;
+      font-size: 11px;
+      color: rgba(15,23,42,0.72);
+      white-space:nowrap;
+    }
+    .dot{
+      width: 9px; height: 9px; border-radius: 999px;
+      background: rgba(148,163,184,0.45);
+      border:1px solid rgba(2,6,23,0.10);
+    }
+    .dot.ok{ background: #16a34a; }
+    .dot.warn{ background: #f59e0b; }
+
+    /* Layout */
+    .main{
+      padding: 12px;
+      height: 100%;
+      box-sizing:border-box;
+      display:grid;
+      grid-template-columns: 460px 1fr;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    /* Left panel */
+    .panel{
+      background: var(--panel);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height: 0;
+      backdrop-filter: blur(10px);
+    }
+    .panelHead{
+      padding: 12px 12px 10px 12px;
+      border-bottom:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.86));
+    }
+    .selLine{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .selPrec{
+      font-weight: 950;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+    }
+    .selMeta{
+      margin-top: 4px;
+      font-weight: 800;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.25;
+    }
+
+    .tabs{
+      display:flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .tab{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background: rgba(248,250,252,0.92);
+      font-weight: 950;
+      font-size: 11px;
+      cursor:pointer;
+      user-select:none;
+      color: rgba(15,23,42,0.78);
+      transition: transform 80ms ease, border-color 120ms ease, background 120ms ease;
+    }
+    .tab:hover{ border-color: rgba(29,78,216,0.30); }
+    .tab:active{ transform: translateY(1px); }
+    .tab.active{
+      background:#ffffff;
+      border-color: rgba(29,78,216,0.28);
+      box-shadow: 0 12px 24px rgba(2,6,23,0.08);
+      color: rgba(15,23,42,0.92);
+    }
+
+    .searchRow{
+      margin-top: 10px;
+      display:flex;
+      gap: 8px;
+      align-items:center;
+    }
+    input[type="text"]{
+      width: 100%;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      padding: 10px 10px;
+      background: rgba(255,255,255,0.94);
+      font-weight: 850;
+      font-size: 12px;
+      outline:none;
+    }
+    .btn{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.92);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 950;
+      font-size: 12px;
+      cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
+      transition: transform 80ms ease, border-color 120ms ease;
+    }
+    .btn:hover{ border-color: rgba(29,78,216,0.30); }
+    .btn:active{ transform: translateY(1px); }
+
+    .panelBody{
+      padding: 12px;
+      overflow:auto;
+      min-height: 0;
+      background: var(--panel2);
+    }
+
+    .section{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.90);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 10px 22px rgba(2,6,23,0.06);
+    }
+    .sectionTitle{
+      font-weight: 950;
+      font-size: 12px;
+      letter-spacing: 0.35px;
+      text-transform: uppercase;
+      margin: 0 0 10px 0;
+    }
+    .desc{
+      margin: 8px 0 0 0;
+      font-weight: 800;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    /* “CNN results bar” */
+    .raceBar{
+      margin-top: 10px;
+      border: 1px solid rgba(15,23,42,0.10);
+      border-radius: 14px;
+      background: rgba(248,250,252,0.78);
+      padding: 10px 10px 12px 10px;
+    }
+    .raceTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .raceLabel{
+      font-weight: 950;
+      font-size: 11px;
+      letter-spacing: 0.25px;
+      text-transform: uppercase;
+      color: rgba(15,23,42,0.70);
+    }
+    .raceMargin{
+      font-weight: 950;
+      font-size: 12px;
+      font-family: var(--mono);
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,0.10);
+      background: rgba(255,255,255,0.94);
+    }
+    .raceMargin.dem{ color: var(--dem); border-color: rgba(29,78,216,0.25); }
+    .raceMargin.gop{ color: var(--gop); border-color: rgba(220,38,38,0.25); }
+    .raceMargin.neu{ color: rgba(15,23,42,0.80); }
+
+    .barWrap{
+      margin-top: 10px;
+      border: 1px solid rgba(15,23,42,0.10);
+      background: rgba(148,163,184,0.10);
+      border-radius: 999px;
+      height: 12px;
+      overflow:hidden;
+      display:flex;
+    }
+    .barD{ background: rgba(29,78,216,0.95); }
+    .barR{ background: rgba(220,38,38,0.95); }
+
+    .barLabel{
+      display:flex;
+      justify-content:space-between;
+      margin-top: 8px;
+      font-size: 11px;
+      font-weight: 950;
+      color: rgba(15,23,42,0.80);
+    }
+    .barLabel span{ font-family: var(--mono); font-weight: 950; }
+
+    .kvs{ display:grid; gap: 8px; margin-top: 10px; }
+    .kv{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items:center;
+      padding: 7px 0;
+      border-bottom: 1px dashed rgba(148,163,184,0.35);
+    }
+    .kv:last-child{ border-bottom:none; }
+    .k{ font-weight: 850; font-size: 11px; color: var(--muted); }
+    .v{ font-weight: 950; font-size: 12px; font-family: var(--mono); color: rgba(15,23,42,0.95); }
+
+    .bigMetric{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(15,23,42,0.10);
+      background: rgba(248,250,252,0.78);
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .bigMetric .label{
+      font-weight: 950;
+      font-size: 11px;
+      letter-spacing: 0.25px;
+      text-transform: uppercase;
+      color: rgba(15,23,42,0.70);
+    }
+    .bigMetric .num{
+      font-weight: 950;
+      font-size: 22px;
+      font-family: var(--mono);
+    }
+    .num.dem{ color: var(--dem); }
+    .num.gop{ color: var(--gop); }
+    .num.neu{ color: rgba(15,23,42,0.82); }
+
+    .twocol{
+      margin-top: 10px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .miniList{
+      border:1px solid rgba(15,23,42,0.10);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.92);
+      padding: 10px;
+    }
+    .miniTitle{
+      font-weight: 950;
+      font-size: 11px;
+      letter-spacing: 0.25px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      color: rgba(15,23,42,0.74);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .miniTitle .tag{
+      font-weight: 950;
+      font-size: 11px;
+      font-family: var(--mono);
+      padding: 4px 6px;
+      border-radius: 999px;
+      border:1px solid rgba(15,23,42,0.10);
+      background: rgba(248,250,252,0.75);
+      color: rgba(15,23,42,0.76);
+    }
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px dashed rgba(148,163,184,0.35);
+      cursor:pointer;
+      user-select:none;
+    }
+    .row:last-child{ border-bottom:none; }
+    .row:hover{ background: rgba(248,250,252,0.70); border-radius: 10px; padding-left: 8px; padding-right: 8px; }
+    .row .p{ font-weight: 950; font-size: 12px; font-family: var(--mono); }
+    .row .m{ font-weight: 950; font-size: 12px; font-family: var(--mono); }
+    .m.dem{ color: var(--dem); }
+    .m.gop{ color: var(--gop); }
+    .m.neu{ color: rgba(15,23,42,0.82); }
+
+    /* Map card */
+    .mapCard{
+      position: relative;
+      border-radius: var(--radius);
+      overflow:hidden;
+      border:1px solid var(--border);
+      box-shadow: var(--shadow);
+      background:#ffffff;
+      min-height: 0;
+    }
+    #map{ height:100%; width:100%; }
+
+    /* Map legend overlay (dynamic) */
+    .legend{
+      position:absolute;
+      right: 12px;
+      bottom: 12px;
+      z-index: 900;
+      background: rgba(255,255,255,0.94);
+      border:1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 16px 42px rgba(2,6,23,0.10);
+      padding: 10px 12px;
+      width: 330px;
+      backdrop-filter: blur(10px);
+    }
+    .legendT{
+      font-weight: 950;
+      font-size: 12px;
+      letter-spacing: 0.35px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .legendS{
+      font-weight: 850;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .legend svg text{
+      font-family: var(--ui);
+      fill: rgba(15,23,42,0.66);
+      font-weight: 950;
+    }
+
+    /* Tooltip */
+    .leaflet-tooltip{
+      background: rgba(255,255,255,0.97);
+      color: rgba(15,23,42,0.94);
+      border: 1px solid rgba(15,23,42,0.12);
+      box-shadow: 0 16px 42px rgba(2,6,23,0.14);
+      border-radius: 14px;
+      padding: 10px 12px;
+      backdrop-filter: blur(8px);
+    }
+    .ttTitle{ font-weight: 950; font-size: 12px; margin-bottom: 8px; }
+    .ttGrid{ display:grid; grid-template-columns: 1fr auto; gap: 6px 10px; }
+    .ttK{ font-weight: 850; font-size: 11px; color: rgba(15,23,42,0.66); }
+    .ttV{ font-weight: 950; font-size: 11px; font-family: var(--mono); }
+
+    @media (max-width: 1020px){
+      .main{ grid-template-columns: 1fr; }
+      .panel{ height: 54vh; }
+      .mapCard{ height: calc(46vh - 12px); }
+      .legend{ width: 310px; }
+    }
+  </style>
+</head>
+
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brandMark"></div>
+      <div>
+        <div class="brandTitle">Texas State Senate District 9</div>
+        <div class="brandSub">Precinct-level map with tabbed metrics (no dark mode, fixed clamp/opacity)</div>
+      </div>
+    </div>
+
+    <div class="rightChips">
+      <div class="chip"><span class="dot" id="dotLoad"></span><span id="loadText">Loading…</span></div>
+      <div class="chip"><span class="dot ok"></span>Opacity fixed: <span style="font-family:var(--mono);font-weight:950;">0.95</span></div>
+      <div class="chip"><span class="dot warn"></span>Clamp fixed: <span style="font-family:var(--mono);font-weight:950;">±40</span> pts</div>
+      <div class="chip" id="chipMode"><span class="dot ok"></span><span id="modeText">Map: Trend</span></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="panel">
+      <div class="panelHead">
+        <div class="selLine">
+          <div>
+            <div class="selPrec">Precinct <span id="selPrec">—</span></div>
+            <div class="selMeta" id="selMeta">Click a precinct. Tabs also change the map coloring.</div>
+          </div>
+          <div class="selMeta">TX SD9</div>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Details tabs">
+          <div class="tab active" data-tab="tabTrend" data-mode="trend" role="tab" aria-selected="true">Trend</div>
+          <div class="tab" data-tab="tabSwing" data-mode="swing" role="tab" aria-selected="false">Swing</div>
+          <div class="tab" data-tab="tab2026" data-mode="y2026" role="tab" aria-selected="false">2026</div>
+          <div class="tab" data-tab="tab2022" data-mode="y2022" role="tab" aria-selected="false">2022</div>
+          <div class="tab" data-tab="tabAbout" data-mode="about" role="tab" aria-selected="false">About</div>
+        </div>
+
+        <div class="searchRow">
+          <input id="searchBox" type="text" placeholder="Jump to precinct (e.g., 1001) → Enter"/>
+          <button class="btn" id="btnFit">Fit</button>
+        </div>
+      </div>
+
+      <div class="panelBody">
+        <!-- Trend -->
+        <div class="section" id="tabTrend">
+          <div class="sectionTitle">Trend (50/50 normalized)</div>
+
+          <div class="bigMetric">
+            <div class="label">Δ margin50 (2026 − 2022)</div>
+            <div class="num neu" id="trendVal">—</div>
+          </div>
+
+          <div class="raceBar">
+            <div class="raceTop">
+              <div class="raceLabel">2026 normalized (D50 / R50)</div>
+              <div class="raceMargin neu" id="trendPill">—</div>
+            </div>
+            <div class="barWrap" aria-hidden="true">
+              <div class="barD" id="barN26D" style="width:0%"></div>
+              <div class="barR" id="barN26R" style="width:0%"></div>
+            </div>
+            <div class="barLabel">
+              <div>Normalized</div>
+              <div><span id="barN26Lab">—</span></div>
+            </div>
+          </div>
+
+          <div class="kvs">
+            <div class="kv"><div class="k">2022 margin50</div><div class="v" id="n22m">—</div></div>
+            <div class="kv"><div class="k">2026 margin50</div><div class="v" id="n26m">—</div></div>
+            <div class="kv"><div class="k">Δ D50 (2026 − 2022)</div><div class="v" id="d50swing">—</div></div>
+          </div>
+
+          <div class="twocol">
+            <div class="miniList">
+              <div class="miniTitle">
+                <span style="color:var(--dem);">Most D trend</span><span class="tag" id="tagTrendD">—</span>
+              </div>
+              <div id="listTrendD"></div>
+            </div>
+            <div class="miniList">
+              <div class="miniTitle">
+                <span style="color:var(--gop);">Most R trend</span><span class="tag" id="tagTrendR">—</span>
+              </div>
+              <div id="listTrendR"></div>
+            </div>
+          </div>
+
+          <p class="desc">
+            Trend is computed on normalized values (margin50). Tabs change map coloring; the legend updates accordingly.
+          </p>
+        </div>
+
+        <!-- Swing -->
+        <div class="section" id="tabSwing" style="display:none;">
+          <div class="sectionTitle">Swing (actual election results)</div>
+
+          <div class="bigMetric">
+            <div class="label">Δ margin (D−R) (2026 − 2022)</div>
+            <div class="num neu" id="rawSwingVal">—</div>
+          </div>
+
+          <div class="raceBar">
+            <div class="raceTop">
+              <div class="raceLabel">2026 actual (D% / R%)</div>
+              <div class="raceMargin neu" id="swingPill">—</div>
+            </div>
+            <div class="barWrap" aria-hidden="true">
+              <div class="barD" id="bar26D" style="width:0%"></div>
+              <div class="barR" id="bar26R" style="width:0%"></div>
+            </div>
+            <div class="barLabel">
+              <div>Actual</div>
+              <div><span id="bar26Lab">—</span></div>
+            </div>
+          </div>
+
+          <div class="kvs">
+            <div class="kv"><div class="k">2022 margin (D−R)</div><div class="v" id="r22m">—</div></div>
+            <div class="kv"><div class="k">2026 margin (D−R)</div><div class="v" id="r26m">—</div></div>
+            <div class="kv"><div class="k">Δ D% (2026 − 2022)</div><div class="v" id="dpctSwing">—</div></div>
+          </div>
+
+          <div class="twocol">
+            <div class="miniList">
+              <div class="miniTitle">
+                <span style="color:var(--dem);">Most D swing</span><span class="tag" id="tagSwingD">—</span>
+              </div>
+              <div id="listSwingD"></div>
+            </div>
+            <div class="miniList">
+              <div class="miniTitle">
+                <span style="color:var(--gop);">Most R swing</span><span class="tag" id="tagSwingR">—</span>
+              </div>
+              <div id="listSwingR"></div>
+            </div>
+          </div>
+
+          <p class="desc">
+            Swing uses actual two-party margin (D−R). Trend uses normalized margin50 (see Trend tab).
+          </p>
+        </div>
+
+        <!-- 2026 -->
+        <div class="section" id="tab2026" style="display:none;">
+          <div class="sectionTitle">2026 results</div>
+
+          <div class="bigMetric">
+            <div class="label">2026 margin (D−R)</div>
+            <div class="num neu" id="m2026Val">—</div>
+          </div>
+
+          <div class="raceBar">
+            <div class="raceTop">
+              <div class="raceLabel">2026 actual (D% / R%)</div>
+              <div class="raceMargin neu" id="y2026Pill">—</div>
+            </div>
+            <div class="barWrap" aria-hidden="true">
+              <div class="barD" id="bar26D2" style="width:0%"></div>
+              <div class="barR" id="bar26R2" style="width:0%"></div>
+            </div>
+            <div class="barLabel">
+              <div>Actual</div>
+              <div><span id="bar26Lab2">—</span></div>
+            </div>
+          </div>
+
+          <div class="kvs">
+            <div class="kv"><div class="k">2026 D% / R%</div><div class="v" id="r26pct2">—</div></div>
+            <div class="kv"><div class="k">2026 D50 / R50</div><div class="v" id="n26pct2">—</div></div>
+            <div class="kv"><div class="k">2026 margin50</div><div class="v" id="n26m2">—</div></div>
+          </div>
+
+          <div class="twocol">
+            <div class="miniList">
+              <div class="miniTitle">
+                <span style="color:var(--dem);">Top D precincts</span><span class="tag" id="tag26D">—</span>
+              </div>
+              <div id="list26D"></div>
+            </div>
+            <div class="miniList">
+              <div class="miniTitle">
+                <span style="color:var(--gop);">Top R precincts</span><span class="tag" id="tag26R">—</span>
+              </div>
+              <div id="list26R"></div>
+            </div>
+          </div>
+
+          <p class="desc">
+            Map is colored by 2026 margin (D−R). Clamp is fixed, so landslide precincts saturate.
+          </p>
+        </div>
+
+        <!-- 2022 -->
+        <div class="section" id="tab2022" style="display:none;">
+          <div class="sectionTitle">2022 results</div>
+
+          <div class="bigMetric">
+            <div class="label">2022 margin (D−R)</div>
+            <div class="num neu" id="m2022Val">—</div>
+          </div>
+
+          <div class="raceBar">
+            <div class="raceTop">
+              <div class="raceLabel">2022 actual (D% / R%)</div>
+              <div class="raceMargin neu" id="y2022Pill">—</div>
+            </div>
+            <div class="barWrap" aria-hidden="true">
+              <div class="barD" id="bar22D2" style="width:0%"></div>
+              <div class="barR" id="bar22R2" style="width:0%"></div>
+            </div>
+            <div class="barLabel">
+              <div>Actual</div>
+              <div><span id="bar22Lab2">—</span></div>
+            </div>
+          </div>
+
+          <div class="kvs">
+            <div class="kv"><div class="k">2022 D% / R%</div><div class="v" id="r22pct2">—</div></div>
+            <div class="kv"><div class="k">2022 D50 / R50</div><div class="v" id="n22pct2">—</div></div>
+            <div class="kv"><div class="k">2022 margin50</div><div class="v" id="n22m2">—</div></div>
+          </div>
+
+          <div class="twocol">
+            <div class="miniList">
+              <div class="miniTitle">
+                <span style="color:var(--dem);">Top D precincts</span><span class="tag" id="tag22D">—</span>
+              </div>
+              <div id="list22D"></div>
+            </div>
+            <div class="miniList">
+              <div class="miniTitle">
+                <span style="color:var(--gop);">Top R precincts</span><span class="tag" id="tag22R">—</span>
+              </div>
+              <div id="list22R"></div>
+            </div>
+          </div>
+
+          <p class="desc">Map is colored by 2022 margin (D−R).</p>
+        </div>
+
+        <!-- About -->
+        <div class="section" id="tabAbout" style="display:none;">
+          <div class="sectionTitle">About</div>
+          <div class="kvs">
+            <div class="kv"><div class="k">Tabs</div><div class="v">Change map metric + details</div></div>
+            <div class="kv"><div class="k">Join key</div><div class="v">GeoJSON properties.Precinct ↔ CSV precinct</div></div>
+            <div class="kv"><div class="k">District filter</div><div class="v">GeoJSON Senate == 9</div></div>
+            <div class="kv"><div class="k">Clamp / opacity</div><div class="v">±40 pts / 0.95</div></div>
+          </div>
+          <p class="desc">
+            This page intentionally avoids embedding large GeoJSON. It loads:
+            <span style="font-family:var(--mono);font-weight:950;">sd9_precinct_5050_swing.csv</span> and
+            <span style="font-family:var(--mono);font-weight:950;">tarrant.geojson</span> by default.
+            Edit CONFIG paths if your GitHub repo uses different filenames.
+          </p>
+          <div class="kvs">
+            <div class="kv"><div class="k">Keyboard</div><div class="v">Esc clears selection</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mapCard">
+      <div id="map"></div>
+      <div class="legend">
+        <div class="legendT" id="legendTitle">Map: Trend</div>
+        <div class="legendS" id="legendSub">Δ margin50 (2026−2022). Blue = D shift, red = R shift. Clamp ±40.</div>
+        <svg id="legendSvg" width="306" height="58"></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+  // =========================
+  // CONFIG (GitHub-friendly)
+  // =========================
+  const CONFIG = {
+    csvPath: "sd9_precinct_5050_swing.csv",
+    geojsonPath: "tarrant.geojson",
+    senateDistrict: "9",
+    clamp: 40,       // points
+    opacity: 0.95    // fixed
+  };
+
+  // =========================
+  // State
+  // =========================
+  let DATA = {};   // precinct -> row
+  let GEO = null;  // SD9 FeatureCollection
+  let geoLayer = null;
+  let selected = null;
+  let mode = "trend"; // "trend" | "swing" | "y2026" | "y2022"
+
+  // =========================
+  // Utils
+  // =========================
+  const byId = (id) => document.getElementById(id);
+  const fmt = (x, d=1) => (x==null || !isFinite(x)) ? "—" : (+x).toFixed(d);
+  const fmt2 = (x, d=2) => (x==null || !isFinite(x)) ? "—" : (+x).toFixed(d);
+  const fmtS = (x, d=2) => (x==null || !isFinite(x)) ? "—" : ((+x>=0?"+":"") + (+x).toFixed(d));
+  const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
+  function setStatus(ok, msg){
+    const dot = byId("dotLoad");
+    const text = byId("loadText");
+    dot.classList.remove("ok","warn");
+    dot.classList.add(ok ? "ok" : "warn");
+    text.textContent = msg;
+  }
+
+  function toPrecinctInt(v){
+    const m = String(v ?? "").trim().match(/^(\d+)/);
+    return m ? +m[1] : null;
+  }
+  function num(v){
+    const x = +v;
+    return isFinite(x) ? x : null;
+  }
+
+  function metricClass(v){
+    if (v==null || !isFinite(v)) return "neu";
+    if (v > 0.0001) return "dem";
+    if (v < -0.0001) return "gop";
+    return "neu";
+  }
+
+  function pillText(kind, v){
+    // kind: "margin" in points; return CNN-like "D+X.X" / "R+X.X" / "EVEN"
+    if (v==null || !isFinite(v)) return "—";
+    if (Math.abs(v) < 0.0001) return "EVEN";
+    const side = v > 0 ? "D" : "R";
+    return `${side}+${Math.abs(v).toFixed(2)}`;
+  }
+
+  // =========================
+  // Tab + mode handling
+  // =========================
+  function setTab(activeId){
+    document.querySelectorAll(".tab").forEach(t => {
+      const isActive = (t.dataset.tab === activeId);
+      t.classList.toggle("active", isActive);
+      t.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+    document.querySelectorAll(".section").forEach(sec => {
+      sec.style.display = (sec.id === activeId) ? "" : "none";
+    });
+
+    // Mode switching (About does not change map mode)
+    const tabEl = document.querySelector(`.tab[data-tab="${activeId}"]`);
+    const nextMode = tabEl ? tabEl.dataset.mode : "trend";
+    if (nextMode && nextMode !== "about"){
+      setMode(nextMode);
+    }
+  }
+
+  function setMode(next){
+    mode = next;
+    byId("modeText").textContent =
+      mode === "trend" ? "Map: Trend" :
+      mode === "swing" ? "Map: Swing" :
+      mode === "y2026" ? "Map: 2026" :
+      "Map: 2022";
+
+    updateLegend();
+    repaintMap();
+
+    // refresh tooltip content for accuracy
+    if (geoLayer){
+      geoLayer.eachLayer(l => {
+        const p = String(l.feature.properties?.Precinct);
+        l.setTooltipContent(tooltipHTML(p));
+      });
+    }
+
+    // refresh lists to match mode
+    renderLists();
+  }
+
+  document.querySelectorAll(".tab").forEach(t => {
+    t.addEventListener("click", () => setTab(t.dataset.tab));
+  });
+
+  // =========================
+  // Map
+  // =========================
+  const map = L.map("map", { zoomControl: true, preferCanvas: true });
+
+  L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    { attribution: "&copy; OpenStreetMap contributors &copy; CARTO" }
+  ).addTo(map);
+
+  function getMetricForMode(r){
+    if (!r) return null;
+    if (mode === "trend") return r.margin50_swing;
+    if (mode === "swing") return r.margin_raw_swing;
+    if (mode === "y2026") return r["2026_margin_raw"];
+    if (mode === "y2022") return r["2022_margin_raw"];
+    return null;
+  }
+
+  function colorFor(val){
+    if (val == null || !isFinite(val)) return "rgba(148,163,184,0.22)";
+    // D3 RdBu: 0 -> red, 1 -> blue. We want negative -> red, positive -> blue.
+    let t = (val + CONFIG.clamp) / (2*CONFIG.clamp);
+    t = clamp01(t);
+    return d3.interpolateRdBu(t);
+  }
+
+  function styleFeature(feat){
+    const p = String(feat.properties?.Precinct);
+    const r = DATA[p] || null;
+    const v = getMetricForMode(r);
+    const isSel = (selected === p);
+
+    return {
+      color: isSel ? "rgba(29,78,216,0.92)" : "rgba(15,23,42,0.30)",
+      weight: isSel ? 2.7 : 0.9,
+      opacity: 1,
+      fillColor: colorFor(v),
+      fillOpacity: r ? CONFIG.opacity : 0.10,
+      lineJoin: "round"
+    };
+  }
+
+  function modeLabel(){
+    if (mode === "trend") return "Trend (Δmargin50)";
+    if (mode === "swing") return "Swing (Δmargin)";
+    if (mode === "y2026") return "2026 margin (D−R)";
+    if (mode === "y2022") return "2022 margin (D−R)";
+    return "Metric";
+  }
+
+  function tooltipHTML(p){
+    const r = DATA[p] || null;
+    const v = getMetricForMode(r);
+
+    const line1 = r ? pillText("margin", v) : "—";
+    const lbl = modeLabel();
+
+    const extra = r ? `
+      <div class="ttGrid">
+        <div class="ttK">${lbl}</div><div class="ttV">${fmtS(v,2)}</div>
+        <div class="ttK">2026 D% / R%</div><div class="ttV">${fmt(r["2026_D_pct"],1)} / ${fmt(r["2026_R_pct"],1)}</div>
+        <div class="ttK">2022 D% / R%</div><div class="ttV">${fmt(r["2022_D_pct"],1)} / ${fmt(r["2022_R_pct"],1)}</div>
+        <div class="ttK">Trend (Δmargin50)</div><div class="ttV">${fmtS(r.margin50_swing,2)}</div>
+        <div class="ttK">Swing (Δmargin)</div><div class="ttV">${fmtS(r.margin_raw_swing,2)}</div>
+      </div>
+    ` : `
+      <div class="ttGrid">
+        <div class="ttK">${lbl}</div><div class="ttV">—</div>
+        <div class="ttK">Note</div><div class="ttV">no CSV row</div>
+      </div>
+    `;
+
+    return `
+      <div class="ttTitle">Precinct <span style="font-family:var(--mono);font-weight:950;">${p}</span> · <span style="font-family:var(--mono);font-weight:950;">${line1}</span></div>
+      ${extra}
+    `;
+  }
+
+  const renderer = L.canvas({ padding: 0.5 });
+
+  function repaintMap(){
+    if (geoLayer) geoLayer.setStyle(styleFeature);
+  }
+
+  // =========================
+  // Legend (dynamic title/sub + fixed clamp)
+  // =========================
+  function updateLegend(){
+    const title =
+      mode === "trend" ? "Map: Trend" :
+      mode === "swing" ? "Map: Swing" :
+      mode === "y2026" ? "Map: 2026" :
+      "Map: 2022";
+    byId("legendTitle").textContent = title;
+
+    const sub =
+      mode === "trend" ? "Δ margin50 (2026−2022). Blue = D shift, red = R shift." :
+      mode === "swing" ? "Δ margin (D−R) (2026−2022). Blue = D swing, red = R swing." :
+      mode === "y2026" ? "2026 margin (D−R). Blue = D lead, red = R lead." :
+      "2022 margin (D−R). Blue = D lead, red = R lead.";
+    byId("legendSub").textContent = `${sub} Clamp ±${CONFIG.clamp}.`;
+
+    byId("chipMode").style.borderColor = "rgba(15,23,42,0.10)";
+  }
+
+  function renderLegendScale(){
+    const svg = d3.select("#legendSvg");
+    svg.selectAll("*").remove();
+
+    const w = 306, h = 58;
+    const padL = 10, padR = 10, barY = 10, barH = 12, barW = w - padL - padR;
+
+    const defs = svg.append("defs");
+    const grad = defs.append("linearGradient")
+      .attr("id","grad").attr("x1","0%").attr("x2","100%").attr("y1","0%").attr("y2","0%");
+    const stops = d3.range(0, 1.0001, 0.05);
+    grad.selectAll("stop")
+      .data(stops).enter().append("stop")
+      .attr("offset", d => `${d*100}%`)
+      .attr("stop-color", d => d3.interpolateRdBu(d));
+
+    svg.append("rect")
+      .attr("x", padL).attr("y", barY)
+      .attr("width", barW).attr("height", barH)
+      .attr("rx", 6).attr("ry", 6)
+      .attr("fill", "url(#grad)")
+      .attr("stroke", "rgba(15,23,42,0.14)");
+
+    const x = d3.scaleLinear().domain([-CONFIG.clamp, CONFIG.clamp]).range([padL, padL+barW]);
+
+    const ticks = [-CONFIG.clamp, -CONFIG.clamp/2, 0, CONFIG.clamp/2, CONFIG.clamp];
+
+    const tickFormat = (d) => {
+      if (d === 0) return "EVEN";
+      const side = d < 0 ? "R" : "D";
+      return `${side}+${Math.abs(d)}`;
+    };
+
+    svg.append("g")
+      .attr("transform", `translate(0, ${barY + barH + 22})`)
+      .call(d3.axisBottom(x).tickValues(ticks).tickFormat(tickFormat))
+      .call(g => g.select(".domain").remove())
+      .call(g => g.selectAll("line").attr("stroke","rgba(15,23,42,0.18)"));
+  }
+
+  // =========================
+  // Lists
+  // =========================
+  function topListsFor(metricKey, n=6){
+    const arr = Object.entries(DATA)
+      .map(([p, r]) => [p, r ? r[metricKey] : null])
+      .filter(([p, v]) => v!=null && isFinite(v))
+      .map(([p, v]) => [p, +v]);
+
+    arr.sort((a,b) => b[1]-a[1]);
+    const topD = arr.slice(0, n);          // most positive => D
+    const topR = arr.slice(-n).reverse();  // most negative => R
+    return { topD, topR };
+  }
+
+  function renderMiniList(hostId, rows, isPositiveIsDem=true){
+    const host = byId(hostId);
+    host.innerHTML = "";
+
+    rows.forEach(([p, v]) => {
+      const div = document.createElement("div");
+      div.className = "row";
+      div.innerHTML = `<div class="p">P ${p}</div><div class="m ${metricClass(v)}">${fmtS(v,2)}</div>`;
+      div.onclick = () => zoomToPrecinct(p);
+      host.appendChild(div);
+    });
+  }
+
+  function renderLists(){
+    // Trend
+    const t = topListsFor("margin50_swing", 6);
+    renderMiniList("listTrendD", t.topD);
+    renderMiniList("listTrendR", t.topR);
+    byId("tagTrendD").textContent = t.topD.length ? fmtS(t.topD[0][1],2) : "—";
+    byId("tagTrendR").textContent = t.topR.length ? fmtS(t.topR[0][1],2) : "—";
+
+    // Swing
+    const s = topListsFor("margin_raw_swing", 6);
+    renderMiniList("listSwingD", s.topD);
+    renderMiniList("listSwingR", s.topR);
+    byId("tagSwingD").textContent = s.topD.length ? fmtS(s.topD[0][1],2) : "—";
+    byId("tagSwingR").textContent = s.topR.length ? fmtS(s.topR[0][1],2) : "—";
+
+    // 2026
+    const y26 = topListsFor("2026_margin_raw", 6);
+    renderMiniList("list26D", y26.topD);
+    renderMiniList("list26R", y26.topR);
+    byId("tag26D").textContent = y26.topD.length ? fmtS(y26.topD[0][1],2) : "—";
+    byId("tag26R").textContent = y26.topR.length ? fmtS(y26.topR[0][1],2) : "—";
+
+    // 2022
+    const y22 = topListsFor("2022_margin_raw", 6);
+    renderMiniList("list22D", y22.topD);
+    renderMiniList("list22R", y22.topR);
+    byId("tag22D").textContent = y22.topD.length ? fmtS(y22.topD[0][1],2) : "—";
+    byId("tag22R").textContent = y22.topR.length ? fmtS(y22.topR[0][1],2) : "—";
+  }
+
+  // =========================
+  // Panel updates
+  // =========================
+  function setText(id, s){ const el = byId(id); if (el) el.textContent = s; }
+  function setBar(dId, rId, dVal, rVal){
+    const d = byId(dId), r = byId(rId);
+    if (!d || !r) return;
+    const dd = (dVal==null || !isFinite(dVal)) ? 0 : Math.max(0, Math.min(100, +dVal));
+    const rr = (rVal==null || !isFinite(rVal)) ? 0 : Math.max(0, Math.min(100, +rVal));
+    d.style.width = dd.toFixed(2) + "%";
+    r.style.width = rr.toFixed(2) + "%";
+  }
+  function setPill(id, v){
+    const el = byId(id);
+    if (!el) return;
+    el.textContent = pillText("margin", v);
+    el.classList.remove("dem","gop","neu");
+    el.classList.add(metricClass(v));
+  }
+  function setNum(id, v){
+    const el = byId(id);
+    if (!el) return;
+    el.textContent = fmtS(v,2);
+    el.classList.remove("dem","gop","neu");
+    el.classList.add(metricClass(v));
+  }
+
+  function updatePanel(p){
+    setText("selPrec", p);
+    const r = DATA[p] || null;
+
+    if (!r){
+      setText("selMeta", "No CSV row for this GeoJSON precinct id.");
+      // clear a few key fields
+      setText("trendVal","—"); setText("rawSwingVal","—"); setText("m2026Val","—"); setText("m2022Val","—");
+      setPill("trendPill", null); setPill("swingPill", null); setPill("y2026Pill", null); setPill("y2022Pill", null);
+      setBar("barN26D","barN26R",0,0); setBar("bar26D","bar26R",0,0); setBar("bar26D2","bar26R2",0,0); setBar("bar22D2","bar22R2",0,0);
+      setText("barN26Lab","—"); setText("bar26Lab","—"); setText("bar26Lab2","—"); setText("bar22Lab2","—");
+      return;
+    }
+
+    const labels = (r.labels && r.labels.length) ? r.labels.join(", ") : p;
+    setText("selMeta", `CSV precinct label(s): ${labels}`);
+
+    // Trend
+    setNum("trendVal", r.margin50_swing);
+    setPill("trendPill", r.margin50_swing);
+    setBar("barN26D","barN26R", r["2026_D50"], r["2026_R50"]);
+    setText("barN26Lab", `D50 ${fmt(r["2026_D50"],1)}  |  R50 ${fmt(r["2026_R50"],1)}`);
+    setText("n22m", fmtS(r["2022_margin50"],2));
+    setText("n26m", fmtS(r["2026_margin50"],2));
+    setText("d50swing", fmtS(r["D50_swing"],2));
+
+    // Swing
+    setNum("rawSwingVal", r.margin_raw_swing);
+    setPill("swingPill", r.margin_raw_swing);
+    setBar("bar26D","bar26R", r["2026_D_pct"], r["2026_R_pct"]);
+    setText("bar26Lab", `D ${fmt(r["2026_D_pct"],1)}  |  R ${fmt(r["2026_R_pct"],1)}`);
+    setText("r22m", fmtS(r["2022_margin_raw"],2));
+    setText("r26m", fmtS(r["2026_margin_raw"],2));
+    setText("dpctSwing", fmtS(r["D_pct_swing"],2));
+
+    // 2026
+    setNum("m2026Val", r["2026_margin_raw"]);
+    setPill("y2026Pill", r["2026_margin_raw"]);
+    setBar("bar26D2","bar26R2", r["2026_D_pct"], r["2026_R_pct"]);
+    setText("bar26Lab2", `D ${fmt(r["2026_D_pct"],1)}  |  R ${fmt(r["2026_R_pct"],1)}`);
+    setText("r26pct2", `${fmt(r["2026_D_pct"],1)} / ${fmt(r["2026_R_pct"],1)}`);
+    setText("n26pct2", `${fmt(r["2026_D50"],1)} / ${fmt(r["2026_R50"],1)}`);
+    setText("n26m2", fmtS(r["2026_margin50"],2));
+
+    // 2022
+    setNum("m2022Val", r["2022_margin_raw"]);
+    setPill("y2022Pill", r["2022_margin_raw"]);
+    setBar("bar22D2","bar22R2", r["2022_D_pct"], r["2022_R_pct"]);
+    setText("bar22Lab2", `D ${fmt(r["2022_D_pct"],1)}  |  R ${fmt(r["2022_R_pct"],1)}`);
+    setText("r22pct2", `${fmt(r["2022_D_pct"],1)} / ${fmt(r["2022_R_pct"],1)}`);
+    setText("n22pct2", `${fmt(r["2022_D50"],1)} / ${fmt(r["2022_R50"],1)}`);
+    setText("n22m2", fmtS(r["2022_margin50"],2));
+  }
+
+  // =========================
+  // Map init / selection
+  // =========================
+  function zoomToPrecinct(p){
+    if (!geoLayer) return;
+
+    let found = null;
+    geoLayer.eachLayer(l => {
+      if (String(l.feature.properties?.Precinct) === String(p)) found = l;
+    });
+    if (!found){
+      alert(`Precinct ${p} not found in this GeoJSON (SD${CONFIG.senateDistrict}).`);
+      return;
+    }
+    selected = String(p);
+    repaintMap();
+    updatePanel(String(p));
+    map.fitBounds(found.getBounds(), { padding: [40,40] });
+  }
+
+  function initSelectionDefault(){
+    const geoKeys = new Set((GEO.features || []).map(f => String(f.properties?.Precinct)));
+    const candidates = Object.keys(DATA).filter(k => geoKeys.has(k)).sort((a,b)=>+a-+b);
+    if (!candidates.length) return;
+    selected = candidates[0];
+    repaintMap();
+    updatePanel(selected);
+  }
+
+  // =========================
+  // Data loading
+  // =========================
+  async function loadAll(){
+    try{
+      setStatus(false, "Loading CSV + GeoJSON…");
+      const [rows, geo] = await Promise.all([
+        d3.csv(CONFIG.csvPath),
+        d3.json(CONFIG.geojsonPath)
+      ]);
+
+      // CSV: merge duplicates by precinct_int (mean)
+      const tmp = new Map(); // precinct_int -> {n, sums}
+      const lab = new Map();
+
+      const keepCols = [
+        "2022_D_pct","2022_R_pct","2022_D50","2022_R50","2022_margin50",
+        "2026_D_pct","2026_R_pct","2026_D50","2026_R50","2026_margin50",
+        "D50_swing","margin50_swing"
+      ];
+
+      rows.forEach(r => {
+        const pInt = toPrecinctInt(r.precinct);
+        if (pInt == null) return;
+
+        if (!tmp.has(pInt)){
+          tmp.set(pInt, { n:0, sums:{} });
+          lab.set(pInt, new Set());
+        }
+        lab.get(pInt).add(String(r.precinct));
+        const acc = tmp.get(pInt);
+        acc.n += 1;
+
+        keepCols.forEach(c => {
+          const v = num(r[c]);
+          if (v == null) return;
+          acc.sums[c] = (acc.sums[c] ?? 0) + v;
+        });
+      });
+
+      DATA = {};
+      for (const [pInt, acc] of tmp.entries()){
+        const out = { precinct: String(pInt), labels: Array.from(lab.get(pInt)).sort() };
+        const n = acc.n || 1;
+        for (const [k, s] of Object.entries(acc.sums)){
+          out[k] = s / n;
+        }
+
+        // Derived raw margins + swings
+        out["2022_margin_raw"] = (out["2022_D_pct"]!=null && out["2022_R_pct"]!=null) ? out["2022_D_pct"] - out["2022_R_pct"] : null;
+        out["2026_margin_raw"] = (out["2026_D_pct"]!=null && out["2026_R_pct"]!=null) ? out["2026_D_pct"] - out["2026_R_pct"] : null;
+        out["margin_raw_swing"] = (out["2026_margin_raw"]!=null && out["2022_margin_raw"]!=null) ? out["2026_margin_raw"] - out["2022_margin_raw"] : null;
+        out["D_pct_swing"] = (out["2026_D_pct"]!=null && out["2022_D_pct"]!=null) ? out["2026_D_pct"] - out["2022_D_pct"] : null;
+
+        // Ensure margin50 if missing but D50 exists
+        if (out["2022_margin50"]==null && out["2022_D50"]!=null) out["2022_margin50"] = 2*out["2022_D50"] - 100;
+        if (out["2026_margin50"]==null && out["2026_D50"]!=null) out["2026_margin50"] = 2*out["2026_D50"] - 100;
+
+        // Ensure swings if missing
+        if (out["D50_swing"]==null && out["2026_D50"]!=null && out["2022_D50"]!=null) out["D50_swing"] = out["2026_D50"] - out["2022_D50"];
+        if (out["margin50_swing"]==null && out["2026_margin50"]!=null && out["2022_margin50"]!=null) out["margin50_swing"] = out["2026_margin50"] - out["2022_margin50"];
+
+        DATA[String(pInt)] = out;
+      }
+
+      // GeoJSON: filter to SD9
+      const feats = (geo.features || []).filter(f => String(f.properties?.Senate ?? "").trim() === String(CONFIG.senateDistrict));
+      GEO = { type: "FeatureCollection", features: feats };
+
+      setStatus(true, `Loaded ${rows.length.toLocaleString()} CSV rows • ${feats.length.toLocaleString()} SD${CONFIG.senateDistrict} precincts`);
+
+      // Build map layer
+      const layer = L.geoJSON(GEO, {
+        renderer,
+        style: styleFeature,
+        onEachFeature: (feat, lyr) => {
+          const p = String(feat.properties?.Precinct);
+          lyr.bindTooltip(tooltipHTML(p), { sticky: true, direction: "auto", opacity: 1 });
+
+          lyr.on("mouseover", () => {
+            if (selected !== p) lyr.setStyle({ weight: 1.8, color: "rgba(15,23,42,0.45)" });
+          });
+          lyr.on("mouseout", () => {
+            if (selected !== p) layer.resetStyle(lyr);
+          });
+          lyr.on("click", () => {
+            selected = p;
+            repaintMap();
+            updatePanel(p);
+          });
+        }
+      }).addTo(map);
+
+      geoLayer = layer;
+      map.fitBounds(geoLayer.getBounds(), { padding: [40,40] });
+
+      byId("btnFit").addEventListener("click", () => {
+        map.fitBounds(geoLayer.getBounds(), { padding: [40,40] });
+      });
+
+      byId("searchBox").addEventListener("keydown", (e) => {
+        if (e.key !== "Enter") return;
+        const q = e.target.value.trim();
+        if (!q) return;
+        const m = q.match(/(\d+)/);
+        const p = m ? m[1] : q;
+        zoomToPrecinct(p);
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape"){
+          selected = null;
+          repaintMap();
+          byId("selPrec").textContent = "—";
+          byId("selMeta").textContent = "Selection cleared. Click a precinct.";
+        }
+      });
+
+      // Render legend scale once
+      renderLegendScale();
+      updateLegend();
+
+      // Render lists
+      renderLists();
+
+      // Default selection
+      initSelectionDefault();
+
+      // Ensure mode matches active tab
+      setMode("trend");
+    }catch(err){
+      console.error(err);
+      setStatus(false, "Load failed (check paths / GitHub Pages).");
+      alert("Load failed. Ensure CSV + GeoJSON are served next to this HTML (GitHub Pages), and filenames match CONFIG.");
+    }
+  }
+
+  // Boot
+  loadAll();
+</script>
+</body>
+</html>
