@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <title>TX SD9 Analytics • Mission Control</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+
+  <style>
+    :root {
+      --font-ui: 'Inter', -apple-system, system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Light theme only (no dark mode per spec) */
+      --bg-app: #f0f2f5;
+      --bg-panel: rgba(255, 255, 255, 0.85);
+      --bg-card: #ffffff;
+      --ink-primary: #0f172a;
+      --ink-secondary: #64748b;
+      --border: rgba(148, 163, 184, 0.20);
+      --shadow: 0 10px 30px -10px rgba(0,0,0,0.10);
+      --glass: blur(16px) saturate(180%);
+
+      --dem: #2563eb;
+      --gop: #dc2626;
+      --neu: #64748b;
+
+      --accent: #6366f1;
+    }
+
+    * { box-sizing: border-box; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.1s ease; }
+    html, body { height: 100%; margin: 0; padding: 0; font-family: var(--font-ui); background: var(--bg-app); color: var(--ink-primary); overflow: hidden; }
+    #app { display: grid; grid-template-rows: auto 1fr; height: 100vh; }
+
+    /* --- TOP BAR --- */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      background: var(--bg-panel);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border-bottom: 1px solid var(--border);
+      z-index: 2000;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-logo {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gop), var(--dem));
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.45);
+    }
+    .brand-text h1 { margin: 0; font-size: 15px; font-weight: 800; letter-spacing: -0.02em; }
+    .brand-text p { margin: 0; font-size: 11px; color: var(--ink-secondary); font-weight: 500; }
+
+    .controls { display: flex; align-items: center; gap: 12px; }
+
+    .chip {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 600;
+      padding: 6px 10px; border-radius: 99px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--ink-secondary);
+      box-shadow: var(--shadow);
+      white-space: nowrap;
+    }
+    .chip span { font-family: var(--font-mono); font-weight: 700; color: var(--ink-primary); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neu); transition: background 0.3s; }
+    .status-dot.ok { background: #10b981; box-shadow: 0 0 6px #10b981; }
+    .status-dot.err { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+
+    /* --- LAYOUT --- */
+    .main {
+      display: grid; grid-template-columns: 420px 1fr; gap: 16px;
+      padding: 16px; height: 100%; min-height: 0;
+    }
+
+    /* --- LEFT PANEL --- */
+    .panel {
+      display: flex; flex-direction: column;
+      background: var(--bg-panel);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .panel-head { padding: 20px 20px 10px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+
+    .search-wrap { position: relative; margin-bottom: 16px; }
+    #searchBox {
+      width: 100%; padding: 10px 12px 10px 36px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--ink-primary);
+      font-family: var(--font-ui); font-size: 13px; font-weight: 500;
+      outline: none; transition: box-shadow 0.2s;
+    }
+    #searchBox:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-secondary); width: 14px; }
+
+    .prec-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+    .prec-id { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; }
+    .prec-meta { font-family: var(--font-mono); font-size: 11px; color: var(--ink-secondary); }
+
+    .tabs { display: flex; gap: 4px; padding: 2px; background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border); }
+    .tab {
+      flex: 1; text-align: center; padding: 6px;
+      font-size: 11px; font-weight: 600; cursor: pointer;
+      border-radius: 8px; color: var(--ink-secondary);
+      user-select: none;
+    }
+    .tab.active { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(99,102,241,0.4); }
+
+    .panel-body { padding: 0 20px 20px 20px; overflow-y: auto; flex: 1; }
+
+    .card {
+      margin-top: 16px; padding: 16px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .card-title {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+      font-weight: 700; color: var(--ink-secondary);
+      margin-bottom: 12px; display: flex; justify-content: space-between; align-items: baseline;
+      gap: 10px;
+    }
+    .card-title strong{
+      color: var(--ink-primary);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .stat-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+    .stat-val { font-family: var(--font-mono); font-size: 28px; font-weight: 700; letter-spacing: -1px; }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--ink-secondary); }
+
+    .dem { color: var(--dem); }
+    .gop { color: var(--gop); }
+    .neu { color: var(--ink-primary); }
+
+    .chart-bar-bg { height: 8px; background: rgba(148,163,184,0.22); border-radius: 4px; overflow: hidden; position: relative; }
+    .chart-bar-fill { height: 100%; position: absolute; transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+    .fill-d { background: var(--dem); left: 0; }
+    .fill-r { background: var(--gop); right: 0; }
+    .chart-labels { display: flex; justify-content: space-between; margin-top: 6px; font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: var(--ink-secondary); }
+
+    #scatterContainer { width: 100%; height: 150px; margin-top: 10px; }
+    .scatter-point { fill: var(--ink-secondary); opacity: 0.28; transition: opacity 0.2s; }
+    .scatter-point.neu { fill: rgba(100,116,139,0.75); }
+    .scatter-point.dem { fill: var(--dem); }
+    .scatter-point.gop { fill: var(--gop); }
+    .scatter-point.active { opacity: 1; stroke: rgba(15,23,42,0.85); stroke-width: 2px; }
+
+    .list-row {
+      display: flex; justify-content: space-between; padding: 8px 0;
+      border-bottom: 1px dashed rgba(148,163,184,0.35); cursor: pointer;
+      font-family: var(--font-mono); font-size: 11px;
+    }
+    .list-row:hover { background: var(--bg-app); padding-left: 4px; padding-right: 4px; border-radius: 8px; }
+    .list-row:last-child { border-bottom: none; }
+
+    /* --- MAP CONTAINER --- */
+    .map-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    #map { width: 100%; height: 100%; background: var(--bg-app); }
+
+    /* Floating Legend */
+    .legend {
+      position: absolute; bottom: 20px; right: 20px;
+      width: 280px; padding: 16px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+    }
+    #legendGradient { height: 12px; border-radius: 6px; margin: 10px 0; border: 1px solid var(--border); }
+    .legend-scale { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--ink-secondary); }
+    .legend-scale .gop{ color: var(--gop); font-weight: 800; }
+    .legend-scale .neu{ color: rgba(15,23,42,0.75); font-weight: 800; }
+    .legend-scale .dem{ color: var(--dem); font-weight: 800; }
+
+    /* Tooltip Customization */
+    .leaflet-tooltip {
+      background: rgba(255,255,255,0.96) !important;
+      border: 1px solid rgba(148,163,184,0.28) !important;
+      color: rgba(15,23,42,0.94) !important;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;
+      border-radius: 10px !important;
+      font-family: var(--font-ui) !important;
+      font-size: 12px !important;
+      padding: 8px 12px !important;
+    }
+
+    /* Border polish (SVG paths) */
+    .leaflet-overlay-pane svg path{
+      shape-rendering: geometricPrecision;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    @media (max-width: 900px) {
+      .main { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+      .legend { width: auto; left: 20px; right: 20px; bottom: 20px; }
+    }
+  </style>
+</head>
+
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-logo"></div>
+      <div class="brand-text">
+        <h1>TX SD9 Analytics</h1>
+        <p>Precinct-Level Performance Model</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="chip">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Init...</span>
+      </div>
+      <div class="chip">
+        <span>Mode:</span>
+        <span id="chipMode">TREND</span>
+      </div>
+      <div class="chip">
+        <span>Scale:</span>
+        <span id="chipScale">±40</span>
+      </div>
+      <div class="chip">
+        <span>Opacity:</span>
+        <span>0.95</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="search-wrap">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="searchBox" placeholder="Search Precinct ID… (Enter)" list="precinctList">
+          <datalist id="precinctList"></datalist>
+        </div>
+
+        <div class="prec-header">
+          <div class="prec-id" id="lblPrecinct">District Overview</div>
+          <div class="prec-meta" id="lblCount">Loading Data...</div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active" data-mode="trend">Trend</div>
+          <div class="tab" data-mode="swing">Swing</div>
+          <div class="tab" data-mode="2026">2026</div>
+          <div class="tab" data-mode="2022">2022</div>
+        </div>
+      </div>
+
+      <div class="panel-body" id="panelBody">
+        <div class="card">
+          <div class="card-title">
+            <span id="metricTitle">Trend (Normalized)</span>
+            <strong id="metricSubtitle">Δ margin50 • 2026 − 2022</strong>
+          </div>
+          <div class="stat-row">
+            <div class="stat-val neu" id="mainVal">—</div>
+            <div class="stat-label" id="mainLabel">Shift</div>
+          </div>
+
+          <div class="card-title" style="margin-top:20px;">District Distribution</div>
+          <div id="scatterContainer"></div>
+          <div class="chart-labels">
+            <span>More GOP</span>
+            <span>More DEM</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span id="shareTitle">Vote Share</span>
+            <strong id="shareSubtitle">Actual</strong>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <div class="chart-labels" style="margin-bottom:4px;">
+              <span id="lbl26">2026</span>
+              <span id="txt26">—</span>
+            </div>
+            <div class="chart-bar-bg">
+              <div class="chart-bar-fill fill-d" id="bar26d" style="width:0%"></div>
+              <div class="chart-bar-fill fill-r" id="bar26r" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="chart-labels" style="margin-bottom:4px;">
+              <span id="lbl22">2022</span>
+              <span id="txt22">—</span>
+            </div>
+            <div class="chart-bar-bg">
+              <div class="chart-bar-fill fill-d" id="bar22d" style="width:0%"></div>
+              <div class="chart-bar-fill fill-r" id="bar22r" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>Extremes</span>
+            <strong id="extSubtitle">Top 5 D / Top 5 R</strong>
+          </div>
+          <div id="extremesList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-card">
+      <div id="map"></div>
+
+      <div class="legend">
+        <div class="card-title" id="legendTitle">Trend (Margin50)</div>
+        <div class="legend-scale" style="margin-bottom:4px">
+          <span class="gop" id="legL">R+40</span>
+          <span class="neu" id="legM">Even</span>
+          <span class="dem" id="legR">D+40</span>
+        </div>
+        <div id="legendGradient"></div>
+        <div class="chart-labels">
+          <span id="legendMin">GOP</span>
+          <span id="legendMax">DEM</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * TX SD9 ANALYTICS (Mission Control)
+ * FIXES:
+ *  - Tab switching always recolors the map (no handler exceptions).
+ *  - Per-mode scales so 2026/2022 don’t look identical from saturation.
+ *  - Opacity hard-fixed at 0.95.
+ *  - Borders: white casing + clean outline (CNN-ish).
+ */
+
+// --- CONFIGURATION ---
+const CFG = {
+  csv: "sd9_precinct_5050_swing.csv",
+  json: "tarrant.geojson",
+  district: "9",
+  opacity: 0.95,
+  // Make modes visually distinct:
+  // Trend + Swing are usually within ±40. Year margins need wider range.
+  clamps: { trend: 40, swing: 40, "2026": 100, "2022": 100 },
+  styles: {
+    colorD: "#2563eb",
+    colorR: "#dc2626",
+    outline: "rgba(15,23,42,0.18)",
+    outlineHover: "rgba(15,23,42,0.30)",
+    outlineSel: "rgba(15,23,42,0.72)",
+    casing: "rgba(255,255,255,0.92)"
+  }
+};
+
+// --- STATE ---
+const STATE = {
+  data: {},          // Map<PrecinctID, DataObject>
+  geo: null,         // GeoJSON FeatureCollection
+  stats: {},         // District-wide aggregates
+  selected: null,    // Currently selected precinct ID (null = district view)
+  mode: "trend",     // trend | swing | 2026 | 2022
+  fillLayer: null,   // Leaflet GeoJSON colored layer (interactive)
+  casingLayer: null  // Leaflet GeoJSON casing layer (non-interactive)
+};
+
+// --- DOM UTILS ---
+const $ = id => document.getElementById(id);
+const fmt = (n, d=1) => (n==null || isNaN(n)) ? "—" : (+n).toFixed(d);
+const fmtS = (n, d=1) => {
+  if (n==null || isNaN(n)) return "—";
+  if (Math.abs(+n) < 1e-9) return "EVEN";
+  const s = (+n > 0 ? "D+" : "R+");
+  return `${s}${Math.abs(n).toFixed(d)}`;
+};
+
+function clampForMode(){
+  return CFG.clamps[STATE.mode] ?? 40;
+}
+function metricName(){
+  switch(STATE.mode){
+    case "trend": return "Trend (Normalized)";
+    case "swing": return "Swing (Actual)";
+    case "2026": return "2026 Results";
+    case "2022": return "2022 Results";
+  }
+  return "Metric";
+}
+function metricSubtitle(){
+  switch(STATE.mode){
+    case "trend": return "Δ margin50 • 2026 − 2022";
+    case "swing": return "Δ margin (D−R) • 2026 − 2022";
+    case "2026": return "Margin (D−R)";
+    case "2022": return "Margin (D−R)";
+  }
+  return "";
+}
+
+// --- COLOR SCALE ---
+const scaleRdBu = d3.scaleSequential(d3.interpolateRdBu).domain([0, 1]);
+
+function getColor(val, clampVal) {
+  if (val == null || isNaN(val)) return "rgba(128,128,128,0.10)";
+  const v = Math.max(-clampVal, Math.min(clampVal, +val));
+  // t in [-1,1]
+  let t = v / clampVal;
+  // map to [0,1]
+  let u = (t + 1) / 2;
+  // gamma for mid-range differentiation
+  const gamma = 0.85;
+  u = Math.pow(u, gamma);
+  return scaleRdBu(u);
+}
+
+function getMetric(row, m=STATE.mode) {
+  if (!row) return null;
+  switch(m) {
+    case "trend": return row.margin50_swing;
+    case "swing": return row.margin_raw_swing;
+    case "2026": return row["2026_margin_raw"];
+    case "2022": return row["2022_margin_raw"];
+  }
+  return null;
+}
+
+function signClass(v){
+  if (v==null || isNaN(v)) return "neu";
+  if (Math.abs(v) < 0.1) return "neu";
+  return v > 0 ? "dem" : "gop";
+}
+
+// --- INITIALIZATION ---
+let map;
+
+async function init() {
+  try {
+    $("statusText").textContent = "Loading…";
+
+    const [csvData, geoData] = await Promise.all([
+      d3.csv(CFG.csv),
+      d3.json(CFG.json)
+    ]);
+
+    processData(csvData);
+    processGeo(geoData);
+
+    initMap();
+    initInteractions();
+
+    $("statusText").textContent = "Online";
+    $("statusDot").classList.add("ok");
+
+    renderDashboard();
+  } catch (e) {
+    console.error(e);
+    $("statusText").textContent = "Data Error";
+    $("statusDot").classList.remove("ok");
+    $("statusDot").classList.add("err");
+    alert("Error loading data files. Ensure CSV and GeoJSON are in the same directory and served by GitHub Pages.");
+  }
+}
+
+// --- DATA PROCESSING ---
+function processData(rows) {
+  const byPid = new Map(); // pid -> {n, sums}
+  const add = (pid, obj) => {
+    if (!byPid.has(pid)) byPid.set(pid, { n:0, sums:{} });
+    const acc = byPid.get(pid);
+    acc.n += 1;
+    for (const [k,v] of Object.entries(obj)){
+      if (v==null || isNaN(v)) continue;
+      acc.sums[k] = (acc.sums[k] ?? 0) + (+v);
+    }
+  };
+
+  rows.forEach(r => {
+    const pid = String(r.precinct ?? "").match(/\d+/)?.[0];
+    if (!pid) return;
+
+    const n = k => {
+      const x = parseFloat(r[k]);
+      return isFinite(x) ? x : null;
+    };
+
+    add(pid, {
+      "2022_D_pct": n("2022_D_pct"),
+      "2022_R_pct": n("2022_R_pct"),
+      "2026_D_pct": n("2026_D_pct"),
+      "2026_R_pct": n("2026_R_pct"),
+      "margin50_swing": n("margin50_swing"),
+      "D50_swing": n("D50_swing"),
+      "2026_D50": n("2026_D50"),
+      "2022_D50": n("2022_D50")
+    });
+  });
+
+  const temp = {};
+  for (const [pid, acc] of byPid.entries()){
+    const out = { id: pid };
+    const n = acc.n || 1;
+    for (const [k,s] of Object.entries(acc.sums)){
+      out[k] = s / n;
+    }
+    out["2022_margin_raw"] = (out["2022_D_pct"]!=null && out["2022_R_pct"]!=null) ? out["2022_D_pct"] - out["2022_R_pct"] : null;
+    out["2026_margin_raw"] = (out["2026_D_pct"]!=null && out["2026_R_pct"]!=null) ? out["2026_D_pct"] - out["2026_R_pct"] : null;
+    out["margin_raw_swing"] = (out["2026_margin_raw"]!=null && out["2022_margin_raw"]!=null) ? out["2026_margin_raw"] - out["2022_margin_raw"] : null;
+    temp[pid] = out;
+  }
+
+  STATE.data = temp;
+
+  const vals = Object.values(STATE.data);
+  const avg = (key) => d3.mean(vals, d => d[key]);
+
+  STATE.stats = {
+    count: vals.length,
+    trend_avg: avg("margin50_swing"),
+    swing_avg: avg("margin_raw_swing"),
+    m26_avg: avg("2026_margin_raw"),
+    m22_avg: avg("2022_margin_raw")
+  };
+
+  // Populate Search Datalist
+  const dl = $("precinctList");
+  dl.innerHTML = "";
+  Object.keys(STATE.data).sort((a,b)=>+a-+b).forEach(pid => {
+    const opt = document.createElement("option");
+    opt.value = pid;
+    dl.appendChild(opt);
+  });
+}
+
+function processGeo(json) {
+  const features = (json.features || []).filter(f => String(f.properties?.Senate) === CFG.district);
+  STATE.geo = { type: "FeatureCollection", features };
+}
+
+// --- MAP ENGINE ---
+function borderWeight(){
+  const z = map.getZoom();
+  if (z <= 10) return 0.45;
+  if (z <= 11) return 0.60;
+  if (z <= 12) return 0.80;
+  if (z <= 13) return 1.00;
+  return 1.20;
+}
+function casingWeight(){
+  return Math.max(1.8, borderWeight()*2.8);
+}
+
+function initMap() {
+  map = L.map('map', {
+    zoomControl: false,
+    attributionControl: false
+  }).setView([32.75, -97.33], 10);
+
+  L.control.zoom({ position: 'topright' }).addTo(map);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    opacity: 1
+  }).addTo(map);
+
+  renderMapLayers();
+  map.on("zoomend", () => restyleMap());
+}
+
+function styleFill(feature){
+  const pid = String(feature.properties?.Precinct);
+  const row = STATE.data[pid];
+  const val = getMetric(row);
+  const clampVal = clampForMode();
+  const isSel = STATE.selected === pid;
+
+  return {
+    fillColor: getColor(val, clampVal),
+    fillOpacity: row ? CFG.opacity : 0.08,
+    color: isSel ? CFG.styles.outlineSel : CFG.styles.outline,
+    weight: isSel ? Math.max(2.2, borderWeight()*2.2) : borderWeight(),
+    opacity: isSel ? 1 : 0.85,
+    className: "precinct-fill"
+  };
+}
+
+function styleCasing(){
+  return {
+    color: CFG.styles.casing,
+    weight: casingWeight(),
+    opacity: 1,
+    fillOpacity: 0,
+    interactive: false,
+    className: "precinct-casing"
+  };
+}
+
+function tooltipHTML(pid, row){
+  const val = getMetric(row);
+  const color = val==null ? "rgba(15,23,42,0.85)" : (val>0 ? CFG.styles.colorD : (val<0 ? CFG.styles.colorR : "rgba(15,23,42,0.85)"));
+  const clampVal = clampForMode();
+  return `
+    <div style="font-weight:800; margin-bottom:6px;">Precinct ${pid}</div>
+    <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:6px;">
+      <span style="color:rgba(15,23,42,0.70); font-weight:700;">${metricName()}</span>
+      <span style="font-family:'JetBrains Mono'; font-weight:800; color:${color}">${fmtS(val,2)}</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; gap:12px;">
+      <span style="color:rgba(15,23,42,0.60); font-weight:700;">Scale</span>
+      <span style="font-family:'JetBrains Mono'; font-weight:800;">±${clampVal}</span>
+    </div>
+  `;
+}
+
+function renderMapLayers() {
+  if (STATE.casingLayer) map.removeLayer(STATE.casingLayer);
+  if (STATE.fillLayer) map.removeLayer(STATE.fillLayer);
+
+  // Casing underlay
+  STATE.casingLayer = L.geoJSON(STATE.geo, {
+    style: styleCasing,
+    interactive: false
+  }).addTo(map);
+
+  // Fill layer (interactive)
+  STATE.fillLayer = L.geoJSON(STATE.geo, {
+    style: styleFill,
+    onEachFeature: (feature, layer) => {
+      const pid = String(feature.properties?.Precinct);
+      const row = STATE.data[pid];
+
+      layer.bindTooltip(tooltipHTML(pid, row), { sticky: true, opacity: 1 });
+
+      layer.on('click', (e) => {
+        selectPrecinct(pid);
+        // critical: stop bubbling to map click (this was broken in your version)
+        L.DomEvent.stopPropagation(e);
+      });
+
+      layer.on('mouseover', () => {
+        if (STATE.selected !== pid) {
+          layer.setStyle({ weight: Math.max(1.6, borderWeight()*2.0), color: CFG.styles.outlineHover, opacity: 1 });
+          layer.bringToFront();
+        }
+      });
+
+      layer.on('mouseout', () => {
+        if (STATE.selected !== pid) {
+          // reset to computed style (mode aware)
+          layer.setStyle(styleFill(feature));
+        }
+      });
+    }
+  }).addTo(map);
+
+  // Ensure casing stays behind
+  if (STATE.casingLayer.bringToBack) STATE.casingLayer.bringToBack();
+
+  // Fit if district view
+  if (!STATE.selected) map.fitBounds(STATE.fillLayer.getBounds(), { padding: [20, 20] });
+}
+
+function restyleMap(){
+  if (!STATE.casingLayer || !STATE.fillLayer) return;
+  STATE.casingLayer.setStyle(styleCasing);
+  STATE.fillLayer.eachLayer(l => {
+    l.setStyle(styleFill(l.feature));
+    const pid = String(l.feature.properties?.Precinct);
+    const row = STATE.data[pid];
+    l.setTooltipContent(tooltipHTML(pid, row));
+  });
+  if (STATE.casingLayer.bringToBack) STATE.casingLayer.bringToBack();
+  if (STATE.selected){
+    STATE.fillLayer.eachLayer(l => {
+      const pid = String(l.feature.properties?.Precinct);
+      if (pid === STATE.selected && l.bringToFront) l.bringToFront();
+    });
+  }
+}
+
+// --- DASHBOARD LOGIC ---
+function selectPrecinct(pid) {
+  if (pid && !STATE.data[pid]) {
+    console.warn("Precinct data not found:", pid);
+    return;
+  }
+
+  STATE.selected = (pid === STATE.selected) ? null : pid;
+
+  renderDashboard();
+  restyleMap();
+
+  if (STATE.selected) {
+    const lyr = STATE.fillLayer.getLayers().find(l => String(l.feature.properties?.Precinct) === pid);
+    if (lyr) map.flyToBounds(lyr.getBounds(), { padding: [50, 50], duration: 0.9 });
+    $("searchBox").value = pid;
+  } else {
+    $("searchBox").value = "";
+    map.flyToBounds(STATE.fillLayer.getBounds(), { duration: 0.8 });
+  }
+}
+
+function renderDashboard() {
+  const isDist = STATE.selected === null;
+  const pid = STATE.selected;
+  const row = isDist ? null : STATE.data[pid];
+
+  $("lblPrecinct").textContent = isDist ? "District Overview" : `Precinct ${pid}`;
+  $("lblCount").textContent = isDist ? `${STATE.stats.count} Precincts Loaded` : "Single Precinct Analysis";
+
+  // Header chips
+  $("chipMode").textContent = STATE.mode.toUpperCase();
+  $("chipScale").textContent = `±${clampForMode()}`;
+
+  // Card titles
+  $("metricTitle").textContent = metricName();
+  $("metricSubtitle").textContent = metricSubtitle();
+
+  // Main metric
+  const mVal = isDist
+    ? (STATE.mode === 'trend' ? STATE.stats.trend_avg : STATE.mode === 'swing' ? STATE.stats.swing_avg : STATE.mode === '2026' ? STATE.stats.m26_avg : STATE.stats.m22_avg)
+    : getMetric(row);
+
+  const mEl = $("mainVal");
+  mEl.textContent = fmtS(mVal, 2);
+  mEl.className = "stat-val " + signClass(mVal);
+
+  $("mainLabel").textContent =
+    STATE.mode === "trend" ? "Δ margin50" :
+    STATE.mode === "swing" ? "Δ margin (D−R)" :
+    "Margin (D−R)";
+
+  // Vote share bars: Trend uses normalized D50; others use actual D%
+  updateBars(isDist, row);
+
+  // Scatter distribution (raw margins always)
+  updateCharts(isDist, row);
+
+  // Extremes list for current metric
+  updateExtremes();
+
+  // Legend
+  updateLegend();
+}
+
+// --- Vote Share Bars ---
+function updateBars(isDist, row) {
+  const vals = Object.values(STATE.data);
+
+  const setB = (yr, d, r) => {
+    d = (d==null || isNaN(d)) ? 0 : d;
+    r = (r==null || isNaN(r)) ? 0 : r;
+    $(`bar${yr}d`).style.width = `${Math.max(0, Math.min(100, d))}%`;
+    $(`bar${yr}r`).style.width = `${Math.max(0, Math.min(100, r))}%`;
+    $(`txt${yr}`).textContent = `D ${fmt(d,1)} / R ${fmt(r,1)}`;
+  };
+
+  if (STATE.mode === "trend") {
+    $("shareTitle").textContent = "Vote Share";
+    $("shareSubtitle").textContent = "Normalized (50/50)";
+    $("lbl26").textContent = "2026 (D50/R50)";
+    $("lbl22").textContent = "2022 (D50/R50)";
+
+    const d26 = isDist ? d3.mean(vals, d=>d["2026_D50"]) : row["2026_D50"];
+    const d22 = isDist ? d3.mean(vals, d=>d["2022_D50"]) : row["2022_D50"];
+    setB("26", d26, 100 - d26);
+    setB("22", d22, 100 - d22);
+  } else {
+    $("shareTitle").textContent = "Vote Share";
+    $("shareSubtitle").textContent = "Actual (2-party)";
+    $("lbl26").textContent = "2026 (D/R)";
+    $("lbl22").textContent = "2022 (D/R)";
+
+    const d26 = isDist ? d3.mean(vals, d=>d["2026_D_pct"]) : row["2026_D_pct"];
+    const r26 = isDist ? d3.mean(vals, d=>d["2026_R_pct"]) : row["2026_R_pct"];
+    const d22 = isDist ? d3.mean(vals, d=>d["2022_D_pct"]) : row["2022_D_pct"];
+    const r22 = isDist ? d3.mean(vals, d=>d["2022_R_pct"]) : row["2022_R_pct"];
+    setB("26", d26, r26);
+    setB("22", d22, r22);
+  }
+}
+
+// --- Scatter Distribution ---
+function initCharts() {}
+
+function updateCharts(isDist, row) {
+  const container = $("scatterContainer");
+  container.innerHTML = "";
+
+  const w = Math.max(220, container.clientWidth);
+  const h = 150;
+  const pad = 10;
+
+  const svg = d3.select(container).append("svg")
+    .attr("width", w).attr("height", h);
+
+  const data = Object.values(STATE.data).filter(d =>
+    d["2022_margin_raw"] != null && d["2026_margin_raw"] != null
+  );
+
+  const x = d3.scaleLinear().domain([-100, 100]).range([pad, w - pad]);
+  const y = d3.scaleLinear().domain([-100, 100]).range([h - pad, pad]);
+
+  svg.append("line").attr("x1", x(0)).attr("y1", pad).attr("x2", x(0)).attr("y2", h-pad).attr("stroke", "rgba(148,163,184,0.45)").attr("stroke-dasharray", "4");
+  svg.append("line").attr("x1", pad).attr("y1", y(0)).attr("x2", w-pad).attr("y2", y(0)).attr("stroke", "rgba(148,163,184,0.45)").attr("stroke-dasharray", "4");
+
+  svg.append("line")
+    .attr("x1", x(-100)).attr("y1", y(-100))
+    .attr("x2", x(100)).attr("y2", y(100))
+    .attr("stroke", "rgba(148,163,184,0.45)")
+    .attr("stroke-opacity", 0.8);
+
+  const metric = (d) => getMetric(d);
+  const cls = (v) => {
+    if (v==null || isNaN(v) || Math.abs(v) < 0.1) return "neu";
+    return v > 0 ? "dem" : "gop";
+  };
+
+  svg.selectAll("circle")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("cx", d => x(d["2022_margin_raw"]))
+    .attr("cy", d => y(d["2026_margin_raw"]))
+    .attr("r", d => (!isDist && row && d.id === row.id) ? 4.5 : 2.6)
+    .attr("class", d => {
+      const v = metric(d);
+      const base = "scatter-point " + cls(v);
+      if (isDist) return base;
+      return (row && d.id === row.id) ? (base + " active") : base;
+    });
+
+  if (!isDist && row) {
+    svg.append("text")
+      .attr("x", x(row["2022_margin_raw"]))
+      .attr("y", y(row["2026_margin_raw"]) - 8)
+      .text(row.id)
+      .attr("text-anchor", "middle")
+      .attr("fill", "rgba(15,23,42,0.90)")
+      .attr("font-size", "10px")
+      .attr("font-weight", "800")
+      .attr("font-family", "JetBrains Mono");
+  }
+}
+
+// --- Extremes ---
+function updateExtremes() {
+  const el = $("extremesList");
+  el.innerHTML = "";
+
+  const metric = d => getMetric(d);
+  const sorted = Object.values(STATE.data)
+    .filter(d => metric(d) != null && !isNaN(metric(d)))
+    .sort((a, b) => metric(b) - metric(a)); // Dem first
+
+  const topD = sorted.slice(0, 5);
+  const topR = sorted.slice(-5).reverse();
+
+  const mkRow = (d) => {
+    const val = metric(d);
+    const div = document.createElement("div");
+    div.className = "list-row";
+    div.innerHTML = `<span>P ${d.id}</span> <span style="color:${val>0?'var(--dem)':(val<0?'var(--gop)':'rgba(15,23,42,0.85)')}">${fmtS(val,2)}</span>`;
+    div.onclick = () => selectPrecinct(d.id);
+    return div;
+  };
+
+  topD.forEach(d => el.appendChild(mkRow(d)));
+
+  const sep = document.createElement("div");
+  sep.style.textAlign = "center";
+  sep.style.color = "rgba(148,163,184,0.85)";
+  sep.style.padding = "8px 0";
+  sep.textContent = "•••";
+  el.appendChild(sep);
+
+  topR.forEach(d => el.appendChild(mkRow(d)));
+}
+
+// --- Legend ---
+function updateLegend() {
+  const clampVal = clampForMode();
+
+  $("legendTitle").textContent = `${metricName()}`;
+  $("legL").textContent = `R+${clampVal}`;
+  $("legR").textContent = `D+${clampVal}`;
+  $("legM").textContent = "EVEN";
+
+  $("legendMin").textContent =
+    (STATE.mode === "trend") ? "GOP shift" :
+    (STATE.mode === "swing") ? "GOP swing" :
+    "GOP lead";
+
+  $("legendMax").textContent =
+    (STATE.mode === "trend") ? "DEM shift" :
+    (STATE.mode === "swing") ? "DEM swing" :
+    "DEM lead";
+
+  const g0 = d3.interpolateRdBu(0.0);
+  const g1 = d3.interpolateRdBu(0.5);
+  const g2 = d3.interpolateRdBu(1.0);
+  $("legendGradient").style.background = `linear-gradient(90deg, ${g0} 0%, ${g1} 50%, ${g2} 100%)`;
+}
+
+// --- INTERACTIONS ---
+function initInteractions() {
+  // Tabs
+  document.querySelectorAll(".tab").forEach(t => {
+    t.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+      t.classList.add("active");
+      STATE.mode = t.dataset.mode;
+
+      renderDashboard();
+      restyleMap();
+    });
+  });
+
+  // Search: Enter or change
+  $("searchBox").addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+    const pid = (e.target.value || "").match(/\d+/)?.[0];
+    if (pid && STATE.data[pid]) selectPrecinct(pid);
+  });
+  $("searchBox").addEventListener("change", (e) => {
+    const pid = (e.target.value || "").match(/\d+/)?.[0];
+    if (pid && STATE.data[pid]) selectPrecinct(pid);
+  });
+
+  // Clear on background map click
+  map.on('click', () => {
+    if (STATE.selected) selectPrecinct(STATE.selected);
+  });
+
+  // ESC clears selection
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && STATE.selected){
+      selectPrecinct(STATE.selected);
+    }
+  });
+}
+
+// --- BOOT ---
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
