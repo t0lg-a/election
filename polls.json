@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-01T11:38:53.730Z",
+  "updatedAt": "2026-02-02T06:19:14.041Z",
   "approval": [
     {
       "id": "appdoninsm57hlnce",
@@ -18297,6 +18297,32 @@
         {
           "choice": "Disapprove",
           "pct": 59
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonactrbvz88ez",
+      "poll_type": "approval",
+      "sample_size": 490,
+      "population": "a",
+      "url": "https://www.activote.net/trumps-approval-back-to-normal/",
+      "created_at": "2026-02-01",
+      "start_date": "2026-01-01",
+      "end_date": "2026-01-31",
+      "pollster": "ActiVote",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 44
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 52.7
         }
       ],
       "seat_name": null,
