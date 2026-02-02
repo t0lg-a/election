@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" data-theme="light">
-<head> 
+<head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="color-scheme" content="light dark">
@@ -217,6 +217,20 @@ main{max-width:1360px;margin:0 auto;padding:1.75rem 2rem 3.5rem;display:flex;fle
 .mb.up{color:var(--app);background:var(--apps)}.mb.down{color:var(--rep);background:var(--reps)}.mb.flat{color:var(--t3);background:var(--inset)}
 .hsp{position:absolute;bottom:0;left:0;right:0;height:46px;opacity:.15;pointer-events:none}
 
+/* ═══ SPLIT VIEW ═══ */
+.split{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:1.2rem;
+  align-items:start;
+}
+.split-col{
+  display:flex;
+  flex-direction:column;
+  gap:1.2rem;
+  min-width:0;
+}
+
 /* ═══ TIME SELECTOR ═══ */
 .ts{display:flex;gap:2px;background:var(--inset);padding:2px;border-radius:var(--rf);border:1px solid var(--brd);width:fit-content;box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
 .tb{
@@ -346,6 +360,7 @@ label.cc input{accent-color:var(--acc);width:.9rem;height:.9rem;margin:0}
 :focus-visible{outline:3px solid var(--ring);outline-offset:2px}
 
 /* ═══ RESPONSIVE ═══ */
+@media(max-width:1100px){.split{grid-template-columns:1fr}}
 @media(max-width:900px){.hero,.fg{grid-template-columns:1fr}.hdr-in{padding:0 1rem}main{padding:1.25rem}}
 @media(max-width:640px){
   .hn{font-size:2.2rem}.hc{padding:1.2rem 1.3rem 1.05rem}.cd{padding:1.2rem}
@@ -428,46 +443,53 @@ label.cc input{accent-color:var(--acc);width:.9rem;height:.9rem;margin:0}
     </div>
   </div>
 
-  <!-- APPROVAL -->
-  <div class="cd reveal">
-    <div class="ch"><div><div class="ct">Presidential Approval</div><div class="cs">Rolling average with ±1σ confidence band · individual polls</div></div>
-      <div class="ca"><div class="ts" data-target="approval"><button class="tb" data-days="30">30d</button><button class="tb" data-days="90">90d</button><button class="tb" data-days="180">6m</button><button class="tb" data-days="365">1y</button><button class="tb on" data-days="0">All</button></div><button class="btn" onclick="app.toggleCustomize('approval')">⚙ Customize</button></div></div>
-    <div class="sg" id="approvalStats"><div class="sc"><div class="sl">Approve</div><div class="sv">—</div></div><div class="sc"><div class="sl">Disapprove</div><div class="sv">—</div></div><div class="sc"><div class="sl">Net</div><div class="sv" id="netApprovalVal">—</div></div><div class="sc"><div class="sl">Polls</div><div class="sv">—</div></div></div>
-    <div id="approvalCfgPanel" class="cp" style="display:none;"><div class="cg">
-      <div class="ci"><div class="cl">Window (days)</div><div class="cr"><input id="approvalMADaysRange" type="range" min="3" max="120" step="1" value="14"><input id="approvalMADays" type="number" min="3" max="365" step="1" value="14"></div></div>
-      <div class="ci"><div class="cl">Auto min polls</div><div class="cr"><label class="cc"><input type="checkbox" id="approvalAutoMin"><span>Enable</span></label><span class="sm">Min:</span><input id="approvalMinPolls" type="number" min="3" max="60" step="1" value="12"></div></div>
-      <div class="ci"><div class="cl">Compare</div><div class="cr" style="flex-direction:column;align-items:flex-start;gap:.35rem"><label class="cc"><input type="checkbox" id="approvalCompare"><span>Filtered + All</span></label><label class="cc"><input type="checkbox" id="approvalShowDiff"><span>Difference</span></label></div></div>
-    </div></div>
-    <div id="approvalChart" class="pw"></div>
-    <div id="approvalDiffChart" class="pw dc"></div>
-    <div class="cf">Hover dots for details. Band shows ±1 standard deviation of polls within window.</div>
-  </div>
+  <!-- SPLIT: APPROVAL + GB -->
+  <div class="split">
+    <div class="split-col">
+      <!-- APPROVAL -->
+      <div class="cd reveal">
+        <div class="ch"><div><div class="ct">Presidential Approval</div><div class="cs">Rolling average with ±1σ confidence band · individual polls</div></div>
+          <div class="ca"><div class="ts" data-target="approval"><button class="tb" data-days="30">30d</button><button class="tb" data-days="90">90d</button><button class="tb" data-days="180">6m</button><button class="tb" data-days="365">1y</button><button class="tb on" data-days="0">All</button></div><button class="btn" onclick="app.toggleCustomize('approval')">⚙ Customize</button></div></div>
+        <div class="sg" id="approvalStats"><div class="sc"><div class="sl">Approve</div><div class="sv">—</div></div><div class="sc"><div class="sl">Disapprove</div><div class="sv">—</div></div><div class="sc"><div class="sl">Net</div><div class="sv" id="netApprovalVal">—</div></div><div class="sc"><div class="sl">Polls</div><div class="sv">—</div></div></div>
+        <div id="approvalCfgPanel" class="cp" style="display:none;"><div class="cg">
+          <div class="ci"><div class="cl">Window (days)</div><div class="cr"><input id="approvalMADaysRange" type="range" min="3" max="120" step="1" value="14"><input id="approvalMADays" type="number" min="3" max="365" step="1" value="14"></div></div>
+          <div class="ci"><div class="cl">Auto min polls</div><div class="cr"><label class="cc"><input type="checkbox" id="approvalAutoMin"><span>Enable</span></label><span class="sm">Min:</span><input id="approvalMinPolls" type="number" min="3" max="60" step="1" value="12"></div></div>
+          <div class="ci"><div class="cl">Compare</div><div class="cr" style="flex-direction:column;align-items:flex-start;gap:.35rem"><label class="cc"><input type="checkbox" id="approvalCompare"><span>Filtered + All</span></label><label class="cc"><input type="checkbox" id="approvalShowDiff"><span>Difference</span></label></div></div>
+        </div></div>
+        <div id="approvalChart" class="pw"></div>
+        <div id="approvalDiffChart" class="pw dc"></div>
+        <div class="cf">Hover dots for details. Band shows ±1 standard deviation of polls within window.</div>
+      </div>
 
-  <!-- NET APPROVAL TREND -->
-  <div class="cd reveal">
-    <div class="ch"><div><div class="ct">Net Approval Trend</div><div class="cs">Approve minus Disapprove over time</div></div></div>
-    <div id="netApprovalChart" class="pw sm-chart"></div>
-  </div>
+      <!-- NET APPROVAL TREND -->
+      <div class="cd reveal">
+        <div class="ch"><div><div class="ct">Net Approval Trend</div><div class="cs">Approve minus Disapprove over time</div></div></div>
+        <div id="netApprovalChart" class="pw sm-chart"></div>
+      </div>
+    </div>
 
-  <!-- GB -->
-  <div class="cd reveal">
-    <div class="ch"><div><div class="ct">Generic Congressional Ballot</div><div class="cs">Rolling average with ±1σ confidence band · individual polls</div></div>
-      <div class="ca"><div class="ts" data-target="gb"><button class="tb" data-days="30">30d</button><button class="tb" data-days="90">90d</button><button class="tb" data-days="180">6m</button><button class="tb" data-days="365">1y</button><button class="tb on" data-days="0">All</button></div><button class="btn" onclick="app.toggleCustomize('gb')">⚙ Customize</button></div></div>
-    <div class="sg" id="gbStats"><div class="sc"><div class="sl">Democrat</div><div class="sv">—</div></div><div class="sc"><div class="sl">Republican</div><div class="sv">—</div></div><div class="sc"><div class="sl">Margin</div><div class="sv" id="gbMarginVal">—</div></div><div class="sc"><div class="sl">Polls</div><div class="sv">—</div></div></div>
-    <div id="gbCfgPanel" class="cp" style="display:none;"><div class="cg">
-      <div class="ci"><div class="cl">Window (days)</div><div class="cr"><input id="gbMADaysRange" type="range" min="3" max="180" step="1" value="30"><input id="gbMADays" type="number" min="3" max="365" step="1" value="30"></div></div>
-      <div class="ci"><div class="cl">Auto min polls</div><div class="cr"><label class="cc"><input type="checkbox" id="gbAutoMin"><span>Enable</span></label><span class="sm">Min:</span><input id="gbMinPolls" type="number" min="3" max="60" step="1" value="12"></div></div>
-      <div class="ci"><div class="cl">Compare</div><div class="cr" style="flex-direction:column;align-items:flex-start;gap:.35rem"><label class="cc"><input type="checkbox" id="gbCompare"><span>Filtered + All</span></label><label class="cc"><input type="checkbox" id="gbShowDiff"><span>Difference</span></label></div></div>
-    </div></div>
-    <div id="gbChart" class="pw"></div>
-    <div id="gbDiffChart" class="pw dc"></div>
-    <div class="cf">Hover dots for details. Band shows ±1 standard deviation of polls within window.</div>
-  </div>
+    <div class="split-col">
+      <!-- GB -->
+      <div class="cd reveal">
+        <div class="ch"><div><div class="ct">Generic Congressional Ballot</div><div class="cs">Rolling average with ±1σ confidence band · individual polls</div></div>
+          <div class="ca"><div class="ts" data-target="gb"><button class="tb" data-days="30">30d</button><button class="tb" data-days="90">90d</button><button class="tb" data-days="180">6m</button><button class="tb" data-days="365">1y</button><button class="tb on" data-days="0">All</button></div><button class="btn" onclick="app.toggleCustomize('gb')">⚙ Customize</button></div></div>
+        <div class="sg" id="gbStats"><div class="sc"><div class="sl">Democrat</div><div class="sv">—</div></div><div class="sc"><div class="sl">Republican</div><div class="sv">—</div></div><div class="sc"><div class="sl">Margin</div><div class="sv" id="gbMarginVal">—</div></div><div class="sc"><div class="sl">Polls</div><div class="sv">—</div></div></div>
+        <div id="gbCfgPanel" class="cp" style="display:none;"><div class="cg">
+          <div class="ci"><div class="cl">Window (days)</div><div class="cr"><input id="gbMADaysRange" type="range" min="3" max="180" step="1" value="30"><input id="gbMADays" type="number" min="3" max="365" step="1" value="30"></div></div>
+          <div class="ci"><div class="cl">Auto min polls</div><div class="cr"><label class="cc"><input type="checkbox" id="gbAutoMin"><span>Enable</span></label><span class="sm">Min:</span><input id="gbMinPolls" type="number" min="3" max="60" step="1" value="12"></div></div>
+          <div class="ci"><div class="cl">Compare</div><div class="cr" style="flex-direction:column;align-items:flex-start;gap:.35rem"><label class="cc"><input type="checkbox" id="gbCompare"><span>Filtered + All</span></label><label class="cc"><input type="checkbox" id="gbShowDiff"><span>Difference</span></label></div></div>
+        </div></div>
+        <div id="gbChart" class="pw"></div>
+        <div id="gbDiffChart" class="pw dc"></div>
+        <div class="cf">Hover dots for details. Band shows ±1 standard deviation of polls within window.</div>
+      </div>
 
-  <!-- MARGIN TREND -->
-  <div class="cd reveal">
-    <div class="ch"><div><div class="ct">Ballot Margin Trend</div><div class="cs">Democrat minus Republican over time</div></div></div>
-    <div id="gbMarginChart" class="pw sm-chart"></div>
+      <!-- MARGIN TREND -->
+      <div class="cd reveal">
+        <div class="ch"><div><div class="ct">Ballot Margin Trend</div><div class="cs">Democrat minus Republican over time</div></div></div>
+        <div id="gbMarginChart" class="pw sm-chart"></div>
+      </div>
+    </div>
   </div>
 
   <!-- POLL FREQUENCY -->
