@@ -44,6 +44,7 @@ SC-SEN,Senate,SC,Public Policy Polling,D,2025-11-21,2025-11-22,704,V,3.7,Lindsey
 TX-SEN,Senate,TX,Emerson College,,2026-01-10,2026-01-12,1165,RV,2.8,Ken Paxton,R,46,James Talarico,D,46,0,9,3,
 TX-SEN,Senate,TX,Ragnar Research Partners,R,2025-11-12,2025-11-17,1000,LV,3.0,Ken Paxton,R,44,James Talarico,D,44,0,12,3,
 TX-SEN,Senate,TX,University of Houston/Texas Southern University,,2025-09-19,2025-10-01,1650,RV,2.41,Ken Paxton,R,49,James Talarico,D,46,0,5,3,
+TX-SEN,Senate,TX,NRSC,,2026-02-01,2026-02-01,1000,LV,3.0,Ken Paxton,R,43,James Talarico,D,46,0,5,3,
 MN-GOV,Governor,MN,SurveyUSA,,2026-01-27,2026-01-30,575,RV,4.8,Amy Klobuchar,DFL,52,Mike Lindell,R,32,0,16,3,
 NH-GOV,Governor,NH,University of New Hampshire,,2026-01-15,2026-01-19,2053,LV,2.1,Kelly Ayotte,R,49,Deaglan McEachern,D,41,0,10,3,
 WI-GOV,Governor,WI,Impact Research,D,2025-10-02,2025-10-08,500,LV,4.4,Mandela Barnes,D,50,Tom Tiffany,R,44,0,7,3,
@@ -62,3 +63,4 @@ FL-GOV,Governor,FL,University of North Florida,,2025-10-15,2025-10-25,728,LV,4.3
 IA-GOV,Governor,IA,Z to A Research,D,2025-10-09,2025-10-13,1351,LV,2.7,Randy Feenstra,R,43,Rob Sand,D,45,0,12,3,
 AK-GOV,Governor,AK,Alaska Survey Research,,2025-10-10,2025-10-14,,,,Nick Begich,D,51,Nancy Dahlstrom,R,49,0,0,3,Sample/moe not provided in paste; assumed year=2025
 TX-GOV,Governor,TX,Emerson College,,2026-01-10,2026-01-12,1165,RV,2.8,Greg Abbott,R,50,Gina Hinojosa,D,42,0,8,3,
+
