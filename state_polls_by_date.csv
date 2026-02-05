@@ -3,16 +3,13 @@ AK-SEN,Senate,AK,Public Policy Polling,D,2026-01-16,2026-01-17,611,V,,Dan Sulliv
 AK-SEN,Senate,AK,Alaska Survey Research,,2026-01-08,2026-01-11,1988,LV,2.2,Dan Sullivan,R,46,Mary Peltola,D,48,0,6,3,
 AK-SEN,Senate,AK,Data for Progress,D,2025-10-17,2025-10-23,823,LV,3.0,Dan Sullivan,R,45,Mary Peltola,D,46,5,4,3,
 AK-SEN,Senate,AK,Alaska Survey Research,,2025-10-10,2025-10-15,1708,LV,,Dan Sullivan,R,46,Mary Peltola,D,48,0,6,3,
-AK-SEN,Senate,AK,Alaska Survey Research,,2025-07-29,2025-08-01,1623,LV,2.5,Dan Sullivan,R,47,Mary Peltola,D,42,0,11,3,
-AK-SEN,Senate,AK,Data for Progress,D,2025-07-21,2025-07-27,678,LV,4.0,Dan Sullivan,R,46,Mary Peltola,D,45,5,4,3,
-AK-SEN,Senate,AK,Alaska Survey Research,,2023-04-21,2023-04-25,1261,LV,,Dan Sullivan,R,41,Mary Peltola,D,44,0,15,3,
 FL-SEN,Senate,FL,University of North Florida,,2025-10-15,2025-10-25,728,LV,4.3,Ashley Moody,R,49,Jennifer Jenkins,D,38,3,10,3,UNF topline #1
 FL-SEN,Senate,FL,University of North Florida,,2025-10-15,2025-10-25,728,LV,4.3,Ashley Moody,R,47,Jennifer Jenkins,D,37,3,13,3,UNF topline #2
 FL-SEN,Senate,FL,The Tyson Group,R,2025-10-01,2025-10-03,800,LV,,Ashley Moody,R,44,Jennifer Jenkins,D,37,0,19,3,
-GA-SEN,Senate,GA,TIPP Insights,,2025-07-28,2025-08-01,2956,RV,1.8,Republican,R,45,Democratic,D,44,3,8,3,Candidate names not in paste
-GA-SEN,Senate,GA,Cygnal,R,2025-05-15,2025-05-17,800,LV,3.4,Republican,R,46,Democratic,D,43,0,11,3,Candidate names not in paste
-GA-SEN,Senate,GA,Trafalgar Group,R,2025-04-24,2025-04-27,1426,LV,2.9,Republican,R,48,Democratic,D,43,3,6,3,Candidate names not in paste
-GA-SEN,Senate,GA,WPA Intelligence,R,2025-01-14,2025-01-15,500,LV,4.4,Republican,R,44,Democratic,D,34,0,22,3,Candidate names not in paste
+GA-SEN,Senate,GA,TIPP Insights,,2025-07-28,2025-08-01,2956,RV,1.8,Republican,R,44,Democratic,D,45,3,8,3,Candidate names not in paste
+GA-SEN,Senate,GA,Cygnal,R,2025-05-15,2025-05-17,800,LV,3.4,Republican,R,43,Democratic,D,46,0,11,3,Candidate names not in paste
+GA-SEN,Senate,GA,Trafalgar Group,R,2025-04-24,2025-04-27,1426,LV,2.9,Republican,R,43,Democratic,D,48,3,6,3,Candidate names not in paste
+GA-SEN,Senate,GA,WPA Intelligence,R,2025-01-14,2025-01-15,500,LV,4.4,Republican,R,34,Democratic,D,44,0,22,3,Candidate names not in paste
 IA-SEN,Senate,IA,Public Policy Polling,D,2025-06-02,2025-06-03,568,V,4.1,Joni Ernst,R,45,Generic Democratic,D,43,0,12,3,
 KY-SEN,Senate,KY,Public Policy Polling,D,2025-12-18,2025-12-19,650,V,,Andy Barr,R,49,Charles Booker,D,38,0,13,3,
 ME-SEN,Senate,ME,Pan Atlantic Research,,2025-11-29,2025-12-07,820,LV,3.7,Republican,R,42,Democratic,D,43,0,15,3,Candidate names not in paste
@@ -63,4 +60,5 @@ FL-GOV,Governor,FL,University of North Florida,,2025-10-15,2025-10-25,728,LV,4.3
 IA-GOV,Governor,IA,Z to A Research,D,2025-10-09,2025-10-13,1351,LV,2.7,Randy Feenstra,R,43,Rob Sand,D,45,0,12,3,
 AK-GOV,Governor,AK,Alaska Survey Research,,2025-10-10,2025-10-14,,,,Nick Begich,D,51,Nancy Dahlstrom,R,49,0,0,3,Sample/moe not provided in paste; assumed year=2025
 TX-GOV,Governor,TX,Emerson College,,2026-01-10,2026-01-12,1165,RV,2.8,Greg Abbott,R,50,Gina Hinojosa,D,42,0,8,3,
+
 
