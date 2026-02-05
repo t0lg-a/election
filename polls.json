@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-04T15:03:56.687Z",
+  "updatedAt": "2026-02-05T11:52:08.383Z",
   "approval": [
     {
       "id": "appdoninsm57hlnce",
@@ -18386,6 +18386,166 @@
       "subject": "Donald Trump"
     },
     {
+      "id": "appdonpubawt4qo35",
+      "poll_type": "approval",
+      "sample_size": 597,
+      "population": "rv",
+      "url": "https://drive.google.com/file/d/1iHoieThBdqtE4vH3gDLGzOI334wGWU6_/view",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-13",
+      "end_date": "2026-01-14",
+      "pollster": "Public Policy Polling",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 44
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 52
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Progress Action Fund"
+      ],
+      "internal": false,
+      "partisan": "DEM",
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonmarudnv4ovf",
+      "poll_type": "approval",
+      "sample_size": 1003,
+      "population": "a",
+      "url": "https://law.marquette.edu/assets/community/poll/MLSPSC30/MLSPSC30Crosstabs_NationalIssues.html",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-21",
+      "end_date": "2026-01-28",
+      "pollster": "Marquette University Law School",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 42
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 58
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonmardpnnyzix",
+      "poll_type": "approval",
+      "sample_size": 869,
+      "population": "rv",
+      "url": "https://law.marquette.edu/assets/community/poll/MLSPSC30/MLSPSC30Crosstabs_NationalIssues.html",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-21",
+      "end_date": "2026-01-28",
+      "pollster": "Marquette University Law School",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 43
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 57
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdongloisilo771",
+      "poll_type": "approval",
+      "sample_size": 1000,
+      "population": "rv",
+      "url": "https://navigatorresearch.org/wp-content/uploads/2026/02/Navigator-Update-02.04.2026.pdf",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-29",
+      "end_date": "2026-02-01",
+      "pollster": "Global Strategy Group",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 41
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 56
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Navigator Research"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonins53c3ftzs",
+      "poll_type": "approval",
+      "sample_size": 1000,
+      "population": "lv",
+      "url": "https://insideradvantage.com/insideradvantage-national-survey-trump-bounces-back-to-50-approval-nearly-60-say-melania-trump-media-coverage-is-biased",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-31",
+      "end_date": "2026-02-01",
+      "pollster": "InsiderAdvantage",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 50
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 49
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonquic9989479",
+      "poll_type": "approval",
+      "sample_size": 1191,
+      "population": "rv",
+      "url": "https://poll.qu.edu/images/polling/us/us02042026_ubad67.pdf",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-29",
+      "end_date": "2026-02-03",
+      "pollster": "Quinnipiac University",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 37
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 56
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
       "id": "appdonimpf5awf66t",
       "poll_type": "approval",
       "sample_size": 1500,
@@ -19052,6 +19212,62 @@
       "seat_name": null,
       "sponsors": [
         "Issues & Insights"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyou6lwikt2e",
+      "poll_type": "approval",
+      "sample_size": 1504,
+      "population": "rv",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_DDIQ8jz.pdf",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-30",
+      "end_date": "2026-02-02",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 42
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 55
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyoueci1w1p7",
+      "poll_type": "approval",
+      "sample_size": 1672,
+      "population": "a",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_DDIQ8jz.pdf",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-30",
+      "end_date": "2026-02-02",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 40
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 54
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
       ],
       "internal": false,
       "partisan": null,
@@ -25902,6 +26118,60 @@
       "subject": "2026"
     },
     {
+      "id": "gen202pub1uzfis8x",
+      "poll_type": "generic-ballot",
+      "sample_size": 597,
+      "population": "rv",
+      "url": "https://drive.google.com/file/d/1iHoieThBdqtE4vH3gDLGzOI334wGWU6_/view",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-13",
+      "end_date": "2026-01-14",
+      "pollster": "Public Policy Polling",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 50
+        },
+        {
+          "choice": "Rep",
+          "pct": 42
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Progress Action Fund"
+      ],
+      "internal": false,
+      "partisan": "DEM",
+      "subject": "2026"
+    },
+    {
+      "id": "gen202morfersg7h4",
+      "poll_type": "generic-ballot",
+      "sample_size": 2201,
+      "population": "rv",
+      "url": "https://pro.morningconsult.com/trackers/donald-trump-congress-policy-republicans-polling#02-01-2026",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-30",
+      "end_date": "2026-02-01",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 47
+        },
+        {
+          "choice": "Rep",
+          "pct": 42
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
       "id": "gen202impbbhnd85v",
       "poll_type": "generic-ballot",
       "sample_size": 1500,
@@ -26447,6 +26717,166 @@
         {
           "choice": "Dem",
           "pct": 48
+        },
+        {
+          "choice": "Rep",
+          "pct": 44
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202mar1mmhk54j",
+      "poll_type": "generic-ballot",
+      "sample_size": 1003,
+      "population": "a",
+      "url": "https://law.marquette.edu/assets/community/poll/MLSPSC30/MLSPSC30Crosstabs_NationalIssues.html",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-21",
+      "end_date": "2026-01-28",
+      "pollster": "Marquette University Law School",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 45
+        },
+        {
+          "choice": "Rep",
+          "pct": 39
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202marfa6kqh0m",
+      "poll_type": "generic-ballot",
+      "sample_size": 869,
+      "population": "rv",
+      "url": "https://law.marquette.edu/assets/community/poll/MLSPSC30/MLSPSC30Crosstabs_NationalIssues.html",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-21",
+      "end_date": "2026-01-28",
+      "pollster": "Marquette University Law School",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 48
+        },
+        {
+          "choice": "Rep",
+          "pct": 44
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202maro1vul0lx",
+      "poll_type": "generic-ballot",
+      "sample_size": 577,
+      "population": "lv",
+      "url": "https://law.marquette.edu/assets/community/poll/MLSPSC30/MLSPSC30Crosstabs_NationalIssues.html",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-21",
+      "end_date": "2026-01-28",
+      "pollster": "Marquette University Law School",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 52
+        },
+        {
+          "choice": "Rep",
+          "pct": 45
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202you8d2cimjg",
+      "poll_type": "generic-ballot",
+      "sample_size": 1504,
+      "population": "rv",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_DDIQ8jz.pdf",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-30",
+      "end_date": "2026-02-02",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 44
+        },
+        {
+          "choice": "Rep",
+          "pct": 40
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202yougccmqau9",
+      "poll_type": "generic-ballot",
+      "sample_size": 1672,
+      "population": "a",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_DDIQ8jz.pdf",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-30",
+      "end_date": "2026-02-02",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 36
+        },
+        {
+          "choice": "Rep",
+          "pct": 34
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202mcl0f670da2",
+      "poll_type": "generic-ballot",
+      "sample_size": 1000,
+      "population": "lv",
+      "url": "https://mclaughlinonline.com/pols/wp-content/uploads/2026/02/National-January-2026-Presentation-RELEASE-1-1.pdf",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-21",
+      "end_date": "2026-01-27",
+      "pollster": "McLaughlin & Associates",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 46
         },
         {
           "choice": "Rep",
