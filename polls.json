@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-08T11:40:24.155Z",
+  "updatedAt": "2026-02-09T11:58:54.688Z",
   "approval": [
     {
       "id": "appdoninsm57hlnce",
@@ -18520,32 +18520,6 @@
       "subject": "Donald Trump"
     },
     {
-      "id": "appdonquic9989479",
-      "poll_type": "approval",
-      "sample_size": 1191,
-      "population": "rv",
-      "url": "https://poll.qu.edu/images/polling/us/us02042026_ubad67.pdf",
-      "created_at": "2026-02-04",
-      "start_date": "2026-01-29",
-      "end_date": "2026-02-03",
-      "pollster": "Quinnipiac University",
-      "answers": [
-        {
-          "choice": "Approve",
-          "pct": 37
-        },
-        {
-          "choice": "Disapprove",
-          "pct": 56
-        }
-      ],
-      "seat_name": null,
-      "sponsors": [],
-      "internal": false,
-      "partisan": null,
-      "subject": "Donald Trump"
-    },
-    {
       "id": "appdonmar3305ea0f",
       "poll_type": "approval",
       "sample_size": 1326,
@@ -18570,6 +18544,32 @@
         "NPR",
         "PBS News"
       ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonjohb10d57b4",
+      "poll_type": "approval",
+      "sample_size": 1000,
+      "population": "lv",
+      "url": "https://johnzogbystrategies.com/the-presidents-approval-ratings-underwater-on-overall-job-all-key-voter-issues/",
+      "created_at": "2026-02-09",
+      "start_date": "2026-02-04",
+      "end_date": "2026-02-05",
+      "pollster": "John Zobgby Strategies",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 44
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 54
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
@@ -19355,6 +19355,32 @@
       "sponsors": [
         "Napolitan Institute"
       ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonquic9989479",
+      "poll_type": "approval",
+      "sample_size": 1191,
+      "population": "rv",
+      "url": "https://poll.qu.edu/images/polling/us/us02042026_ubad67.pdf",
+      "created_at": "2026-02-04",
+      "start_date": "2026-01-29",
+      "end_date": "2026-02-02",
+      "pollster": "Quinnipiac University",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 37
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 56
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
