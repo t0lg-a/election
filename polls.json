@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-11T12:00:24.142Z",
+  "updatedAt": "2026-02-12T11:58:05.771Z",
   "approval": [
     {
       "id": "appdoninsm57hlnce",
@@ -18603,6 +18603,34 @@
       "subject": "Donald Trump"
     },
     {
+      "id": "appdonsur4f42707e",
+      "poll_type": "approval",
+      "sample_size": 21995,
+      "population": "a",
+      "url": "https://legacy.www.documentcloud.org/documents/26948008-nbc-news-decision-desk-poll-jan-feb-2026-topline",
+      "created_at": "2026-02-11",
+      "start_date": "2026-01-27",
+      "end_date": "2026-02-06",
+      "pollster": "SurveyMonkey",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 39
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 61
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "NBC News Decision Desk"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
       "id": "appdonimpf5awf66t",
       "poll_type": "approval",
       "sample_size": 1500,
@@ -19489,6 +19517,32 @@
       "sponsors": [
         "The Economist"
       ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdongba3751835c",
+      "poll_type": "approval",
+      "sample_size": 1000,
+      "population": "rv",
+      "url": "https://www.politico.com/f/?id=0000019c-4aa8-d3b5-addf-eaec955d0000",
+      "created_at": "2026-02-11",
+      "start_date": "2026-02-06",
+      "end_date": "2026-02-09",
+      "pollster": "GBAO Strategies",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 43
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 57
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
