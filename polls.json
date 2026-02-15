@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-14T11:39:56.381Z",
+  "updatedAt": "2026-02-15T11:40:19.176Z",
   "approval": [],
   "genericBallot": [
     {
@@ -7926,6 +7926,32 @@
         {
           "choice": "Rep",
           "pct": 47
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202qua250cbc5a",
+      "poll_type": "generic-ballot",
+      "sample_size": 1515,
+      "population": "lv",
+      "url": "https://drive.google.com/file/d/1oJf00_QCTUCxMvNoNnRMRKj97lQ5S5pP/view",
+      "created_at": "2026-02-14",
+      "start_date": "2026-02-12",
+      "end_date": "2026-02-13",
+      "pollster": "Quantus Insights",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 48
+        },
+        {
+          "choice": "Rep",
+          "pct": 42
         }
       ],
       "seat_name": null,
