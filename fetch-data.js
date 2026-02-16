@@ -1,15 +1,8 @@
 // votehub_polls.js
-// Node 18+ (global fetch). If you're on Node <18, install node-fetch and adapt.
-
 const fs = require("fs");
 
-const API_BASE = "https://api.votehub.com";
+const API_BASE = "https://api.votehub.com/polls";
 const LOOKBACK_DAYS = 400;
-
-const headers = {
-  "Accept": "application/json",
-  "User-Agent": "votehub-polls-script/1.0"
-};
 
 function fromDateISO(daysBack) {
   const d = new Date();
@@ -17,146 +10,107 @@ function fromDateISO(daysBack) {
   return d.toISOString().slice(0, 10);
 }
 
-function buildUrl(path, paramsObj = {}) {
-  const params = new URLSearchParams(paramsObj);
-  return `${API_BASE}${path}?${params.toString()}`;
+// VoteHub docs mention %20 explicitly; URLSearchParams uses '+' for spaces.
+// If their backend doesn't decode '+', this matters. This forces %20.
+function buildQuery(paramsObj) {
+  const qs = new URLSearchParams(paramsObj).toString();
+  return qs.replace(/\+/g, "%20");
+}
+
+function getUrl(extra = {}) {
+  const from_date = fromDateISO(LOOKBACK_DAYS);
+  const params = {
+    from_date,
+    sort: "-end_date",
+    ...extra,
+  };
+  return `${API_BASE}?${buildQuery(params)}`;
 }
 
 function extractList(json) {
   if (Array.isArray(json)) return json;
   if (json && Array.isArray(json.polls)) return json.polls;
-  if (json && Array.isArray(json.results)) return json.results;
-  if (json && Array.isArray(json.data)) return json.data;
+  if (json && Array.isArray(json.results)) return json.results; // defensive
+  if (json && Array.isArray(json.data)) return json.data;       // defensive
   return [];
 }
 
 async function fetchJson(url) {
-  const res = await fetch(url, { headers });
+  const res = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+      "User-Agent": "votehub-polls-script/1.0",
+    },
+  });
 
-  const ct = (res.headers.get("content-type") || "").toLowerCase();
-  const bodyText = await res.text();
-
+  const text = await res.text();
   if (!res.ok) {
     throw new Error(
-      `HTTP ${res.status} ${res.statusText}\nURL: ${url}\nBody (first 1200 chars):\n${bodyText.slice(0, 1200)}`
+      `HTTP ${res.status} ${res.statusText}\nURL: ${url}\nBody (first 1200):\n${text.slice(0, 1200)}`
     );
   }
 
-  if (!ct.includes("application/json")) {
+  // Some failures return HTML with 200; catch that too.
+  try {
+    return JSON.parse(text);
+  } catch {
     throw new Error(
-      `Expected JSON but got content-type="${ct}"\nURL: ${url}\nBody (first 1200 chars):\n${bodyText.slice(0, 1200)}`
+      `Non-JSON response\nURL: ${url}\nBody (first 1200):\n${text.slice(0, 1200)}`
     );
   }
-
-  return JSON.parse(bodyText);
 }
 
 async function run() {
-  const from_date = fromDateISO(LOOKBACK_DAYS);
-
   const data = {
     updatedAt: new Date().toISOString(),
     approval: [],
     genericBallot: [],
     debug: {
-      chosenApprovalSubject: null,
-      attemptedApprovalSubjects: []
-    }
+      approval_total_returned: 0,
+      approval_subjects_seen: [],
+      approval_filtered_subject: "Donald Trump",
+    },
   };
 
-  // 1) Generic ballot
-  console.log("Fetching Generic Ballot...");
-  {
-    const url = buildUrl("/polls", {
-      poll_type: "generic-ballot",
-      from_date,
-      sort: "-end_date"
-    });
-
-    const json = await fetchJson(url);
-    data.genericBallot = extractList(json);
-    console.log(`Generic Ballot: Found ${data.genericBallot.length} polls.`);
-  }
-
-  // 2) Get canonical approval-capable subjects
-  console.log("Fetching subject catalog...");
-  let approvalSubjects = [];
   try {
-    const subjectsUrl = `${API_BASE}/subjects`;
-    const subjectsJson = await fetchJson(subjectsUrl);
-
-    // /subjects is typically an array of { subject, poll_types }
-    if (Array.isArray(subjectsJson)) {
-      approvalSubjects = subjectsJson
-        .filter(s => Array.isArray(s.poll_types) && s.poll_types.includes("approval"))
-        .map(s => s.subject)
-        .filter(Boolean);
+    // 1) Generic Ballot
+    console.log("Fetching Generic Ballot...");
+    {
+      const url = getUrl({ poll_type: "generic-ballot" });
+      const json = await fetchJson(url);
+      data.genericBallot = extractList(json);
+      console.log(`Generic Ballot: Found ${data.genericBallot.length} polls.`);
     }
-  } catch (e) {
-    console.warn("WARNING: /subjects fetch failed; falling back to manual subject guesses.");
-    console.warn(String(e).slice(0, 300) + "...");
-  }
 
-  // Prefer Trump if present; else use first approval subject; else null
-  const trumpCanonical =
-    approvalSubjects.find(s => String(s).toLowerCase() === "donald trump") || null;
-
-  const chosenSubject = trumpCanonical || approvalSubjects[0] || null;
-  data.debug.chosenApprovalSubject = chosenSubject;
-
-  // 3) Approval polls (try canonical first, then fallbacks)
-  console.log("Fetching Approval...");
-  const approvalCandidates = [
-    chosenSubject,     // canonical, best case
-    "Donald Trump",
-    "donald-trump",
-    "Trump",
-    "Joe Biden",
-    "joe-biden",
-    "Biden"
-  ].filter(Boolean);
-
-  let lastErr = null;
-
-  for (const subject of approvalCandidates) {
-    data.debug.attemptedApprovalSubjects.push(subject);
-    console.log(`Attempting approval fetch for subject="${subject}"`);
-
-    try {
-      const url = buildUrl("/polls", {
-        poll_type: "approval",
-        subject,
-        from_date,
-        sort: "-end_date"
-      });
-
+    // 2) Approval (fetch ALL approval polls, filter locally by subject)
+    console.log("Fetching Approval (all approval polls, then filter to Donald Trump)...");
+    {
+      const url = getUrl({ poll_type: "approval" }); // <-- NO subject param
       const json = await fetchJson(url);
       const list = extractList(json);
-      console.log(`  -> got ${list.length}`);
 
-      if (list.length > 0) {
-        data.approval = list;
-        console.log(`Success: Found ${list.length} approval polls for "${subject}"`);
-        break;
-      }
-    } catch (e) {
-      lastErr = e;
-      console.warn(`  -> failed: ${String(e).split("\n")[0]}`);
+      data.debug.approval_total_returned = list.length;
+
+      const subjects = Array.from(new Set(list.map(p => p && p.subject).filter(Boolean)));
+      data.debug.approval_subjects_seen = subjects.slice(0, 50);
+
+      data.approval = list.filter(p => p && p.subject === "Donald Trump");
+
+      console.log(`Approval (all subjects): ${list.length}`);
+      console.log(`Approval (Donald Trump): ${data.approval.length}`);
     }
-  }
 
-  if (!data.approval.length) {
-    console.warn("WARNING: No approval polls found.");
-    if (lastErr) {
-      console.warn("Last error detail:\n" + String(lastErr));
+    if (data.approval.length === 0) {
+      console.warn("WARNING: approval is still empty after local filtering.");
+      console.warn("Check data.debug.approval_subjects_seen in polls.json to see what subjects are present.");
     }
-  }
 
-  fs.writeFileSync("polls.json", JSON.stringify(data, null, 2));
-  console.log("Done. Data saved to polls.json");
+    fs.writeFileSync("polls.json", JSON.stringify(data, null, 2));
+    console.log("Done. Data saved to polls.json");
+  } catch (err) {
+    console.error("Critical Error:\n" + String(err));
+    process.exit(1);
+  }
 }
 
-run().catch((e) => {
-  console.error("Critical Error:\n" + String(e));
-  process.exit(1);
-});
+run();
