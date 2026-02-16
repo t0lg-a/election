@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-16T02:47:33.727Z",
+  "updatedAt": "2026-02-16T02:53:42.057Z",
   "approval": [],
   "genericBallot": [
     {
@@ -7960,5 +7960,17 @@
       "partisan": null,
       "subject": "2026"
     }
-  ]
+  ],
+  "debug": {
+    "chosenApprovalSubject": "Donald Trump",
+    "attemptedApprovalSubjects": [
+      "Donald Trump",
+      "Donald Trump",
+      "donald-trump",
+      "Trump",
+      "Joe Biden",
+      "joe-biden",
+      "Biden"
+    ]
+  }
 }
