@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-16T11:56:10.133Z",
+  "updatedAt": "2026-02-17T11:56:02.972Z",
   "approval": [
     {
       "id": "appdonqua315a942f",
@@ -84,27 +84,29 @@
       "subject": "Donald Trump"
     },
     {
-      "id": "appdonyoub29bd9e0",
+      "id": "appdonrmg79d63456",
       "poll_type": "approval",
-      "sample_size": 1704,
-      "population": "a",
-      "url": "https://www.yahoo.com/news/politics/article/poll-trumps-approval-rating-hits-new-low-as-immigration-backlash-grows-and-ice-withdraws-from-minnesota-204723473.html",
-      "created_at": "2026-02-14",
-      "start_date": "2026-02-09",
+      "sample_size": 3000,
+      "population": "rv",
+      "url": "https://napolitannews.org/assets/pdfs/698f36c335a48-gcm26-0211-toplines-trump-job-approval.pdf",
+      "created_at": "2026-02-16",
+      "start_date": "2026-02-04",
       "end_date": "2026-02-12",
-      "pollster": "YouGov",
+      "pollster": "RMG Research",
       "answers": [
         {
           "choice": "Approve",
-          "pct": 38
+          "pct": 47
         },
         {
           "choice": "Disapprove",
-          "pct": 58
+          "pct": 51
         }
       ],
       "seat_name": null,
-      "sponsors": [],
+      "sponsors": [
+        "Napolitan Institute"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
@@ -19548,32 +19550,6 @@
   ],
   "genericBallot": [
     {
-      "id": "gen202cygqnc6obu6",
-      "poll_type": "generic-ballot",
-      "sample_size": 1500,
-      "population": "lv",
-      "url": "https://www.cygn.al/voters-back-kingmaker-trumps-policies-on-economy-energy-and-health/",
-      "created_at": "2025-01-16",
-      "start_date": "2025-01-09",
-      "end_date": "2025-01-12",
-      "pollster": "Cygnal",
-      "answers": [
-        {
-          "choice": "Dem",
-          "pct": 44.6
-        },
-        {
-          "choice": "Rep",
-          "pct": 46.8
-        }
-      ],
-      "seat_name": "Generic",
-      "sponsors": [],
-      "internal": false,
-      "partisan": null,
-      "subject": "2026"
-    },
-    {
       "id": "gen202rmg4ozl7t6b",
       "poll_type": "generic-ballot",
       "sample_size": 1000,
@@ -27501,6 +27477,34 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202tip00f8b387",
+      "poll_type": "generic-ballot",
+      "sample_size": 1126,
+      "population": "rv",
+      "url": "https://issuesinsights.com/2026/02/16/who-leads-in-2028-presidential-race-and-in-2026-midterm-elections-ii-tipp-poll",
+      "created_at": "2026-02-16",
+      "start_date": "2026-01-27",
+      "end_date": "2026-01-29",
+      "pollster": "TIPP Insights",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 45
+        },
+        {
+          "choice": "Rep",
+          "pct": 42
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Issues & Insights"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "2026"
