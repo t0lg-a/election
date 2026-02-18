@@ -1,6 +1,116 @@
 {
-  "updatedAt": "2026-02-17T11:56:02.972Z",
+  "updatedAt": "2026-02-18T11:56:29.706Z",
   "approval": [
+    {
+      "id": "appdonipsd9848d53",
+      "poll_type": "approval",
+      "sample_size": 1117,
+      "population": "a",
+      "url": "https://www.reuters.com/data/trumps-approval-rating-2025-01-21",
+      "created_at": "2026-02-17",
+      "start_date": "2026-02-13",
+      "end_date": "2026-02-16",
+      "pollster": "Ipsos",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 38
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 60
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Reuters"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyoub369b74a",
+      "poll_type": "approval",
+      "sample_size": 1682,
+      "population": "a",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_usZL1Jt.pdf",
+      "created_at": "2026-02-17",
+      "start_date": "2026-02-13",
+      "end_date": "2026-02-16",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 39
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 56
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyouc8a3e4eb",
+      "poll_type": "approval",
+      "sample_size": 1512,
+      "population": "rv",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_usZL1Jt.pdf",
+      "created_at": "2026-02-17",
+      "start_date": "2026-02-13",
+      "end_date": "2026-02-16",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 43
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 55
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonmor9fed4b5b",
+      "poll_type": "approval",
+      "sample_size": 2200,
+      "population": "rv",
+      "url": "https://pro.morningconsult.com/trackers/donald-trump-congress-policy-republicans-polling#02-16-2026",
+      "created_at": "2026-02-18",
+      "start_date": "2026-02-13",
+      "end_date": "2026-02-16",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 43
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 55
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
     {
       "id": "appdonqua315a942f",
       "poll_type": "approval",
@@ -84,34 +194,6 @@
       "subject": "Donald Trump"
     },
     {
-      "id": "appdonrmg79d63456",
-      "poll_type": "approval",
-      "sample_size": 3000,
-      "population": "rv",
-      "url": "https://napolitannews.org/assets/pdfs/698f36c335a48-gcm26-0211-toplines-trump-job-approval.pdf",
-      "created_at": "2026-02-16",
-      "start_date": "2026-02-04",
-      "end_date": "2026-02-12",
-      "pollster": "RMG Research",
-      "answers": [
-        {
-          "choice": "Approve",
-          "pct": 47
-        },
-        {
-          "choice": "Disapprove",
-          "pct": 51
-        }
-      ],
-      "seat_name": null,
-      "sponsors": [
-        "Napolitan Institute"
-      ],
-      "internal": false,
-      "partisan": null,
-      "subject": "Donald Trump"
-    },
-    {
       "id": "appdonfoc89318f13",
       "poll_type": "approval",
       "sample_size": 1148,
@@ -129,6 +211,32 @@
         {
           "choice": "Disapprove",
           "pct": 53
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonthe8c0cdf81",
+      "poll_type": "approval",
+      "sample_size": 3003,
+      "population": "rv",
+      "url": "https://www.theargumentmag.com/p/the-trans-rights-backlash-is-real",
+      "created_at": "2026-02-17",
+      "start_date": "2026-02-04",
+      "end_date": "2026-02-10",
+      "pollster": "The Argument/Verasight",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 42
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 57
         }
       ],
       "seat_name": null,
@@ -27505,6 +27613,140 @@
       "sponsors": [
         "Issues & Insights"
       ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202thea1c3940a",
+      "poll_type": "generic-ballot",
+      "sample_size": 3003,
+      "population": "rv",
+      "url": "https://www.theargumentmag.com/p/the-trans-rights-backlash-is-real",
+      "created_at": "2026-02-17",
+      "start_date": "2026-02-04",
+      "end_date": "2026-02-10",
+      "pollster": "The Argument/Verasight",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 53
+        },
+        {
+          "choice": "Rep",
+          "pct": 47
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202the46f080ee",
+      "poll_type": "generic-ballot",
+      "sample_size": null,
+      "population": "lv",
+      "url": "https://www.theargumentmag.com/p/the-trans-rights-backlash-is-real",
+      "created_at": "2026-02-17",
+      "start_date": "2026-02-04",
+      "end_date": "2026-02-10",
+      "pollster": "The Argument/Verasight",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 53
+        },
+        {
+          "choice": "Rep",
+          "pct": 47
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202you396f2cec",
+      "poll_type": "generic-ballot",
+      "sample_size": 1509,
+      "population": "rv",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_usZL1Jt.pdf",
+      "created_at": "2026-02-17",
+      "start_date": "2026-02-13",
+      "end_date": "2026-02-16",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 47
+        },
+        {
+          "choice": "Rep",
+          "pct": 40
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202you519cb5b0",
+      "poll_type": "generic-ballot",
+      "sample_size": 1682,
+      "population": "a",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_usZL1Jt.pdf",
+      "created_at": "2026-02-17",
+      "start_date": "2026-02-13",
+      "end_date": "2026-02-16",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 39
+        },
+        {
+          "choice": "Rep",
+          "pct": 33
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202mor0b96b326",
+      "poll_type": "generic-ballot",
+      "sample_size": 2200,
+      "population": "rv",
+      "url": "https://pro.morningconsult.com/trackers/donald-trump-congress-policy-republicans-polling#02-09-2026",
+      "created_at": "2026-02-17",
+      "start_date": "2026-02-06",
+      "end_date": "2026-02-09",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 45
+        },
+        {
+          "choice": "Rep",
+          "pct": 41
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
       "internal": false,
       "partisan": null,
       "subject": "2026"
