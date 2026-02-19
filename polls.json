@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-18T11:56:29.706Z",
+  "updatedAt": "2026-02-19T11:56:43.896Z",
   "approval": [
     {
       "id": "appdonipsd9848d53",
@@ -27747,6 +27747,62 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202ips5480e8db",
+      "poll_type": "generic-ballot",
+      "sample_size": 846,
+      "population": "rv",
+      "url": "https://www.reuters.com/world/us/trumps-immigration-approval-hits-new-low-according-reutersipsos-poll-2026-02-17",
+      "created_at": "2026-02-18",
+      "start_date": "2026-02-13",
+      "end_date": "2026-02-16",
+      "pollster": "Ipsos",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 41
+        },
+        {
+          "choice": "Rep",
+          "pct": 37
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Reuters"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202ips1b69c5aa",
+      "poll_type": "generic-ballot",
+      "sample_size": 1117,
+      "population": "a",
+      "url": "https://www.reuters.com/world/us/trumps-immigration-approval-hits-new-low-according-reutersipsos-poll-2026-02-17",
+      "created_at": "2026-02-18",
+      "start_date": "2026-02-13",
+      "end_date": "2026-02-16",
+      "pollster": "Ipsos",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 36
+        },
+        {
+          "choice": "Rep",
+          "pct": 32
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Reuters"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "2026"
