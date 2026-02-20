@@ -1,6 +1,88 @@
 {
-  "updatedAt": "2026-02-19T11:56:43.896Z",
+  "updatedAt": "2026-02-20T11:47:35.960Z",
   "approval": [
+    {
+      "id": "appdonins5463a03b",
+      "poll_type": "approval",
+      "sample_size": 800,
+      "population": "lv",
+      "url": "https://insideradvantage.com/top-line-tabs-insideradvantage-feb-17-18-trump-approval-rating/",
+      "created_at": "2026-02-19",
+      "start_date": "2026-02-17",
+      "end_date": "2026-02-18",
+      "pollster": "InsiderAdvantage",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 49.6
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 46
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonbigea511896",
+      "poll_type": "approval",
+      "sample_size": 2012,
+      "population": "rv",
+      "url": "https://application.marketsight.com/app/ItemView.aspx?SharedFor=public%40bigdatapoll.com&SharedBy=34090&id=85c98324-ccc5-43dc-93e6-b3f60172d1fe",
+      "created_at": "2026-02-20",
+      "start_date": "2026-02-16",
+      "end_date": "2026-02-18",
+      "pollster": "Big Data Poll",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 42.4
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 54.6
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "1776 Law Center"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonbigc6e4d357",
+      "poll_type": "approval",
+      "sample_size": 1805,
+      "population": "lv",
+      "url": "https://application.marketsight.com/app/ItemView.aspx?SharedFor=public%40bigdatapoll.com&SharedBy=34090&id=85c98324-ccc5-43dc-93e6-b3f60172d1fe",
+      "created_at": "2026-02-20",
+      "start_date": "2026-02-16",
+      "end_date": "2026-02-18",
+      "pollster": "Big Data Poll",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 43.6
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 54.6
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "1776 Law Center"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
     {
       "id": "appdonipsd9848d53",
       "poll_type": "approval",
@@ -183,6 +265,34 @@
         {
           "choice": "Disapprove",
           "pct": 58
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Yahoo News"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyou386e2a03",
+      "poll_type": "approval",
+      "sample_size": 1149,
+      "population": "rv",
+      "url": "https://www.yahoo.com/news/politics/article/poll-trumps-approval-rating-hits-new-low-as-immigration-backlash-grows-and-ice-withdraws-from-minnesota-204723473.html",
+      "created_at": "2026-02-19",
+      "start_date": "2026-02-09",
+      "end_date": "2026-02-12",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 42
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 56
         }
       ],
       "seat_name": null,
@@ -27806,13 +27916,97 @@
       "internal": false,
       "partisan": null,
       "subject": "2026"
+    },
+    {
+      "id": "gen202you0acd1884",
+      "poll_type": "generic-ballot",
+      "sample_size": 1149,
+      "population": "rv",
+      "url": "https://www.yahoo.com/news/politics/article/poll-trumps-approval-rating-hits-new-low-as-immigration-backlash-grows-and-ice-withdraws-from-minnesota-204723473.html",
+      "created_at": "2026-02-19",
+      "start_date": "2026-02-09",
+      "end_date": "2026-02-12",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 44
+        },
+        {
+          "choice": "Rep",
+          "pct": 41
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Yahoo News"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202bigc1d4e27a",
+      "poll_type": "generic-ballot",
+      "sample_size": 1805,
+      "population": "lv",
+      "url": "https://application.marketsight.com/app/ItemView.aspx?SharedFor=public%40bigdatapoll.com&SharedBy=34090&id=85c98324-ccc5-43dc-93e6-b3f60172d1fe",
+      "created_at": "2026-02-20",
+      "start_date": "2026-02-16",
+      "end_date": "2026-02-18",
+      "pollster": "Big Data Poll",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 50
+        },
+        {
+          "choice": "Rep",
+          "pct": 41.3
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "1776 Law Center"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202big82c2050f",
+      "poll_type": "generic-ballot",
+      "sample_size": 2012,
+      "population": "rv",
+      "url": "https://application.marketsight.com/app/ItemView.aspx?SharedFor=public%40bigdatapoll.com&SharedBy=34090&id=85c98324-ccc5-43dc-93e6-b3f60172d1fe",
+      "created_at": "2026-02-20",
+      "start_date": "2026-02-16",
+      "end_date": "2026-02-18",
+      "pollster": "Big Data Poll",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 48.2
+        },
+        {
+          "choice": "Rep",
+          "pct": 40
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "1776 Law Center"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
     }
   ],
   "debug": {
     "approvalSubject": "Donald Trump",
     "lookbackDays": 400,
-    "okSlices": 18,
-    "failedSlices": 6,
+    "okSlices": 17,
+    "failedSlices": 5,
     "skippedDays": [
       "2026-01-26"
     ]
