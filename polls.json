@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-24T11:57:48.722Z",
+  "updatedAt": "2026-02-25T11:55:30.948Z",
   "approval": [
     {
       "id": "appdonechb371655b",
@@ -23,6 +23,118 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonipsae4ca6e1",
+      "poll_type": "approval",
+      "sample_size": 4638,
+      "population": "a",
+      "url": "https://www.reuters.com/world/us/most-americans-say-trump-is-growing-erratic-with-age-reutersipsos-poll-finds-2026-02-24",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-18",
+      "end_date": "2026-02-23",
+      "pollster": "Ipsos",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 40
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 58
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Reuters"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyou295a3ca0",
+      "poll_type": "approval",
+      "sample_size": 1402,
+      "population": "rv",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_mhEVZMR.pdf",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-20",
+      "end_date": "2026-02-23",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 42
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 57
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyou1faf35e0",
+      "poll_type": "approval",
+      "sample_size": 1551,
+      "population": "a",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_mhEVZMR.pdf",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-20",
+      "end_date": "2026-02-23",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 39
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 57
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyoub35a00d7",
+      "poll_type": "approval",
+      "sample_size": 2381,
+      "population": "a",
+      "url": "https://assets1.cbsnewsstatic.com/hub/cms/prod_cms_alt/file/2026/02/24/fd05f2bf-dd16-4614-a89b-a4ad4c702e96/cbsnews_20260224_tues.pdf",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-20",
+      "end_date": "2026-02-23",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 40
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 60
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "CBS News"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
@@ -127,6 +239,90 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonver43311943",
+      "poll_type": "approval",
+      "sample_size": 1566,
+      "population": "a",
+      "url": "https://www.gelliottmorris.com/p/ahead-of-state-of-the-union-address",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-18",
+      "end_date": "2026-02-20",
+      "pollster": "Verasight",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 37
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 59
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Strength In Numbers"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonver345e1b2d",
+      "poll_type": "approval",
+      "sample_size": 1401,
+      "population": "rv",
+      "url": "https://www.gelliottmorris.com/p/ahead-of-state-of-the-union-address",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-18",
+      "end_date": "2026-02-20",
+      "pollster": "Verasight",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 38
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 60
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Strength In Numbers"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdontal012d8f8e",
+      "poll_type": "approval",
+      "sample_size": 1000,
+      "population": "a",
+      "url": "https://www.scrippsnews.com/politics/scripps-news-talker-research-poll-high-interest-in-state-of-the-union-amid-economic-worries",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-13",
+      "end_date": "2026-02-19",
+      "pollster": "Talker Research",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 44
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 47
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Scripps News"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
@@ -237,6 +433,32 @@
       "sponsors": [
         "Napolitan Institute"
       ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonbow31746f11",
+      "poll_type": "approval",
+      "sample_size": 1200,
+      "population": "rv",
+      "url": "https://scholarworks.bgsu.edu/cgi/viewcontent.cgi?article=1017&context=depo",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-13",
+      "end_date": "2026-02-18",
+      "pollster": "Bowling Green State University/YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 41
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 58
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
@@ -431,6 +653,35 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonmora819591f",
+      "poll_type": "approval",
+      "sample_size": 2002,
+      "population": "rv",
+      "url": "https://www.deseret.com/politics/2026/02/23/president-donald-trump-national-utah-approval-rating",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-10",
+      "end_date": "2026-02-13",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 42
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 55
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Deseret News",
+        "University of Utah Hinckley Institute of Politics"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
@@ -20144,32 +20395,6 @@
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
-    },
-    {
-      "id": "appdoninsm57hlnce",
-      "poll_type": "approval",
-      "sample_size": 800,
-      "population": "rv",
-      "url": "https://insideradvantage.com/first-insideradvantage-trump-job-performance-survey-approval-hits-fifty-six-percent-post-inaugural-address/",
-      "created_at": "2025-01-21",
-      "start_date": "2025-01-20",
-      "end_date": "2025-01-20",
-      "pollster": "InsiderAdvantage",
-      "answers": [
-        {
-          "choice": "Disapprove",
-          "pct": 39
-        },
-        {
-          "choice": "Approve",
-          "pct": 56
-        }
-      ],
-      "seat_name": null,
-      "sponsors": [],
-      "internal": false,
-      "partisan": null,
-      "subject": "Donald Trump"
     }
   ],
   "genericBallot": [
@@ -28401,6 +28626,144 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202verb7bf02d2",
+      "poll_type": "generic-ballot",
+      "sample_size": 1401,
+      "population": "rv",
+      "url": "https://www.gelliottmorris.com/p/ahead-of-state-of-the-union-address",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-18",
+      "end_date": "2026-02-20",
+      "pollster": "Verasight",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 52
+        },
+        {
+          "choice": "Rep",
+          "pct": 42
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Strength In Numbers"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202verb8fa684b",
+      "poll_type": "generic-ballot",
+      "sample_size": 1566,
+      "population": "a",
+      "url": "https://www.gelliottmorris.com/p/ahead-of-state-of-the-union-address",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-18",
+      "end_date": "2026-02-20",
+      "pollster": "Verasight",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 50
+        },
+        {
+          "choice": "Rep",
+          "pct": 40
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Strength In Numbers"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202bow961d6eac",
+      "poll_type": "generic-ballot",
+      "sample_size": 1200,
+      "population": "rv",
+      "url": "https://scholarworks.bgsu.edu/cgi/viewcontent.cgi?article=1017&context=depo",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-13",
+      "end_date": "2026-02-18",
+      "pollster": "Bowling Green State University/YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 49
+        },
+        {
+          "choice": "Rep",
+          "pct": 41
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202ips899bee43",
+      "poll_type": "generic-ballot",
+      "sample_size": 3686,
+      "population": "rv",
+      "url": "https://www.reuters.com/world/us/most-americans-say-trump-is-growing-erratic-with-age-reutersipsos-poll-finds-2026-02-24",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-18",
+      "end_date": "2026-02-23",
+      "pollster": "Ipsos",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 40
+        },
+        {
+          "choice": "Rep",
+          "pct": 38
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Reuters"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202tald5d533fb",
+      "poll_type": "generic-ballot",
+      "sample_size": 1000,
+      "population": "a",
+      "url": "https://www.scrippsnews.com/politics/scripps-news-talker-research-poll-high-interest-in-state-of-the-union-amid-economic-worries",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-13",
+      "end_date": "2026-02-19",
+      "pollster": "Talker Research",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 42
+        },
+        {
+          "choice": "Rep",
+          "pct": 36
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Scripps News"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "2026"
