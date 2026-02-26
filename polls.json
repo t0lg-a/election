@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-02-25T11:55:30.948Z",
+  "updatedAt": "2026-02-26T11:56:45.699Z",
   "approval": [
     {
       "id": "appdonechb371655b",
@@ -58,7 +58,7 @@
     {
       "id": "appdonyou295a3ca0",
       "poll_type": "approval",
-      "sample_size": 1402,
+      "sample_size": 1401,
       "population": "rv",
       "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_mhEVZMR.pdf",
       "created_at": "2026-02-25",
@@ -135,6 +135,60 @@
       "sponsors": [
         "CBS News"
       ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyou918f7586",
+      "poll_type": "approval",
+      "sample_size": 2381,
+      "population": "a",
+      "url": "https://assets1.cbsnewsstatic.com/hub/cms/prod_cms_alt/file/2026/02/24/fd05f2bf-dd16-4614-a89b-a4ad4c702e96/cbsnews_20260224_tues.pdf",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-20",
+      "end_date": "2026-02-23",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 40
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 60
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "CBS News"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonmor4a0e467b",
+      "poll_type": "approval",
+      "sample_size": 2202,
+      "population": "rv",
+      "url": "https://pro.morningconsult.com/trackers/donald-trump-congress-policy-republicans-polling#02-22-2026",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-20",
+      "end_date": "2026-02-22",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Disapprove",
+          "pct": 53
+        },
+        {
+          "choice": "Approve",
+          "pct": 45
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
@@ -20339,62 +20393,6 @@
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
-    },
-    {
-      "id": "appdonips08b5hfrm",
-      "poll_type": "approval",
-      "sample_size": 1077,
-      "population": "a",
-      "url": "https://www.ipsos.com/en-us/reuters-ipsos-trump-inauguration-survey",
-      "created_at": "2025-01-22",
-      "start_date": "2025-01-20",
-      "end_date": "2025-01-21",
-      "pollster": "Ipsos",
-      "answers": [
-        {
-          "choice": "Approve",
-          "pct": 47
-        },
-        {
-          "choice": "Disapprove",
-          "pct": 41
-        }
-      ],
-      "seat_name": null,
-      "sponsors": [
-        "Reuters"
-      ],
-      "internal": false,
-      "partisan": null,
-      "subject": "Donald Trump"
-    },
-    {
-      "id": "appdonsocfdrw07ag",
-      "poll_type": "approval",
-      "sample_size": 742,
-      "population": "a",
-      "url": "https://substack.com/inbox/post/155392047",
-      "created_at": "2025-01-22",
-      "start_date": "2025-01-21",
-      "end_date": "2025-01-21",
-      "pollster": "SoCal Strategies",
-      "answers": [
-        {
-          "choice": "Approve",
-          "pct": 49
-        },
-        {
-          "choice": "Disapprove",
-          "pct": 36
-        }
-      ],
-      "seat_name": null,
-      "sponsors": [
-        "On Point Politics"
-      ],
-      "internal": false,
-      "partisan": null,
-      "subject": "Donald Trump"
     }
   ],
   "genericBallot": [
@@ -28763,6 +28761,89 @@
       "seat_name": null,
       "sponsors": [
         "Scripps News"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202ipsb162ebc2",
+      "poll_type": "generic-ballot",
+      "sample_size": 2087,
+      "population": "rv",
+      "url": "https://www.washingtonpost.com/politics/2026/02/25/poll-democrats-trump-republicans-midterms",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-12",
+      "end_date": "2026-02-17",
+      "pollster": "Ipsos",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 47
+        },
+        {
+          "choice": "Rep",
+          "pct": 45
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "ABC News",
+        "The Washington Post"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202mor077806f2",
+      "poll_type": "generic-ballot",
+      "sample_size": 2202,
+      "population": "rv",
+      "url": "https://pro.morningconsult.com/trackers/donald-trump-congress-policy-republicans-polling#02-22-2026",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-20",
+      "end_date": "2026-02-22",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 46
+        },
+        {
+          "choice": "Rep",
+          "pct": 42
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202youf1935f54",
+      "poll_type": "generic-ballot",
+      "sample_size": 1402,
+      "population": "rv",
+      "url": "https://yougov.com/en-us/articles/54156-two-thirds-independents-disapprove-donald-trump-job-performance-february-20-23-2026-economist-yougov-poll",
+      "created_at": "2026-02-25",
+      "start_date": "2026-02-20",
+      "end_date": "2026-02-23",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 45
+        },
+        {
+          "choice": "Rep",
+          "pct": 41
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
       ],
       "internal": false,
       "partisan": null,
