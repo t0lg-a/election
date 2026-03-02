@@ -1,6 +1,142 @@
 {
-  "updatedAt": "2026-03-01T11:35:16.874Z",
+  "updatedAt": "2026-03-02T11:48:10.144Z",
   "approval": [
+    {
+      "id": "appdonipse707742e",
+      "poll_type": "approval",
+      "sample_size": 1282,
+      "population": "a",
+      "url": "https://www.ipsos.com/sites/default/files/ct/news/documents/2026-03/Reuters%20Ipsos%20Iran%20Airstrike%20Topline%203.1.2026.pdf",
+      "created_at": "2026-03-02",
+      "start_date": "2026-02-28",
+      "end_date": "2026-03-01",
+      "pollster": "Ipsos",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 38
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 60
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Reuters"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonrmgdb45501b",
+      "poll_type": "approval",
+      "sample_size": 1000,
+      "population": "rv",
+      "url": "https://napolitannews.org/posts/just-33-percent-say-its-appropriate-to-attack-a-foreign-nation-to-overthrow-their-government",
+      "created_at": "2026-03-02",
+      "start_date": "2026-02-28",
+      "end_date": "2026-03-01",
+      "pollster": "RMG Research",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 45
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 54
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Napolitan Institute"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonmor594bfeb7",
+      "poll_type": "approval",
+      "sample_size": 1618,
+      "population": "rv",
+      "url": "https://morningconsult.com/articles/trump-iran-strikes-poll",
+      "created_at": "2026-03-02",
+      "start_date": "2026-02-28",
+      "end_date": "2026-02-28",
+      "pollster": "Morning Consult",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 44
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 53
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonthec2a3a40b",
+      "poll_type": "approval",
+      "sample_size": 249,
+      "population": "lv",
+      "url": "https://docs.google.com/spreadsheets/d/1m40rnoHyDTHRmVYF9mYbAjKrriNucbiqzlIO_4nAq_w/edit?gid=1327702577#gid=1327702577",
+      "created_at": "2026-03-02",
+      "start_date": "2026-02-28",
+      "end_date": "2026-02-28",
+      "pollster": "The Public Sentiment Institute",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 41
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 59
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyou3c2edd9a",
+      "poll_type": "approval",
+      "sample_size": 2264,
+      "population": "a",
+      "url": "https://www.cbsnews.com/news/cbs-news-poll-americans-views-on-iran-prior-to-conflict",
+      "created_at": "2026-03-02",
+      "start_date": "2026-02-25",
+      "end_date": "2026-02-27",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 41
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 59
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "CBS News"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
     {
       "id": "appdonrmga3e41423",
       "poll_type": "approval",
@@ -25,6 +161,32 @@
       "sponsors": [
         "Napolitan Institute"
       ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonjohb4cfb79d",
+      "poll_type": "approval",
+      "sample_size": 1015,
+      "population": "lv",
+      "url": "https://johnzogbystrategies.com/presidents-approval-up-3-points-post-state-of-the-union-now-47-approve-50-disapprove-americans-split-even-on-his-iran-policy",
+      "created_at": "2026-03-02",
+      "start_date": "2026-02-25",
+      "end_date": "2026-02-26",
+      "pollster": "John Zogby Strategies",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 47
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 50
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
@@ -29183,6 +29345,58 @@
       ],
       "internal": false,
       "partisan": "REP",
+      "subject": "2026"
+    },
+    {
+      "id": "gen202thef6d37a30",
+      "poll_type": "generic-ballot",
+      "sample_size": 249,
+      "population": "lv",
+      "url": "https://docs.google.com/spreadsheets/d/1m40rnoHyDTHRmVYF9mYbAjKrriNucbiqzlIO_4nAq_w/edit?gid=1327702577#gid=1327702577",
+      "created_at": "2026-03-02",
+      "start_date": "2026-02-28",
+      "end_date": "2026-02-28",
+      "pollster": "The Public Sentiment Institute",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 50
+        },
+        {
+          "choice": "Rep",
+          "pct": 41
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202theb66b8abe",
+      "poll_type": "generic-ballot",
+      "sample_size": 316,
+      "population": "rv",
+      "url": "https://docs.google.com/spreadsheets/d/1m40rnoHyDTHRmVYF9mYbAjKrriNucbiqzlIO_4nAq_w/edit?gid=1327702577#gid=1327702577",
+      "created_at": "2026-03-02",
+      "start_date": "2026-02-28",
+      "end_date": "2026-02-28",
+      "pollster": "The Public Sentiment Institute",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 41
+        },
+        {
+          "choice": "Rep",
+          "pct": 33
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
       "subject": "2026"
     }
   ],
