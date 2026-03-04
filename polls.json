@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-03T11:48:47.402Z",
+  "updatedAt": "2026-03-04T11:46:55.693Z",
   "approval": [
     {
       "id": "appdonipse707742e",
@@ -20515,139 +20515,9 @@
       "internal": false,
       "partisan": "REP",
       "subject": "Donald Trump"
-    },
-    {
-      "id": "appdonmor1fxb76x2",
-      "poll_type": "approval",
-      "sample_size": 45000,
-      "population": "a",
-      "url": "https://pro.morningconsult.com/trackers/global-leader-approval",
-      "created_at": "2025-01-27",
-      "start_date": "2025-01-21",
-      "end_date": "2025-01-27",
-      "pollster": "Morning Consult",
-      "answers": [
-        {
-          "choice": "Approve",
-          "pct": 52.35
-        },
-        {
-          "choice": "Disapprove",
-          "pct": 37.67
-        }
-      ],
-      "seat_name": null,
-      "sponsors": [],
-      "internal": false,
-      "partisan": null,
-      "subject": "Donald Trump"
-    },
-    {
-      "id": "appdonquib5aie3mm",
-      "poll_type": "approval",
-      "sample_size": 1019,
-      "population": "rv",
-      "url": "https://poll.qu.edu/poll-release?releaseid=3918",
-      "created_at": "2025-01-29",
-      "start_date": "2025-01-23",
-      "end_date": "2025-01-27",
-      "pollster": "Quinnipiac University",
-      "answers": [
-        {
-          "choice": "Approve",
-          "pct": 46
-        },
-        {
-          "choice": "Disapprove",
-          "pct": 43
-        }
-      ],
-      "seat_name": null,
-      "sponsors": [],
-      "internal": false,
-      "partisan": null,
-      "subject": "Donald Trump"
-    },
-    {
-      "id": "appdongaltebvahhg",
-      "poll_type": "approval",
-      "sample_size": 1001,
-      "population": "a",
-      "url": "https://news.gallup.com/poll/655955/trump-inaugural-approval-rating-historically-low-again.aspx",
-      "created_at": "2025-01-30",
-      "start_date": "2025-01-21",
-      "end_date": "2025-01-27",
-      "pollster": "Gallup",
-      "answers": [
-        {
-          "choice": "Approve",
-          "pct": 47
-        },
-        {
-          "choice": "Disapprove",
-          "pct": 48
-        }
-      ],
-      "seat_name": null,
-      "sponsors": [],
-      "internal": false,
-      "partisan": null,
-      "subject": "Donald Trump"
-    },
-    {
-      "id": "appdonmcltm04swhj",
-      "poll_type": "approval",
-      "sample_size": 1000,
-      "population": "lv",
-      "url": "https://mclaughlinonline.com/pols/wp-content/uploads/2025/01/National-January-Presentation-RELEASE-01-28-25.pdf",
-      "created_at": "2025-01-30",
-      "start_date": "2025-01-22",
-      "end_date": "2025-01-27",
-      "pollster": "McLaughlin & Associates",
-      "answers": [
-        {
-          "choice": "Approve",
-          "pct": 52
-        },
-        {
-          "choice": "Disapprove",
-          "pct": 43
-        }
-      ],
-      "seat_name": null,
-      "sponsors": [],
-      "internal": false,
-      "partisan": null,
-      "subject": "Donald Trump"
     }
   ],
   "genericBallot": [
-    {
-      "id": "gen202mcl60gh0sr5",
-      "poll_type": "generic-ballot",
-      "sample_size": 1000,
-      "population": "lv",
-      "url": "https://mclaughlinonline.com/pols/wp-content/uploads/2025/01/National-January-Presentation-RELEASE-01-28-25.pdf",
-      "created_at": "2025-01-30",
-      "start_date": "2025-01-22",
-      "end_date": "2025-01-27",
-      "pollster": "McLaughlin & Associates",
-      "answers": [
-        {
-          "choice": "Dem",
-          "pct": 40
-        },
-        {
-          "choice": "Rep",
-          "pct": 48
-        }
-      ],
-      "seat_name": "Generic",
-      "sponsors": [],
-      "internal": false,
-      "partisan": null,
-      "subject": "2026"
-    },
     {
       "id": "gen202clamw35tq8u",
       "poll_type": "generic-ballot",
