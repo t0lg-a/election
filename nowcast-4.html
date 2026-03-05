@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Texas Senate Nowcast — 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#121212;--ink2:#444;--muted:#999;--line:#ddd;
+      --blue:#1a73e8;--blue-dk:#0d47a1;
+      --red:#d93025;--red-dk:#8b1a1a;
+      --disp:'Playfair Display',Georgia,serif;
+      --body:'Libre Franklin',system-ui,sans-serif;
+      --mono:'SFMono-Regular',Menlo,monospace;
+    }
+    *{box-sizing:border-box;margin:0;}
+    html,body{height:100%;overflow:hidden;}
+    body{font-family:var(--body);color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;}
+    .shell{width:100vw;height:100vh;display:grid;grid-template-rows:auto 1fr;padding:14px 28px 10px;}
+    .hdr{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--ink);padding-bottom:7px;margin-bottom:10px;}
+    .hdr-k{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);}
+    .hdr-t{font-family:var(--disp);font-size:26px;font-weight:900;letter-spacing:-.025em;line-height:1;}
+    .hdr-s{font-size:11px;color:#777;margin-top:2px;}
+    .hdr-d{font-family:var(--mono);font-size:10px;color:var(--muted);}
+    .hdr-status{font-size:9px;color:var(--muted);margin-top:2px;font-family:var(--mono);}
+    .main{display:grid;grid-template-columns:48% 52%;gap:24px;min-height:0;}
+    .left{display:grid;grid-template-rows:1fr 1fr 1.2fr;gap:8px;min-height:0;}
+    .cand{display:grid;grid-template-columns:14vh 1fr auto;gap:12px;align-items:center;min-height:0;}
+    .photo{width:100%;aspect-ratio:3/4;border-radius:3px;overflow:hidden;max-height:100%;}
+    .photo-in{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-size:clamp(18px,3vh,30px);color:#fff;}
+    .photo-in.d{background:linear-gradient(150deg,#3b82f6,var(--blue-dk));}
+    .photo-in.r{background:linear-gradient(150deg,#ef4444,var(--red-dk));}
+    .bars{display:flex;flex-direction:column;gap:3px;min-width:0;}
+    .cn{font-size:clamp(11px,1.5vh,14px);font-weight:900;letter-spacing:-.01em;}
+    .cp{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+    .cp.d{color:var(--blue);}.cp.r{color:var(--red);}
+    .hb{display:flex;align-items:center;height:clamp(14px,2.2vh,22px);}
+    .hb-l{width:88px;font-size:clamp(7px,1vh,9px);font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--ink2);flex-shrink:0;}
+    .hb-t{flex:1;height:55%;background:#f0f0f0;border-radius:2px;overflow:hidden;}
+    .hb-f{height:100%;border-radius:2px;transition:width .4s ease;}
+    .hb-f.d{background:var(--blue);}.hb-f.r{background:var(--red);}
+    .hb-v{width:34px;text-align:right;font-family:var(--mono);font-size:clamp(7px,1vh,10px);font-weight:700;color:var(--ink2);padding-left:4px;}
+    .pv{display:flex;flex-direction:column;align-items:center;justify-content:center;padding-right:4px;}
+    .pv-num{font-family:var(--disp);font-size:clamp(32px,6.5vh,56px);font-weight:900;line-height:1;letter-spacing:-.04em;}
+    .pv-num.d{color:var(--blue);}.pv-num.r{color:var(--red);}
+    .pv-pct{font-size:clamp(12px,2.2vh,20px);font-weight:800;letter-spacing:-.02em;}
+    .pv-pct.d{color:var(--blue);opacity:.45;}.pv-pct.r{color:var(--red);opacity:.45;}
+    .pv-lbl{font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:1px;}
+    .btm{display:grid;grid-template-columns:1fr 1fr;gap:16px;min-height:0;border-top:1px solid var(--line);padding-top:6px;}
+    .st{font-size:10px;font-weight:900;color:var(--ink);}
+    .ss{font-size:8px;color:var(--muted);font-weight:500;margin-bottom:4px;}
+    #pollChart{width:100%;display:block;}
+    .pt{width:100%;border-collapse:collapse;font-size:clamp(8px,1.1vh,10px);}
+    .pt th{text-align:left;font-size:7px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:3px 4px;border-bottom:1.5px solid var(--ink);}
+    .pt td{padding:3px 4px;border-bottom:1px solid #eee;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums;}
+    .pt tr:last-child td{border-bottom:none;}
+    .pt .rv{color:var(--red);font-weight:800;}
+    .pt .dv{color:var(--blue);font-weight:800;}
+    .pt .ps{font-weight:700;color:var(--ink);}
+    .map-col{display:flex;flex-direction:column;min-height:0;}
+    .mt{font-size:11px;font-weight:900;color:var(--ink);}
+    .ms{font-size:9px;color:var(--muted);font-weight:500;margin-bottom:4px;}
+    .map-wrap{flex:1;position:relative;min-height:0;}
+    #txMap{width:100%;height:100%;display:block;}
+    .county{stroke:rgba(255,255,255,.5);stroke-width:.5px;vector-effect:non-scaling-stroke;cursor:pointer;transition:opacity .12s;}
+    .county:hover{stroke:var(--ink);stroke-width:1.5px;opacity:.8;}
+    .ml{display:flex;align-items:center;gap:6px;margin-top:3px;}
+    .ml-bar{width:120px;height:6px;border-radius:99px;background:linear-gradient(90deg,var(--blue-dk) 0%,var(--blue) 30%,#ddd 50%,var(--red) 70%,var(--red-dk) 100%);}
+    .ml-lb{display:flex;width:120px;justify-content:space-between;font-size:7px;font-weight:700;color:var(--muted);}
+    #tip{position:fixed;pointer-events:none;z-index:100;transform:translate(-9999px,-9999px);background:rgba(255,255,255,.97);border:1px solid rgba(0,0,0,.1);border-radius:5px;box-shadow:0 6px 20px rgba(0,0,0,.1);padding:7px 10px;font-size:11px;min-width:150px;}
+    .tip-n{font-weight:900;font-size:12px;margin-bottom:3px;}
+    .tip-r{display:flex;justify-content:space-between;gap:8px;margin:2px 0;}
+    .tip-l{color:var(--muted);font-weight:600;}
+    .tip-v{font-family:var(--mono);font-weight:800;}
+    .tip-v.d{color:var(--blue);}.tip-v.g{color:var(--red);}
+    .chartLeg{display:flex;gap:12px;margin-top:2px;}
+    .chartLeg span{font-size:8px;font-weight:700;display:flex;align-items:center;gap:3px;}
+    .chartLeg .ln{width:14px;height:2.5px;border-radius:2px;}
+    .chartLeg .dsh{width:14px;height:0;border-top:2px dashed;opacity:.7;}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <div class="hdr">
+    <div>
+      <div class="hdr-k">VoteHub Nowcast</div>
+      <div class="hdr-t">Texas Senate Race</div>
+      <div class="hdr-s">Polling average · generic ballot · national indicators · same model as midterm forecast</div>
+      <div class="hdr-status" id="status">Loading data…</div>
+    </div>
+    <div style="text-align:right">
+      <div class="hdr-d" id="dateLabel">—</div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="left">
+      <!-- DEM -->
+      <div class="cand">
+        <div class="photo"><div class="photo-in d">JT</div></div>
+        <div class="bars">
+          <div class="cn">James Talarico</div>
+          <div class="cp d">Democrat</div>
+          <div class="hb"><span class="hb-l">Gen Ballot</span><div class="hb-t"><div class="hb-f d" id="dF1"></div></div><span class="hb-v" id="dV1">—</span></div>
+          <div class="hb"><span class="hb-l">Polls</span><div class="hb-t"><div class="hb-f d" id="dF2"></div></div><span class="hb-v" id="dV2">—</span></div>
+          <div class="hb"><span class="hb-l">Natl Indicators</span><div class="hb-t"><div class="hb-f d" id="dF3"></div></div><span class="hb-v" id="dV3">—</span></div>
+        </div>
+        <div class="pv"><div class="pv-num d" id="dPV">—</div><div class="pv-pct d">%</div><div class="pv-lbl">Est. vote</div></div>
+      </div>
+      <!-- GOP -->
+      <div class="cand">
+        <div class="photo"><div class="photo-in r">JC</div></div>
+        <div class="bars">
+          <div class="cn">John Cornyn</div>
+          <div class="cp r">Republican · Incumbent</div>
+          <div class="hb"><span class="hb-l">Gen Ballot</span><div class="hb-t"><div class="hb-f r" id="rF1"></div></div><span class="hb-v" id="rV1">—</span></div>
+          <div class="hb"><span class="hb-l">Polls</span><div class="hb-t"><div class="hb-f r" id="rF2"></div></div><span class="hb-v" id="rV2">—</span></div>
+          <div class="hb"><span class="hb-l">Natl Indicators</span><div class="hb-t"><div class="hb-f r" id="rF3"></div></div><span class="hb-v" id="rV3">—</span></div>
+        </div>
+        <div class="pv"><div class="pv-num r" id="rPV">—</div><div class="pv-pct r">%</div><div class="pv-lbl">Est. vote</div></div>
+      </div>
+      <!-- Chart + Table -->
+      <div class="btm">
+        <div style="min-height:0;display:flex;flex-direction:column;">
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <div class="st">Model Output</div>
+            <button class="tog-b on" id="cTogProb" onclick="setChartMode('prob')">Win Prob</button>
+            <button class="tog-b" id="cTogVote" onclick="setChartMode('vote')">Pop Vote</button>
+          </div>
+          <div class="ss">Daily estimates</div>
+          <svg id="pollChart" style="flex:1;min-height:0;"></svg>
+          <div class="chartLeg" id="chartLeg"></div>
+        </div>
+        <div style="min-height:0;overflow:auto;">
+          <div class="st">Recent Polls</div>
+          <div class="ss">TX Senate state polls</div>
+          <table class="pt"><thead><tr><th>Pollster</th><th>Date</th><th>R%</th><th>D%</th></tr></thead><tbody id="ptb"></tbody></table>
+        </div>
+      </div>
+    </div>
+    <div class="map-col">
+      <div class="mt">Estimated County Lean</div>
+      <div class="ms">Model estimate applied to county-level ratios</div>
+      <div class="map-wrap"><svg id="txMap"></svg></div>
+      <div class="ml"><div><div class="ml-bar"></div><div class="ml-lb"><span>D+30</span><span>Even</span><span>R+30</span></div></div></div>
+    </div>
+  </div>
+</div>
+<div id="tip"></div>
+
+<script>
+/* ════════════════ MODEL — IDENTICAL TO MIDTERM-2.HTML ════════════════ */
+const WEIGHTS = { gb:35, polls:50, ind:15 };
+const PROB_ERROR_SD = 7;
+const GB_WINDOW = 24;
+const STATE_POLL_WINDOW = 6;
+const TARGET_STATE = "TX";
+const TARGET_MODE = "senate";
+
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+function normP(D,R){const s=D+R;if(!isFinite(s)||s<=0)return{D:50,R:50};return{D:100*D/s,R:100*R/s};}
+function marginRD(p){return p.R-p.D;}
+function erf(x){const sg=x<0?-1:1;x=Math.abs(x);const a1=.254829592,a2=-.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=.3275911;const t=1/(1+p*x);return sg*(1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x));}
+function normCDF(x){return .5*(1+erf(x/Math.SQRT2));}
+function winProb(m){const z=m/PROB_ERROR_SD;const pR=clamp(normCDF(z),0,1);return{pD:1-pR,pR};}
+function toNum(v){const n=Number(String(v||"").trim());return isFinite(n)?n:NaN;}
+function ds(d){if(!(d instanceof Date))d=new Date(d);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+function parseDate(s){if(!s)return null;const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m)return null;return new Date(+m[1],+m[2]-1,+m[3]);}
+function norm(s){return String(s||"").trim().toLowerCase().replace(/\s+/g," ");}
+
+function gbState(gb,ratio){return normP(gb.D*ratio.D, gb.R*ratio.R);}
+function indState(indNat,ratio){return normP(indNat.D*ratio.D, indNat.R*ratio.R);}
+function median(arr){const a=arr.filter(x=>isFinite(x)).slice().sort((x,y)=>x-y);const n=a.length;if(!n)return NaN;const mid=Math.floor(n/2);return n%2===1?a[mid]:(a[mid-1]+a[mid])/2;}
+
+function weightedCombine(comps){
+  let W=0,D=0,R=0;
+  for(const c of comps){if(!c||!c.pair||!isFinite(c.w)||c.w<=0)continue;W+=c.w;D+=c.w*c.pair.D;R+=c.w*c.pair.R;}
+  if(W<=0)return{D:50,R:50};
+  return normP(D/W,R/W);
+}
+
+/* ════════════════ DATA STORAGE ════════════════ */
+let TX_RATIO = null;       // {D, R} from entries_all.csv
+let TX_POLL = null;        // {D, R, S} from entries_all or state_polls_by_date
+let GB_NATIONAL = null;    // {D, R} latest generic ballot
+let IND_NATIONAL = null;   // {D, R} national indicator
+let GB_SERIES = [];        // daily [{date, dem, rep}]
+let ALL_RATIOS = {};       // mode→state→{D,R}
+let ALL_POLLS = {};        // mode→state→{D,R,S}
+let STATE_POLLS_RAW = [];  // TX polls for table
+
+/* ════════════════ DATA LOADING ════════════════ */
+const AP=[{l:"YouGov",p:/yougov/},{l:"Verasight",p:/verasight/},{l:"Ipsos",p:/ipsos/},{l:"Emerson",p:/emerson/},{l:"Marist",p:/marist/},{l:"Quinnipiac",p:/quinnipiac/},{l:"AP-NORC",p:/apnorc|ap\-norc|norc/},{l:"NYT/Siena",p:/siena|newyorktimes/},{l:"Fox News",p:/foxnews/},{l:"AtlasIntel",p:/atlasintel|atlas/},{l:"CNN/SSRS",p:/cnnssrs|cnn\/ssrs|ssrs/},{l:"Marquette",p:/marquette/},{l:"Pew",p:/pewresearch|pew/}];
+function normPollster(s){return String(s||"").toLowerCase().replace(/&/g,"and").replace(/[^a-z0-9]+/g,"");}
+function isAllowed(p){const n=normPollster(p);if(!n)return false;return AP.some(x=>x.p.test(n));}
+
+function getAns(p,keys){
+  if(!p||!Array.isArray(p.answers))return null;
+  const want=(keys||[]).map(norm);
+  for(const a of p.answers){const c=norm(a.choice||"");if(want.includes(c))return +a.pct;for(const k of want)if(c.includes(k))return +a.pct;}
+  return null;
+}
+
+async function loadEntriesCSV(){
+  try{
+    const txt=await fetch("entries_all.csv",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.text();});
+    const rows=d3.csvParse(txt);
+    ALL_RATIOS={senate:{},governor:{}};
+    ALL_POLLS={senate:{},governor:{}};
+    let gbPair=null;
+    for(const row of rows){
+      const mode=String(row.mode||"").trim().toLowerCase();
+      if(mode!=="senate"&&mode!=="governor")continue;
+      const st=String(row.state||"").trim().toUpperCase();
+      const rD=toNum(row.ratioD),rR=toNum(row.ratioR);
+      if(st&&isFinite(rD)&&isFinite(rR)){
+        if(!ALL_RATIOS[mode])ALL_RATIOS[mode]={};
+        ALL_RATIOS[mode][st]={D:rD,R:rR};
+      }
+      if(!gbPair){const gD=toNum(row.gbD),gR=toNum(row.gbR);if(isFinite(gD)&&isFinite(gR))gbPair=normP(gD,gR);}
+      const pD=toNum(row.pollD),pR=toNum(row.pollR),pS=toNum(row.pollSigma);
+      if(isFinite(pD)&&isFinite(pR)){
+        if(!ALL_POLLS[mode])ALL_POLLS[mode]={};
+        ALL_POLLS[mode][st]={D:pD,R:pR,S:isFinite(pS)?pS:3};
+      }
+    }
+    // TX ratio and poll
+    TX_RATIO=ALL_RATIOS.senate?.TX||null;
+    TX_POLL=ALL_POLLS.senate?.TX||null;
+    if(gbPair)GB_NATIONAL=gbPair;
+    return true;
+  }catch(e){console.warn("entries_all.csv:",e);return false;}
+}
+
+async function loadPollsJSON(){
+  try{
+    const j=await fetch("polls.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();});
+    const gbRaw=Array.isArray(j.genericBallot)?j.genericBallot:[];
+    const gbPolls=gbRaw.map(p=>{
+      const date=parseDate(p.end_date||p.start_date||p.created_at);
+      const dem=getAns(p,["dem","democrat","democrats","democratic"]);
+      const rep=getAns(p,["rep","republican","republicans","gop"]);
+      const pollster=p.pollster||p.pollster_name||"";
+      return {date,dem,rep,pollster};
+    }).filter(p=>p.date&&isFinite(p.dem)&&isFinite(p.rep)&&isAllowed(p.pollster)).sort((a,b)=>a.date-b.date);
+
+    // Build daily series (last-N rolling average)
+    if(!gbPolls.length)return false;
+    const n=gbPolls.length;
+    const psD=new Float64Array(n+1),psR=new Float64Array(n+1);
+    for(let i=0;i<n;i++){psD[i+1]=psD[i]+gbPolls[i].dem;psR[i+1]=psR[i]+gbPolls[i].rep;}
+    const t0=new Date(gbPolls[0].date);
+    const lastPoll=new Date(gbPolls[n-1].date);
+    const today=new Date();today.setHours(0,0,0,0);
+    const t1=today>lastPoll?new Date(today):lastPoll;
+    GB_SERIES=[];
+    let hi=0;
+    for(let day=new Date(t0);day<=t1;day.setDate(day.getDate()+1)){
+      while(hi<n&&gbPolls[hi].date<=day)hi++;
+      const lo=Math.max(0,hi-GB_WINDOW);
+      const cnt=hi-lo;
+      if(cnt<=0)continue;
+      const mD=(psD[hi]-psD[lo])/cnt;
+      const mR=(psR[hi]-psR[lo])/cnt;
+      GB_SERIES.push({date:ds(day),dem:mD,rep:mR});
+    }
+    // Update GB_NATIONAL from latest
+    if(GB_SERIES.length){
+      const last=GB_SERIES[GB_SERIES.length-1];
+      GB_NATIONAL=normP(last.dem,last.rep);
+    }
+    return true;
+  }catch(e){console.warn("polls.json:",e);return false;}
+}
+
+async function loadStatePollsCSV(){
+  try{
+    const txt=await fetch("state_polls_by_date.csv",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.text();});
+    const rows=d3.csvParse(txt);
+    // Debug: log first row columns
+    if(rows.length) console.log("state_polls_by_date.csv columns:", Object.keys(rows[0]));
+    const txPolls=[];
+    let debugFirst=true;
+    for(const r of rows){
+      const modeRaw=String(r.mode||r.office||r.Office||r.race||r.type||r.contest||r.Race||r.race_type||"").trim();
+      const modeUp=modeRaw.toUpperCase();
+      // Also check if state key includes "-SEN"
+      const stRaw=String(r.state||r.State||r.key||r.race_key||r.raceKey||r.Key||"").trim().toUpperCase();
+      const isSen=modeUp.includes("SEN")||modeRaw.toLowerCase()==="senate"||stRaw.includes("-SEN")||stRaw.includes("SEN");
+      if(!isSen)continue;
+      // Extract state code (handle "TX-SEN" format)
+      const st=stRaw.replace(/-.*$/,"").trim();
+      const dt=parseDate(r.date||r.end_date||r.endDate||r.day||r.asof||r.Date||r.end||"");
+
+      // Try every possible column name for D/R values
+      let D=NaN, R=NaN;
+      // Direct columns
+      for(const k of ["dem","D","pollD","dem_pct","demPct","d","d_pct","dPct","democrat","Democratic","DEM"]){
+        if(r[k]!==undefined&&r[k]!==""){const v=toNum(r[k]);if(isFinite(v)){D=v;break;}}
+      }
+      for(const k of ["rep","R","pollR","rep_pct","repPct","r","r_pct","rPct","republican","Republican","REP","GOP"]){
+        if(r[k]!==undefined&&r[k]!==""){const v=toNum(r[k]);if(isFinite(v)){R=v;break;}}
+      }
+      // Fallback: candidate-party schema
+      if(!isFinite(D)||!isFinite(R)){
+        const aP=String(r.candA_party||r.partyA||r.candAParty||r.party_a||r.PartyA||"").trim().toUpperCase();
+        const bP=String(r.candB_party||r.partyB||r.candBParty||r.party_b||r.PartyB||"").trim().toUpperCase();
+        const aPct=toNum(r.candA_pct??r.candAPct??r.candA??r.a_pct??r.aPct??r.pct_a??r.PctA);
+        const bPct=toNum(r.candB_pct??r.candBPct??r.candB??r.b_pct??r.bPct??r.pct_b??r.PctB);
+        if(aP==="D"||aP==="DEM"||aP==="DEMOCRAT"){if(isFinite(aPct))D=aPct;}
+        if(bP==="D"||bP==="DEM"||bP==="DEMOCRAT"){if(isFinite(bPct))D=bPct;}
+        if(aP==="R"||aP==="REP"||aP==="REPUBLICAN"||aP==="GOP"){if(isFinite(aPct))R=aPct;}
+        if(bP==="R"||bP==="REP"||bP==="REPUBLICAN"||bP==="GOP"){if(isFinite(bPct))R=bPct;}
+      }
+      // Debug first TX row
+      if(st===TARGET_STATE&&debugFirst){
+        console.log("First TX senate poll row:", JSON.stringify(r));
+        console.log("Parsed D:", D, "R:", R);
+        debugFirst=false;
+      }
+      if(!isFinite(D)||!isFinite(R)||(D+R)<=0)continue;
+      const S=toNum(r.sigma??r.S??r.sd??r.pollSigma??r.moe??r.moe_pct);
+      const pollster=r.pollster||r.Pollster||r.pollster_name||r.pollsterName||r.source||r.firm||r.sponsor||r.Source||r.Firm||"";
+      if(st===TARGET_STATE)txPolls.push({date:dt,D,R,S:isFinite(S)?S:3,pollster});
+      if(!ALL_POLLS.senate)ALL_POLLS.senate={};
+      const arr=(ALL_POLLS.senate[st+"_bydate"]||=[]);
+      arr.push({date:dt,D,R,S:isFinite(S)?S:3});
+    }
+    txPolls.sort((a,b)=>a.date-b.date);
+    STATE_POLLS_RAW=txPolls;
+    console.log("TX polls parsed:", txPolls.length, txPolls.slice(-2));
+    if(txPolls.length){
+      const last=txPolls.slice(-STATE_POLL_WINDOW);
+      const avgD=last.reduce((s,p)=>s+p.D,0)/last.length;
+      const avgR=last.reduce((s,p)=>s+p.R,0)/last.length;
+      TX_POLL={D:avgD,R:avgR,S:3};
+    }
+    return true;
+  }catch(e){console.warn("state_polls_by_date.csv:",e);return false;}
+}
+
+/* ════════════════ COMPUTE NATIONAL INDICATOR ════════════════ */
+function computeIndicatorNational(){
+  const ratios=ALL_RATIOS.senate||{};
+  const polls=ALL_POLLS.senate||{};
+  const implied=[];
+  for(const st of Object.keys(ratios)){
+    const p=polls[st];
+    if(!p||!isFinite(p.D)||!isFinite(p.R)||(p.D+p.R)<=0)continue;
+    const pN=normP(p.D,p.R);
+    const r=ratios[st];
+    implied.push({D:pN.D/r.D, R:pN.R/r.R});
+  }
+  if(!implied.length)return null;
+  return normP(median(implied.map(x=>x.D)), median(implied.map(x=>x.R)));
+}
+
+/* ════════════════ COMPUTE TX MODEL ════════════════ */
+function computeTX(){
+  if(!TX_RATIO||!GB_NATIONAL)return null;
+  const gbPair=gbState(GB_NATIONAL,TX_RATIO);
+  const pollPair=(TX_POLL&&isFinite(TX_POLL.D)&&isFinite(TX_POLL.R))?normP(TX_POLL.D,TX_POLL.R):null;
+  const indPair=(IND_NATIONAL)?indState(IND_NATIONAL,TX_RATIO):null;
+  const combined=weightedCombine([
+    {pair:gbPair, w:WEIGHTS.gb},
+    {pair:pollPair, w:pollPair?WEIGHTS.polls:0},
+    {pair:indPair, w:indPair?WEIGHTS.ind:0},
+  ]);
+  const m=marginRD(combined);
+  const wp=winProb(m);
+  return {gbPair,pollPair,indPair,combined,margin:m,winProb:wp};
+}
+
+/* ════════════════ COMPUTE DAILY SERIES ════════════════ */
+function computeDailySeries(){
+  if(!TX_RATIO||!GB_SERIES.length)return[];
+  const pollPair=(TX_POLL&&isFinite(TX_POLL.D)&&isFinite(TX_POLL.R))?normP(TX_POLL.D,TX_POLL.R):null;
+  const indPair=(IND_NATIONAL)?indState(IND_NATIONAL,TX_RATIO):null;
+  return GB_SERIES.map(pt=>{
+    const gbNat=normP(pt.dem,pt.rep);
+    const gbP=gbState(gbNat,TX_RATIO);
+    const comb=weightedCombine([
+      {pair:gbP, w:WEIGHTS.gb},
+      {pair:pollPair, w:pollPair?WEIGHTS.polls:0},
+      {pair:indPair, w:indPair?WEIGHTS.ind:0},
+    ]);
+    const m=marginRD(comb);
+    const wp=winProb(m);
+    return {date:pt.date, dVote:comb.D, rVote:comb.R, dWin:wp.pD*100, rWin:wp.pR*100};
+  });
+}
+
+/* ════════════════ RENDER ════════════════ */
+function bw(v){return Math.max(5,((v-35)/30)*100);}
+
+function render(){
+  const tx=computeTX();
+  if(!tx){document.getElementById("status").textContent="No data loaded";return;}
+
+  // Bars: GB
+  const setBar=(fId,vId,val)=>{document.getElementById(fId).style.width=bw(val)+"%";document.getElementById(vId).textContent=val.toFixed(1)+"%";};
+  setBar("dF1","dV1",tx.gbPair.D);
+  setBar("rF1","rV1",tx.gbPair.R);
+  // Bars: Polls
+  if(tx.pollPair){setBar("dF2","dV2",tx.pollPair.D);setBar("rF2","rV2",tx.pollPair.R);}
+  else{document.getElementById("dV2").textContent="—";document.getElementById("rV2").textContent="—";}
+  // Bars: Indicators
+  if(tx.indPair){setBar("dF3","dV3",tx.indPair.D);setBar("rF3","rV3",tx.indPair.R);}
+  else{document.getElementById("dV3").textContent="—";document.getElementById("rV3").textContent="—";}
+
+  // Big numbers = estimated popular vote (two-party)
+  document.getElementById("dPV").textContent=tx.combined.D.toFixed(1);
+  document.getElementById("rPV").textContent=tx.combined.R.toFixed(1);
+
+  // Status
+  const latest=GB_SERIES.length?GB_SERIES[GB_SERIES.length-1]:null;
+  document.getElementById("dateLabel").textContent=latest?`GB thru ${latest.date}`:"—";
+  document.getElementById("status").textContent=`GB: ${GB_SERIES.length} days · Polls: ${TX_POLL?`D${TX_POLL.D.toFixed(1)}/R${TX_POLL.R.toFixed(1)}`:"none"} (${STATE_POLLS_RAW.length} raw) · Ind: ${IND_NATIONAL?"yes":"none"} · Wt: ${WEIGHTS.gb}/${WEIGHTS.polls}/${WEIGHTS.ind}`;
+
+  // Poll table
+  const tb=document.getElementById("ptb");tb.innerHTML="";
+  const tblPolls=STATE_POLLS_RAW.slice(-8).reverse();
+  for(const p of tblPolls){
+    const dateStr=p.date?ds(p.date):"";
+    tb.innerHTML+=`<tr><td class="ps">${p.pollster||"—"}</td><td>${dateStr}</td><td class="rv">${p.R.toFixed(0)}</td><td class="dv">${p.D.toFixed(0)}</td></tr>`;
+  }
+
+  // Chart
+  drawChart(computeDailySeries());
+}
+
+let chartMode="prob";
+let _lastSeries=[];
+function setChartMode(m){
+  chartMode=m;
+  document.getElementById("cTogProb").classList.toggle("on",m==="prob");
+  document.getElementById("cTogVote").classList.toggle("on",m==="vote");
+  drawChart(_lastSeries);
+}
+
+function drawChart(series){
+  _lastSeries=series;
+  const svg=d3.select("#pollChart");svg.selectAll("*").remove();
+  if(!series.length)return;
+  const el=svg.node().parentElement;
+  const cW=el.clientWidth,cH=el.clientHeight-36;
+  if(cH<40)return;
+  svg.attr("width",cW).attr("height",cH);
+  const mg={t:12,r:12,b:20,l:30},iw=cW-mg.l-mg.r,ih=cH-mg.t-mg.b;
+  const pd=d3.timeParse("%Y-%m-%d");
+  const data=series.map(d=>({...d,dt:pd(d.date)}));
+  const x=d3.scaleTime().domain(d3.extent(data,d=>d.dt)).range([mg.l,mg.l+iw]);
+
+  let y, yLabel, rKey, dKey;
+  if(chartMode==="prob"){
+    y=d3.scaleLinear().domain([0,100]).range([mg.t+ih,mg.t]);
+    yLabel="Win probability";
+    rKey="rWin"; dKey="dWin";
+  } else {
+    const vAll=data.flatMap(d=>[d.dVote,d.rVote]);
+    y=d3.scaleLinear().domain([d3.min(vAll)-2,d3.max(vAll)+2]).range([mg.t+ih,mg.t]);
+    yLabel="Two-party vote %";
+    rKey="rVote"; dKey="dVote";
+  }
+
+  y.ticks(4).forEach(t=>{svg.append("line").attr("x1",mg.l).attr("x2",mg.l+iw).attr("y1",y(t)).attr("y2",y(t)).attr("stroke","#eee");});
+  svg.append("g").attr("transform",`translate(0,${mg.t+ih})`).call(d3.axisBottom(x).ticks(5).tickFormat(d3.timeFormat("%b"))).call(g=>{g.select(".domain").remove();g.selectAll(".tick line").remove();g.selectAll("text").attr("font-size",8).attr("fill","#bbb");});
+  svg.append("g").attr("transform",`translate(${mg.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d=>chartMode==="prob"?d+"%":d.toFixed(0)+"%")).call(g=>{g.select(".domain").remove();g.selectAll(".tick line").remove();g.selectAll("text").attr("font-size",8).attr("fill","#bbb").attr("font-family","var(--mono)");});
+
+  // Lines
+  if(chartMode==="prob"){
+    // Solid lines for probability
+    svg.append("path").datum(data).attr("d",d3.line().x(d=>x(d.dt)).y(d=>y(d[rKey])).curve(d3.curveMonotoneX)).attr("fill","none").attr("stroke","var(--red)").attr("stroke-width",3).attr("stroke-linecap","round");
+    svg.append("path").datum(data).attr("d",d3.line().x(d=>x(d.dt)).y(d=>y(d[dKey])).curve(d3.curveMonotoneX)).attr("fill","none").attr("stroke","var(--blue)").attr("stroke-width",3).attr("stroke-linecap","round");
+  } else {
+    // Dashed lines + dots for vote
+    svg.append("path").datum(data).attr("d",d3.line().x(d=>x(d.dt)).y(d=>y(d[rKey])).curve(d3.curveMonotoneX)).attr("fill","none").attr("stroke","var(--red)").attr("stroke-width",2.5).attr("stroke-dasharray","6,4");
+    svg.append("path").datum(data).attr("d",d3.line().x(d=>x(d.dt)).y(d=>y(d[dKey])).curve(d3.curveMonotoneX)).attr("fill","none").attr("stroke","var(--blue)").attr("stroke-width",2.5).attr("stroke-dasharray","6,4");
+    const step=Math.max(1,Math.floor(data.length/30));
+    data.filter((_,i)=>i%step===0||i===data.length-1).forEach(d=>{
+      svg.append("circle").attr("cx",x(d.dt)).attr("cy",y(d[rKey])).attr("r",2.5).attr("fill","var(--red)");
+      svg.append("circle").attr("cx",x(d.dt)).attr("cy",y(d[dKey])).attr("r",2.5).attr("fill","var(--blue)");
+    });
+  }
+
+  svg.append("text").attr("x",mg.l).attr("y",mg.t-3).text(yLabel).attr("font-size",7).attr("fill","#bbb").attr("font-weight",700);
+
+  // Legend
+  const leg=document.getElementById("chartLeg");
+  if(chartMode==="prob"){
+    leg.innerHTML='<span><div class="ln" style="background:var(--red)"></div> GOP</span><span><div class="ln" style="background:var(--blue)"></div> DEM</span>';
+  } else {
+    leg.innerHTML='<span><div class="dsh" style="border-color:var(--red)"></div> GOP</span><span><div class="dsh" style="border-color:var(--blue)"></div> DEM</span>';
+  }
+}
+
+/* ════════════════ MAP ════════════════ */
+const COUNTY_RATIOS={"ANDERSON":[0.44294,1.43516],"ANDREWS":[0.31324,1.52993],"ANGELINA":[0.56848,1.34806],"ARANSAS":[0.51178,1.37923],"ARCHER":[0.23858,1.59387],"ARMSTRONG":[0.16345,1.65283],"ATASCOSA":[0.69767,1.26915],"AUSTIN":[0.43562,1.44247],"BAILEY":[0.47351,1.42732],"BANDERA":[0.43853,1.43267],"BASTROP":[0.94607,1.04275],"BAYLOR":[0.25883,1.5643],"BEE":[0.75108,1.22515],"BELL":[0.97292,1.0223],"BEXAR":[1.27767,0.77004],"BLANCO":[0.55168,1.34735],"BORDEN":[0.09727,1.70306],"BOSQUE":[0.37471,1.48237],"BOWIE":[0.60487,1.31831],"BRAZORIA":[0.92982,1.05379],"BRAZOS":[0.89212,1.07114],"BREWSTER":[1.01295,0.98135],"BRISCOE":[0.2317,1.59245],"BROOKS":[1.28238,0.77254],"BROWN":[0.29793,1.54239],"BURLESON":[0.44724,1.443],"BURNET":[0.51154,1.37905],"CALDWELL":[0.99317,1.00802],"CALHOUN":[0.58872,1.35073],"CALLAHAN":[0.25648,1.57535],"CAMERON":[1.20672,0.82465],"CAMP":[0.59324,1.36302],"CARSON":[0.21503,1.60688],"CASS":[0.43217,1.47275],"CASTRO":[0.48658,1.40346],"CHAMBERS":[0.3975,1.46705],"CHEROKEE":[0.46469,1.44122],"CHILDRESS":[0.29285,1.56092],"CLAY":[0.23269,1.59441],"COCHRAN":[0.39025,1.46616],"COKE":[0.23245,1.59369],"COLEMAN":[0.24258,1.59102],"COLLIN":[1.0146,0.9658],"COLLINGSWORTH":[0.27412,1.58105],"COLORADO":[0.52239,1.39455],"COMAL":[0.63,1.2866],"COMANCHE":[0.30189,1.54578],"CONCHO":[0.33463,1.54328],"COOKE":[0.3813,1.4788],"CORYELL":[0.69337,1.24243],"COTTLE":[0.36757,1.53188],"CRANE":[0.34518,1.53242],"CROCKETT":[0.53674,1.36641],"CROSBY":[0.58096,1.34165],"CULBERSON":[1.09152,0.92348],"DALLAM":[0.26357,1.58176],"DALLAS":[1.41639,0.64007],"DAWSON":[0.45909,1.42483],"DEAF SMITH":[0.59044,1.34361],"DELTA":[0.35186,1.50784],"DENTON":[1.004,0.99341],"DEWITT":[0.39621,1.48308],"DICKENS":[0.34621,1.51389],"DIMMIT":[1.32989,0.72582],"DONLEY":[0.25861,1.57321],"DUVAL":[1.09733,0.92963],"EASTLAND":[0.2586,1.57535],"ECTOR":[0.54888,1.35554],"EDWARDS":[0.33936,1.54026],"EL PASO":[1.4354,0.60681],"ELLIS":[0.80075,1.15871],"ERATH":[0.37209,1.48985],"FALLS":[0.66667,1.28269],"FANNIN":[0.38092,1.48272],"FAYETTE":[0.44442,1.42964],"FISHER":[0.42463,1.44745],"FLOYD":[0.46253,1.4617],"FOARD":[0.39755,1.4642],"FORT BEND":[1.17506,0.84618],"FRANKLIN":[0.36057,1.50018],"FREESTONE":[0.40418,1.47702],"FRIO":[0.98794,1.02826],"GAINES":[0.20693,1.6213],"GALVESTON":[0.84032,1.12362],"GARZA":[0.31371,1.53064],"GILLESPIE":[0.45125,1.4259],"GLASSCOCK":[0.13495,1.67385],"GOLIAD":[0.47265,1.41984],"GONZALES":[0.54845,1.37371],"GRAY":[0.2626,1.57232],"GRAYSON":[0.52873,1.36623],"GREGG":[0.66981,1.25864],"GRIMES":[0.49139,1.41949],"GUADALUPE":[0.81818,1.14428],"HALE":[0.51184,1.39722],"HALL":[0.30943,1.53794],"HAMILTON":[0.32972,1.51959],"HANSFORD":[0.17463,1.64143],"HARDEMAN":[0.32838,1.53402],"HARDIN":[0.28003,1.56199],"HARRIS":[1.22303,0.8208],"HARRISON":[0.57395,1.33452],"HARTLEY":[0.20198,1.62843],"HASKELL":[0.34324,1.52048],"HAYS":[1.22657,0.82722],"HEMPHILL":[0.27767,1.56021],"HENDERSON":[0.42275,1.4503],"HIDALGO":[1.24978,0.78793],"HILL":[0.41236,1.45743],"HOCKLEY":[0.39406,1.47524],"HOOD":[0.39119,1.47043],"HOPKINS":[0.4115,1.46028],"HOUSTON":[0.52799,1.37834],"HOWARD":[0.43497,1.44425],"HUDSPETH":[0.68583,1.28571],"HUNT":[0.5146,1.37745],"HUTCHINSON":[0.26072,1.57143],"IRION":[0.2907,1.56163],"JACK":[0.20349,1.61934],"JACKSON":[0.35013,1.51585],"JASPER":[0.40741,1.48005],"JEFF DAVIS":[0.9065,1.06502],"JEFFERSON":[1.06241,0.96152],"JIM HOGG":[1.27202,0.78658],"JIM WELLS":[0.98987,1.02512],"JOHNSON":[0.56147,1.34058],"JONES":[0.31912,1.53545],"KARNES":[0.50603,1.40435],"KAUFMAN":[0.83914,1.13092],"KENDALL":[0.5106,1.37745],"KENEDY":[0.72158,1.2586],"KENT":[0.26472,1.5611],"KERR":[0.52803,1.36676],"KIMBLE":[0.2668,1.57535],"KING":[0.10831,1.70217],"KINNEY":[0.59905,1.33434],"KLEBERG":[1.04565,0.96693],"KNOX":[0.3919,1.49644],"LA SALLE":[0.94143,1.06691],"LAMAR":[0.45125,1.42643],"LAMB":[0.41357,1.45814],"LAMPASAS":[0.46514,1.41236],"LAVACA":[0.28144,1.56466],"LEE":[0.46512,1.42323],"LEON":[0.26849,1.56858],"LIBERTY":[0.44748,1.43534],"LIMESTONE":[0.5239,1.38992],"LIPSCOMB":[0.2301,1.59173],"LIVE OAK":[0.35186,1.50641],"LLANO":[0.45148,1.42483],"LOVING":[0.24282,1.57927],"LUBBOCK":[0.71318,1.23299],"LYNN":[0.40202,1.50926],"MADISON":[0.44229,1.45974],"MARION":[0.59281,1.35162],"MARTIN":[0.28704,1.56056],"MASON":[0.40438,1.46331],"MATAGORDA":[0.58549,1.33238],"MAVERICK":[1.16904,0.86214],"MCCULLOCH":[0.30706,1.53794],"MCLENNAN":[0.80728,1.15461],"MCMULLEN":[0.22115,1.63858],"MEDINA":[0.66486,1.26363],"MENARD":[0.41258,1.47471],"MIDLAND":[0.45455,1.42198],"MILAM":[0.50818,1.39491],"MILLS":[0.26637,1.57072],"MITCHELL":[0.3314,1.51977],"MONTAGUE":[0.25624,1.57659],"MONTGOMERY":[0.63071,1.28678],"MOORE":[0.41516,1.48094],"MORRIS":[0.6432,1.33244],"MOTLEY":[0.15202,1.67706],"NACOGDOCHES":[0.72351,1.22836],"NAVARRO":[0.57429,1.34574],"NEWTON":[0.41451,1.4813],"NOLAN":[0.46962,1.40969],"NUECES":[1.03062,0.97577],"OCHILTREE":[0.21055,1.61151],"OLDHAM":[0.17899,1.6368],"ORANGE":[0.3853,1.47987],"PALO PINTO":[0.37847,1.48165],"PANOLA":[0.39213,1.47934],"PARKER":[0.38554,1.47399],"PARMER":[0.39664,1.51015],"PECOS":[0.6376,1.28001],"POLK":[0.47954,1.40898],"POTTER":[0.64131,1.27592],"PRESIDIO":[1.52237,0.61275],"RAINS":[0.31229,1.53491],"RANDALL":[0.45525,1.41949],"REAGAN":[0.34998,1.5016],"REAL":[0.37894,1.47827],"RED RIVER":[0.4621,1.4389],"REEVES":[0.81438,1.17477],"REFUGIO":[0.70887,1.2362],"ROBERTS":[0.08243,1.70342],"ROBERTSON":[0.63114,1.34032],"ROCKWALL":[0.68417,1.24564],"RUNNELS":[0.2696,1.57214],"RUSK":[0.47056,1.41432],"SABINE":[0.26227,1.58693],"SAN AUGUSTINE":[0.52735,1.38671],"SAN JACINTO":[0.40061,1.4658],"SAN PATRICIO":[0.74742,1.20734],"SAN SABA":[0.23999,1.58603],"SCHLEICHER":[0.40815,1.45654],"SCURRY":[0.30217,1.53972],"SHACKELFORD":[0.19901,1.61329],"SHELBY":[0.44143,1.46188],"SHERMAN":[0.19746,1.66708],"SMITH":[0.63566,1.28375],"SOMERVELL":[0.3342,1.51176],"STARR":[1.12102,0.90483],"STEPHENS":[0.24046,1.59512],"STERLING":[0.17183,1.65105],"STONEWALL":[0.36175,1.50267],"SUTTON":[0.44531,1.48486],"SWISHER":[0.43712,1.4471],"TARRANT":[1.09986,0.92305],"TAYLOR":[0.5789,1.32419],"TERRELL":[0.55943,1.38101],"TERRY":[0.45134,1.46616],"THROCKMORTON":[0.19746,1.62879],"TITUS":[0.58333,1.37086],"TOM GREEN":[0.60009,1.30869],"TRAVIS":[1.61658,0.50817],"TRINITY":[0.41064,1.48219],"TYLER":[0.31266,1.54097],"UPSHUR":[0.33396,1.51728],"UPTON":[0.26766,1.57072],"UVALDE":[0.84798,1.14766],"VAL VERDE":[0.95413,1.0423],"VAN ZANDT":[0.29091,1.55183],"VICTORIA":[0.66675,1.26149],"WALKER":[0.71899,1.23922],"WALLER":[0.87023,1.10367],"WARD":[0.40525,1.47382],"WASHINGTON":[0.52584,1.37086],"WEBB":[1.3146,0.72678],"WHARTON":[0.60314,1.34663],"WHEELER":[0.17499,1.63947],"WICHITA":[0.6472,1.27271],"WILBARGER":[0.455,1.42198],"WILLACY":[1.20607,0.8458],"WILLIAMSON":[1.12812,0.89686],"WILSON":[0.5463,1.36445],"WINKLER":[0.36262,1.51674],"WISE":[0.34527,1.50837],"WOOD":[0.34951,1.50623],"YOAKUM":[0.34367,1.51781],"YOUNG":[0.27249,1.56359],"ZAPATA":[1.01486,1.00904],"ZAVALA":[1.40827,0.6543]};
+function countyMargin(cn){const r=COUNTY_RATIOS[cn];if(!r)return 20;const tx=computeTX();if(!tx)return 0;const dE=tx.combined.D*r[0],rE=tx.combined.R*r[1],n=dE+rE;if(n<=0)return 0;return ((rE/n)*100)-((dE/n)*100);}
+
+async function loadMap(){
+  const us=await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json");
+  const txC=topojson.feature(us,us.objects.counties).features.filter(d=>d.id.startsWith("48"));
+  const txS=topojson.feature(us,us.objects.states).features.find(d=>d.id==="48");
+  const svg=d3.select("#txMap"),el=svg.node().parentElement;
+  const mW=el.clientWidth,mH=el.clientHeight;
+  if(mH<50)return;
+  svg.attr("width",mW).attr("height",mH).attr("viewBox",`0 0 ${mW} ${mH}`);
+  const proj=d3.geoMercator().fitSize([mW-16,mH-16],txS);
+  proj.translate([proj.translate()[0]+8,proj.translate()[1]+8]);
+  const path=d3.geoPath().projection(proj);
+
+  // Use model margin to swing map
+  const tx=computeTX();
+  const swing=tx?tx.margin:0; // positive = R lead
+
+  const cs=d3.scaleLinear().domain([-30,-10,0,10,30]).range(["#0d47a1","#64b5f6","#e0e0e0","#ef5350","#7f1d1d"]).clamp(true);
+  const tip=document.getElementById("tip");
+  svg.selectAll(".county").data(txC).join("path").attr("class","county").attr("d",path)
+    .attr("fill",d=>{const nm=(d.properties?.name||"").toUpperCase();return cs(countyMargin(nm));})
+    .on("mouseenter",(ev,d)=>{const nm=(d.properties?.name||"").toUpperCase();const l=countyMargin(nm);const li=Math.round(Math.abs(l)*10)/10;const ls=l>0?`R+${li}`:(l<0?`D+${li}`:"Even");const lc=l>0?"g":"d";tip.innerHTML=`<div class="tip-n">${nm} Co.</div><div class="tip-r"><span class="tip-l">Lean</span><span class="tip-v ${lc}">${ls}</span></div>`;tip.style.transform=`translate(${ev.clientX+12}px,${ev.clientY-12}px)`;})
+    .on("mousemove",ev=>{tip.style.transform=`translate(${ev.clientX+12}px,${ev.clientY-12}px)`;})
+    .on("mouseleave",()=>{tip.style.transform="translate(-9999px,-9999px)";});
+  svg.append("path").datum(txS).attr("d",path).attr("fill","none").attr("stroke","#333").attr("stroke-width",1.2);
+}
+
+/* ════════════════ BOOT ════════════════ */
+(async()=>{
+  const ok1=await loadEntriesCSV();
+  const ok2=await loadPollsJSON();
+  const ok3=await loadStatePollsCSV();
+  IND_NATIONAL=computeIndicatorNational();
+  render();
+  await loadMap();
+  window.addEventListener("resize",()=>{render();d3.select("#txMap").selectAll("*").remove();loadMap();},{passive:true});
+})();
+</script>
+</body>
+</html>
