@@ -1,6 +1,166 @@
 {
-  "updatedAt": "2026-03-04T11:46:55.693Z",
+  "updatedAt": "2026-03-05T11:50:14.073Z",
   "approval": [
+    {
+      "id": "appdontrab2788635",
+      "poll_type": "approval",
+      "sample_size": 1098,
+      "population": "lv",
+      "url": "https://www.thetrafalgargroup.org/wp-content/uploads/2026/03/National-26-Trump-Iran-Approval-Report-0304.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2026-03-01",
+      "end_date": "2026-03-03",
+      "pollster": "Trafalgar Group",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 49.5
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 48
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": "REP",
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdononmcd0fe3b7",
+      "poll_type": "approval",
+      "sample_size": 1800,
+      "population": "lv",
+      "url": "https://www.politico.com/newsletters/playbook/2026/03/04/republicans-tee-off-on-talarico-00811469",
+      "created_at": "2026-03-05",
+      "start_date": "2026-03-02",
+      "end_date": "2026-03-03",
+      "pollster": "OnMessage",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 45
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 54
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonqua47d8e75f",
+      "poll_type": "approval",
+      "sample_size": 1624,
+      "population": "lv",
+      "url": "https://docs.google.com/spreadsheets/d/1XX2nY6R87uXlb0Ii-pcL9gFyM284UKRf/edit?gid=1938592910#gid=1938592910",
+      "created_at": "2026-03-05",
+      "start_date": "2026-03-02",
+      "end_date": "2026-03-03",
+      "pollster": "Quantus Insights",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 45
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 54
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonbeaba85ee55",
+      "poll_type": "approval",
+      "sample_size": 1004,
+      "population": "rv",
+      "url": "https://www.foxnews.com/politics/fox-news-poll-views-divided-us-action-against-iran",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-28",
+      "end_date": "2026-03-02",
+      "pollster": "Beacon Research/Shaw & Co. Research",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 43
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 57
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyou05296f3a",
+      "poll_type": "approval",
+      "sample_size": 1366,
+      "population": "rv",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_ubu5DXD.pdf#page=5",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-27",
+      "end_date": "2026-03-02",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 42
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 56
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonyouffda6f00",
+      "poll_type": "approval",
+      "sample_size": 1515,
+      "population": "a",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_ubu5DXD.pdf#page=5",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-27",
+      "end_date": "2026-03-02",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 38
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 59
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
     {
       "id": "appdonipse707742e",
       "poll_type": "approval",
@@ -110,6 +270,32 @@
       "subject": "Donald Trump"
     },
     {
+      "id": "appdonact62035d10",
+      "poll_type": "approval",
+      "sample_size": 580,
+      "population": "a",
+      "url": "https://www.activote.net/trumps-approval-dips",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-01",
+      "end_date": "2026-02-28",
+      "pollster": "ActiVote",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 42
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 54
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
       "id": "appdonyou3c2edd9a",
       "poll_type": "approval",
       "sample_size": 2264,
@@ -132,6 +318,34 @@
       "seat_name": null,
       "sponsors": [
         "CBS News"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdontip4211a3ef",
+      "poll_type": "approval",
+      "sample_size": 1456,
+      "population": "a",
+      "url": "https://tippinsights.com/trump-ratings-steady-despite-strong-state-of-the-union-foreign-policy-moves-i-i-tipp-poll",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-24",
+      "end_date": "2026-02-27",
+      "pollster": "TIPP Insights",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 40
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 51
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Issues & Insights"
       ],
       "internal": false,
       "partisan": null,
@@ -187,6 +401,62 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonharfd34735b",
+      "poll_type": "approval",
+      "sample_size": null,
+      "population": "lv",
+      "url": "https://harvardharrispoll.com/wp-content/uploads/2026/03/HHP_Feb2026_KeyResults_Mon.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-25",
+      "end_date": "2026-02-26",
+      "pollster": "HarrisX/Harris",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 50
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 47
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Harvard CAPS"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonharfb3be752",
+      "poll_type": "approval",
+      "sample_size": 1999,
+      "population": "rv",
+      "url": "https://harvardharrispoll.com/wp-content/uploads/2026/03/HHP_Feb2026_KeyResults_Mon.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-25",
+      "end_date": "2026-02-26",
+      "pollster": "HarrisX/Harris",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 46
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 49
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Harvard CAPS"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
@@ -20407,114 +20677,6 @@
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
-    },
-    {
-      "id": "appdonyou58y4zibe",
-      "poll_type": "approval",
-      "sample_size": 1577,
-      "population": "a",
-      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econtoplines_HmzVWgj.pdf",
-      "created_at": "2025-01-29",
-      "start_date": "2025-01-26",
-      "end_date": "2025-01-28",
-      "pollster": "YouGov",
-      "answers": [
-        {
-          "choice": "Approve",
-          "pct": 49
-        },
-        {
-          "choice": "Disapprove",
-          "pct": 43
-        }
-      ],
-      "seat_name": null,
-      "sponsors": [
-        "The Economist"
-      ],
-      "internal": false,
-      "partisan": null,
-      "subject": "Donald Trump"
-    },
-    {
-      "id": "appdonyouuqmearyb",
-      "poll_type": "approval",
-      "sample_size": 1376,
-      "population": "rv",
-      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_m8tctwx.pdf",
-      "created_at": "2025-01-29",
-      "start_date": "2025-01-26",
-      "end_date": "2025-01-28",
-      "pollster": "YouGov",
-      "answers": [
-        {
-          "choice": "Approve",
-          "pct": 50
-        },
-        {
-          "choice": "Disapprove",
-          "pct": 46
-        }
-      ],
-      "seat_name": null,
-      "sponsors": [
-        "The Economist"
-      ],
-      "internal": false,
-      "partisan": null,
-      "subject": "Donald Trump"
-    },
-    {
-      "id": "appdoneme9s1knuq1",
-      "poll_type": "approval",
-      "sample_size": 1000,
-      "population": "rv",
-      "url": "https://emersoncollegepolling.com/january-2025-national-poll-trump-starts-term-with-49-approval-41-disapproval-rating/",
-      "created_at": "2025-01-30",
-      "start_date": "2025-01-27",
-      "end_date": "2025-01-28",
-      "pollster": "Emerson College",
-      "answers": [
-        {
-          "choice": "Approve",
-          "pct": 48.5
-        },
-        {
-          "choice": "Disapprove",
-          "pct": 41.2
-        }
-      ],
-      "seat_name": null,
-      "sponsors": [],
-      "internal": false,
-      "partisan": null,
-      "subject": "Donald Trump"
-    },
-    {
-      "id": "appdonco/lae7pi5t",
-      "poll_type": "approval",
-      "sample_size": 1570,
-      "population": "lv",
-      "url": "https://coefficient.org/post-inauguration-study/",
-      "created_at": "2025-01-31",
-      "start_date": "2025-01-25",
-      "end_date": "2025-01-28",
-      "pollster": "co/efficient",
-      "answers": [
-        {
-          "choice": "Approve",
-          "pct": 52
-        },
-        {
-          "choice": "Disapprove",
-          "pct": 47
-        }
-      ],
-      "seat_name": null,
-      "sponsors": [],
-      "internal": false,
-      "partisan": "REP",
-      "subject": "Donald Trump"
     }
   ],
   "genericBallot": [
@@ -29211,6 +29373,228 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202qua5fec4b64",
+      "poll_type": "generic-ballot",
+      "sample_size": 1624,
+      "population": "lv",
+      "url": "https://docs.google.com/spreadsheets/d/1XX2nY6R87uXlb0Ii-pcL9gFyM284UKRf/edit?gid=1938592910#gid=1938592910",
+      "created_at": "2026-03-05",
+      "start_date": "2026-03-02",
+      "end_date": "2026-03-03",
+      "pollster": "Quantus Insights",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 48
+        },
+        {
+          "choice": "Rep",
+          "pct": 42
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202ips5a0ed2e7",
+      "poll_type": "generic-ballot",
+      "sample_size": 3686,
+      "population": "rv",
+      "url": "https://www.ipsos.com/sites/default/files/ct/news/documents/2026-03/Reuters%20Ipsos%20Large%20Issue%20Topline%20Feb%202026.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-18",
+      "end_date": "2026-02-23",
+      "pollster": "Ipsos",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 40
+        },
+        {
+          "choice": "Rep",
+          "pct": 38
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Reuters"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202ipse467faa1",
+      "poll_type": "generic-ballot",
+      "sample_size": 4638,
+      "population": "a",
+      "url": "https://www.ipsos.com/sites/default/files/ct/news/documents/2026-03/Reuters%20Ipsos%20Large%20Issue%20Topline%20Feb%202026.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-18",
+      "end_date": "2026-02-23",
+      "pollster": "Ipsos",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 35
+        },
+        {
+          "choice": "Rep",
+          "pct": 32
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Reuters"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202you70d22b71",
+      "poll_type": "generic-ballot",
+      "sample_size": 1366,
+      "population": "rv",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_ubu5DXD.pdf#page=5",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-27",
+      "end_date": "2026-03-02",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 45
+        },
+        {
+          "choice": "Rep",
+          "pct": 41
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202you38c2a9ca",
+      "poll_type": "generic-ballot",
+      "sample_size": 1515,
+      "population": "a",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_ubu5DXD.pdf#page=5",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-27",
+      "end_date": "2026-03-02",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 40
+        },
+        {
+          "choice": "Rep",
+          "pct": 33
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "The Economist"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202you5d81f482",
+      "poll_type": "generic-ballot",
+      "sample_size": 1523,
+      "population": "rv",
+      "url": "https://assets1.cbsnewsstatic.com/hub/cms/prod_cms_alt/file/2026/03/02/19e472d6-ce4d-4193-b4cc-0e5086fb97f7/cbsnews_20260301_parties-tues.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-25",
+      "end_date": "2026-02-27",
+      "pollster": "YouGov",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 45
+        },
+        {
+          "choice": "Rep",
+          "pct": 40
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "CBS News"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202harb82e0a2b",
+      "poll_type": "generic-ballot",
+      "sample_size": null,
+      "population": "lv",
+      "url": "https://harvardharrispoll.com/wp-content/uploads/2026/03/HHP_Feb2026_KeyResults_Mon.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-25",
+      "end_date": "2026-02-26",
+      "pollster": "HarrisX/Harris",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 50
+        },
+        {
+          "choice": "Rep",
+          "pct": 50
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Harvard CAPS"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202har6b357806",
+      "poll_type": "generic-ballot",
+      "sample_size": 1999,
+      "population": "rv",
+      "url": "https://harvardharrispoll.com/wp-content/uploads/2026/03/HHP_Feb2026_KeyResults_Mon.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-25",
+      "end_date": "2026-02-26",
+      "pollster": "HarrisX/Harris",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 50
+        },
+        {
+          "choice": "Rep",
+          "pct": 50
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Harvard CAPS"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "2026"
