@@ -395,9 +395,7 @@ function computeDailySeries(){
 /* ════════════════ RENDER ════════════════ */
 function bw(v){return Math.max(5,((v-35)/30)*100);}
 
-function render(){
-  const tx=computeTX();
-  if(!tx){document.getElementById("status").textContent="No data loaded";return;}
+
 
   // Bars: GB
   const setBar=(fId,vId,val)=>{document.getElementById(fId).style.width=bw(val)+"%";document.getElementById(vId).textContent=val.toFixed(1)+"%";};
