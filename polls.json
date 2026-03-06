@@ -1,6 +1,32 @@
 {
-  "updatedAt": "2026-03-05T11:50:14.073Z",
+  "updatedAt": "2026-03-06T11:45:30.139Z",
   "approval": [
+    {
+      "id": "appdonanga5ea4150",
+      "poll_type": "approval",
+      "sample_size": 1215,
+      "population": "a",
+      "url": "https://angusreid.org/wp-content/uploads/2026/03/2026.03.04_Iran_USA_tables.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2026-03-02",
+      "end_date": "2026-03-04",
+      "pollster": "Angus Reid Global",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 35
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 58
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
     {
       "id": "appdontrab2788635",
       "poll_type": "approval",
@@ -75,6 +101,62 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonj.l3dacccfe",
+      "poll_type": "approval",
+      "sample_size": 1022,
+      "population": "rv",
+      "url": "https://docs.google.com/spreadsheets/d/1SHUniAS5h57uL5meCvRbI3LeDRomZzeM/edit?gid=534343239#gid=534343239",
+      "created_at": "2026-03-05",
+      "start_date": "2026-03-02",
+      "end_date": "2026-03-03",
+      "pollster": "J.L. Partners",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 39
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 50
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "DailyMail.com"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonj.l6225e73a",
+      "poll_type": "approval",
+      "sample_size": 1097,
+      "population": "rv",
+      "url": "https://docs.google.com/spreadsheets/d/1SHUniAS5h57uL5meCvRbI3LeDRomZzeM/edit?gid=534343239#gid=534343239",
+      "created_at": "2026-03-05",
+      "start_date": "2026-03-02",
+      "end_date": "2026-03-03",
+      "pollster": "J.L. Partners",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 44
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 47
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "DailyMail.com"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
@@ -6213,6 +6295,34 @@
       "subject": "Donald Trump"
     },
     {
+      "id": "appdongrab5cafd63",
+      "poll_type": "approval",
+      "sample_size": 1475,
+      "population": "rv",
+      "url": "https://cdn.prod.website-files.com/5d02aaade6188137a65c8441/69666f31b8e58737cc34f0a4_Gov%20Shutdown%20Wave%204%20Toplines.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2025-11-07",
+      "end_date": "2025-11-09",
+      "pollster": "Grayhouse",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 45
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 53
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "America One Policies"
+      ],
+      "internal": false,
+      "partisan": "REP",
+      "subject": "Donald Trump"
+    },
+    {
       "id": "appdonrmgtcgnbgl7",
       "poll_type": "approval",
       "sample_size": 3000,
@@ -11040,6 +11150,34 @@
       "subject": "Donald Trump"
     },
     {
+      "id": "appdongra8aacc784",
+      "poll_type": "approval",
+      "sample_size": 2000,
+      "population": "rv",
+      "url": "https://cdn.prod.website-files.com/5d02aaade6188137a65c8441/6894e3bfba25e36f2fad12de_OBBB%20Message%20Testing%20Full.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2025-07-27",
+      "end_date": "2025-07-29",
+      "pollster": "Grayhouse",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 46
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 51
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "America One Policies"
+      ],
+      "internal": false,
+      "partisan": "REP",
+      "subject": "Donald Trump"
+    },
+    {
       "id": "appdonyou9ehfw6lm",
       "poll_type": "approval",
       "sample_size": 1777,
@@ -14089,6 +14227,34 @@
       "subject": "Donald Trump"
     },
     {
+      "id": "appdongra71deba55",
+      "poll_type": "approval",
+      "sample_size": 2000,
+      "population": "rv",
+      "url": "https://cdn.prod.website-files.com/5d02aaade6188137a65c8441/68497a1576e3c04cb20aaf19_Reconciliation%20Polling%20Survey.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2025-05-29",
+      "end_date": "2025-06-02",
+      "pollster": "Grayhouse",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 48
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 49
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "America One Policies"
+      ],
+      "internal": false,
+      "partisan": "REP",
+      "subject": "Donald Trump"
+    },
+    {
       "id": "appdontra1jjx39j7",
       "poll_type": "approval",
       "sample_size": 1098,
@@ -16856,6 +17022,32 @@
       "sponsors": [],
       "internal": false,
       "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdongraba90999d",
+      "poll_type": "approval",
+      "sample_size": 1100,
+      "population": "rv",
+      "url": "https://cdn.prod.website-files.com/5d02aaade6188137a65c8441/680be58cd7c3cb3acca58356_National%20Poll%20Results%20April%202025%20v2.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2025-04-10",
+      "end_date": "2025-04-13",
+      "pollster": "Grayhouse",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 46
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 52
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [],
+      "internal": false,
+      "partisan": "REP",
       "subject": "Donald Trump"
     },
     {
@@ -29597,6 +29789,90 @@
       ],
       "internal": false,
       "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202gra10f7957a",
+      "poll_type": "generic-ballot",
+      "sample_size": 2000,
+      "population": "rv",
+      "url": "https://cdn.prod.website-files.com/5d02aaade6188137a65c8441/6894e3bfba25e36f2fad12de_OBBB%20Message%20Testing%20Full.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2025-07-27",
+      "end_date": "2025-07-29",
+      "pollster": "Grayhouse",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 47
+        },
+        {
+          "choice": "Rep",
+          "pct": 44
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "America One Policies"
+      ],
+      "internal": false,
+      "partisan": "REP",
+      "subject": "2026"
+    },
+    {
+      "id": "gen202gra16882fe7",
+      "poll_type": "generic-ballot",
+      "sample_size": 2058,
+      "population": "rv",
+      "url": "https://cdn.prod.website-files.com/5d02aaade6188137a65c8441/69407765111c88bd09a7f919_Senate%20Healthcare%20Polling%20Deck.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2025-12-06",
+      "end_date": "2025-12-08",
+      "pollster": "Grayhouse",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 45
+        },
+        {
+          "choice": "Rep",
+          "pct": 41
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "America One Policies"
+      ],
+      "internal": false,
+      "partisan": "REP",
+      "subject": "2026"
+    },
+    {
+      "id": "gen202gra2275cae0",
+      "poll_type": "generic-ballot",
+      "sample_size": 1394,
+      "population": "rv",
+      "url": "https://cdn.prod.website-files.com/5d02aaade6188137a65c8441/69a9b8dd9009aa1372749a66_Iran%20and%20Affordability%20Deck_0305.pdf",
+      "created_at": "2026-03-05",
+      "start_date": "2026-02-20",
+      "end_date": "2026-02-23",
+      "pollster": "Grayhouse",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 43
+        },
+        {
+          "choice": "Rep",
+          "pct": 40
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "America One Policies"
+      ],
+      "internal": false,
+      "partisan": "REP",
       "subject": "2026"
     }
   ],
