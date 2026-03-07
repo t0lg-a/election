@@ -23,6 +23,10 @@
     .hdr{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--ink);padding-bottom:7px;margin-bottom:10px;}
     .hdr-k{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);}
     .hdr-t{font-family:var(--disp);font-size:26px;font-weight:900;letter-spacing:-.025em;line-height:1;}
+    .hdr-row{display:flex;align-items:baseline;gap:12px;}
+    .hdr-soon{display:flex;gap:8px;margin-left:4px;}
+    .hdr-soon-box{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:#f3f3f0;border:1px solid var(--line);padding:4px 8px;border-radius:4px;line-height:1.3;}
+    .hdr-soon-box span{display:block;font-size:7px;color:#bbb;font-weight:600;letter-spacing:.06em;margin-top:1px;}
     .hdr-s{font-size:11px;color:#777;margin-top:2px;}
     .hdr-d{font-family:var(--mono);font-size:10px;color:var(--muted);}
     .hdr-status{font-size:9px;color:var(--muted);margin-top:2px;font-family:var(--mono);}
@@ -88,7 +92,13 @@
   <div class="hdr">
     <div>
       <div class="hdr-k">Nowcast</div>
-      <div class="hdr-t">Texas Senate Race</div>
+      <div class="hdr-row">
+        <div class="hdr-t">Texas Senate Race</div>
+        <div class="hdr-soon">
+          <div class="hdr-soon-box">Methodology<span>Next week</span></div>
+          <div class="hdr-soon-box">Turnout & Support<span>Next week</span></div>
+        </div>
+      </div>
       <div class="hdr-s">Talarico (D) vs Paxton (R) · 2026</div>
     </div>
     <div style="text-align:right">
