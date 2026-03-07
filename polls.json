@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-06T11:45:30.139Z",
+  "updatedAt": "2026-03-07T11:35:35.015Z",
   "approval": [
     {
       "id": "appdonanga5ea4150",
@@ -23,6 +23,34 @@
       ],
       "seat_name": null,
       "sponsors": [],
+      "internal": false,
+      "partisan": null,
+      "subject": "Donald Trump"
+    },
+    {
+      "id": "appdonrmg1c59c7cb",
+      "poll_type": "approval",
+      "sample_size": 2000,
+      "population": "rv",
+      "url": "https://napolitannews.org/jobapproval#03-04-2026",
+      "created_at": "2026-03-06",
+      "start_date": "2026-02-28",
+      "end_date": "2026-03-04",
+      "pollster": "RMG Research",
+      "answers": [
+        {
+          "choice": "Approve",
+          "pct": 46
+        },
+        {
+          "choice": "Disapprove",
+          "pct": 52
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Napolitan Institute"
+      ],
       "internal": false,
       "partisan": null,
       "subject": "Donald Trump"
@@ -29656,7 +29684,7 @@
       "poll_type": "generic-ballot",
       "sample_size": 1366,
       "population": "rv",
-      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_ubu5DXD.pdf#page=5",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_ubu5DXD.pdf#page=62",
       "created_at": "2026-03-05",
       "start_date": "2026-02-27",
       "end_date": "2026-03-02",
@@ -29684,7 +29712,7 @@
       "poll_type": "generic-ballot",
       "sample_size": 1515,
       "population": "a",
-      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_ubu5DXD.pdf#page=5",
+      "url": "https://d3nkl3psvxxpe9.cloudfront.net/documents/econTabReport_ubu5DXD.pdf#page=62",
       "created_at": "2026-03-05",
       "start_date": "2026-02-27",
       "end_date": "2026-03-02",
@@ -29870,6 +29898,62 @@
       "seat_name": null,
       "sponsors": [
         "America One Policies"
+      ],
+      "internal": false,
+      "partisan": "REP",
+      "subject": "2026"
+    },
+    {
+      "id": "gen202rmg6e270e3b",
+      "poll_type": "generic-ballot",
+      "sample_size": 2000,
+      "population": "rv",
+      "url": "https://napolitannews.org/posts/generic-ballot-dem-44-percent-gop-43-dems-also-more-enthusiastic",
+      "created_at": "2026-03-06",
+      "start_date": "2026-03-02",
+      "end_date": "2026-03-05",
+      "pollster": "RMG Research",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 46
+        },
+        {
+          "choice": "Rep",
+          "pct": 46
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "Napolitan Institute"
+      ],
+      "internal": false,
+      "partisan": null,
+      "subject": "2026"
+    },
+    {
+      "id": "gen202cyg042f1e59",
+      "poll_type": "generic-ballot",
+      "sample_size": 1048,
+      "population": "lv",
+      "url": "https://act.americanprinciplesproject.org/p/protect-kids-online/results?access=press",
+      "created_at": "2026-03-06",
+      "start_date": "2026-02-24",
+      "end_date": "2026-02-26",
+      "pollster": "Cygnal",
+      "answers": [
+        {
+          "choice": "Dem",
+          "pct": 48
+        },
+        {
+          "choice": "Rep",
+          "pct": 45
+        }
+      ],
+      "seat_name": null,
+      "sponsors": [
+        "American Principles Project"
       ],
       "internal": false,
       "partisan": "REP",
