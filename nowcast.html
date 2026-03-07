@@ -555,10 +555,13 @@ async function loadMap(){
         h+="<div class='tip-r'><span class='tip-l'>Lean</span><span class='tip-v "+lc+"'>"+ls+"</span></div>";
       }
       tip.innerHTML=h;
-      tip.style.left=(ev.clientX+16)+"px";
-      tip.style.top=(ev.clientY-16)+"px";
+      var tx=ev.clientX,ty=ev.clientY,tw=tip.offsetWidth||220,th=tip.offsetHeight||120;
+      var lx=(tx+tw+24>window.innerWidth)?(tx-tw-16):(tx+16);
+      var ly=(ty+th+16>window.innerHeight)?(ty-th-8):(ty-16);
+      tip.style.left=lx+"px";
+      tip.style.top=ly+"px";
     })
-    .on("mousemove",function(ev){tip.style.left=(ev.clientX+16)+"px";tip.style.top=(ev.clientY-16)+"px";})
+    .on("mousemove",function(ev){var tx=ev.clientX,tw=tip.offsetWidth||220,th=tip.offsetHeight||120;var lx=(tx+tw+24>window.innerWidth)?(tx-tw-16):(tx+16);var ly=(ev.clientY+th+16>window.innerHeight)?(ev.clientY-th-8):(ev.clientY-16);tip.style.left=lx+"px";tip.style.top=ly+"px";})
     .on("mouseleave",function(){tip.style.left="-9999px";tip.style.top="-9999px";});
 
   // DEBUG: verify FIPS→name by checking centroids
