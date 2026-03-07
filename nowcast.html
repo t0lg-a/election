@@ -85,6 +85,59 @@
     .chartLeg span{font-size:11px;font-weight:700;display:flex;align-items:center;gap:3px;}
     .chartLeg .ln{width:14px;height:2.5px;border-radius:2px;}
     .chartLeg .dsh{width:14px;height:0;border-top:2px dashed;opacity:.7;}
+
+    /* ═══ MOBILE ═══ */
+    @media (max-width:860px){
+      html,body{height:auto;overflow:auto;}
+      .shell{width:100%;height:auto;display:block;padding:12px 16px 40px;overflow:auto;}
+      .hdr{flex-wrap:wrap;gap:8px;}
+      .hdr-row{flex-wrap:wrap;gap:6px;}
+      .hdr-t{font-size:24px;}
+      .hdr-soon{gap:6px;}
+      .hdr-soon-box{font-size:9px;padding:3px 7px;}
+      .main{display:flex;flex-direction:column;gap:20px;}
+      .left{display:flex;flex-direction:column;gap:16px;}
+      .cand{grid-template-columns:80px 1fr;gap:10px;padding:0;}
+      .photo{width:80px;aspect-ratio:3/4;max-height:none;}
+      .photo-img{width:80px;}
+      .pv{grid-column:1/-1;flex-direction:row;gap:6px;justify-content:flex-start;padding:4px 0 0 0;}
+      .pv-num{font-size:36px;}
+      .pv-pct{font-size:16px;}
+      .pv-lbl{font-size:9px;margin-top:0;margin-left:4px;}
+      .cn{font-size:16px;}
+      .cp{font-size:11px;}
+      .hb{height:26px;}
+      .hb-l{width:90px;font-size:10px;}
+      .hb-v{font-size:11px;}
+      .btm{grid-template-columns:1fr;gap:14px;}
+      #pollChart{height:180px!important;}
+      .map-col{min-height:0;}
+      .map-wrap{min-height:350px;height:400px;}
+      .mt{font-size:13px;}
+      .ms{font-size:10px;}
+      .st{font-size:12px;}
+      .ss{font-size:9px;}
+      .pt{font-size:11px;}
+      .pt th{font-size:9px;}
+      .chartLeg span{font-size:10px;}
+      .ml-bar{width:140px;}
+      .ml-lb{width:140px;font-size:9px;}
+    }
+
+    @media (max-width:480px){
+      .shell{padding:10px 12px 36px;}
+      .hdr-t{font-size:20px;}
+      .hdr-s{font-size:11px;}
+      .hdr-soon{display:none;}
+      .cand{grid-template-columns:64px 1fr;gap:8px;}
+      .photo{width:64px;}
+      .photo-img{width:64px;}
+      .cn{font-size:15px;}
+      .hb-l{width:76px;font-size:9px;}
+      .hb{height:22px;}
+      .pv-num{font-size:30px;}
+      .map-wrap{min-height:280px;height:320px;}
+    }
   </style>
 </head>
 <body>
