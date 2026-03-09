@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>County Presidential Swing · 1960–2024</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Barlow:wght@300;400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{background:#f7f7f5;color:#1a1a1a;font-family:'Barlow',sans-serif;display:flex;flex-direction:column;height:100vh}
+.top{flex:0 0 auto;padding:6px 12px 0;text-align:center}
+.top h1{font-family:'Libre Baskerville',serif;font-size:clamp(18px,2.8vw,32px);font-weight:700;color:#111;letter-spacing:-0.3px;line-height:1.1}
+.bar{display:flex;justify-content:center;align-items:center;gap:4px;padding:4px 8px 2px;flex-wrap:wrap}
+.bar button{background:transparent;border:1.5px solid rgba(0,0,0,0.07);color:#888;padding:3px 10px;border-radius:3px;cursor:pointer;font-size:9.5px;font-family:'Barlow',sans-serif;font-weight:600;letter-spacing:0.3px;text-transform:uppercase;transition:all 0.2s}
+.bar button:hover{background:rgba(0,0,0,0.04);color:#444}
+.bar button.on{background:#222;border-color:#222;color:#fff}
+.yr{display:flex;align-items:center;gap:4px;justify-content:center;padding:2px 8px 1px}
+.yr label{font-size:8.5px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:0.8px}
+.yr select{font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;padding:2px 4px;border:1px solid rgba(0,0,0,0.1);border-radius:2px;background:#fff;color:#1a1a1a;cursor:pointer}
+.yr .ar{font-size:13px;color:#aaa;margin:0 1px}
+.info{display:flex;justify-content:center;gap:clamp(10px,2.5vw,30px);padding:1px 8px;flex-wrap:wrap}
+.info .s{text-align:center}
+.info .n{font-family:'Libre Baskerville',serif;font-size:clamp(13px,1.6vw,20px);font-weight:400}
+.info .l{font-size:7.5px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.lgw{display:flex;flex-direction:column;align-items:center;padding:1px 12px 2px;min-height:26px}
+.lgr{display:flex;align-items:center;gap:6px}
+.lgl{font-size:8.5px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+.lgl.d{color:#1155bb}.lgl.r{color:#cc2222}
+.lgb{width:min(320px,48vw);height:8px;border-radius:2px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,0.04)}
+.lgb canvas{width:100%;height:100%;display:block;border-radius:2px}
+.lgt{display:flex;justify-content:space-between;width:min(320px,48vw)}
+.lgt span{font-size:6.5px;color:#aaa;font-weight:600}
+.bl{display:flex;align-items:flex-end;gap:10px;justify-content:center}
+.bli{display:flex;flex-direction:column;align-items:center;gap:1px}
+.bli .c{border:1.5px solid rgba(0,0,0,0.14);border-radius:50%;background:rgba(0,0,0,0.03)}
+.bli .cl{font-size:6.5px;color:#999;font-weight:600}
+.mapw{flex:1 1 auto;min-height:0;display:flex;justify-content:center;align-items:center;padding:0 4px}
+.mapw.hide{display:none}
+svg.map{max-width:100%;max-height:100%;background:#e9eaeb;border-radius:3px}
+.quadw{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:3px;padding:0 4px 2px;max-width:1200px;margin:0 auto;width:100%}
+.quadw.hide{display:none}
+.qcell{position:relative;overflow:hidden;background:#e9eaeb;border-radius:2px}
+.qbar{position:absolute;top:3px;left:4px;z-index:2;display:flex;align-items:center;gap:2px;background:rgba(233,234,235,0.92);padding:2px 4px;border-radius:2px;flex-wrap:wrap;max-width:calc(100% - 8px)}
+.qbar select{font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;padding:1px 2px;border:1px solid rgba(0,0,0,0.1);border-radius:2px;background:#fff;color:#1a1a1a;cursor:pointer}
+.qbar .qmode{font-size:9px;font-weight:600;padding:1px 3px}
+.qbar .ar{font-size:10px;color:#aaa;margin:0}
+.qcell svg{width:100%;height:100%;display:block}
+.county{stroke:rgba(255,255,255,0.4);stroke-width:0.15;cursor:crosshair;transition:fill 0.1s}
+.county:hover{stroke:#222;stroke-width:0.8;filter:brightness(0.88)}
+.stb{fill:none;stroke:rgba(80,80,80,0.22);stroke-width:0.5;pointer-events:none}
+.nb{fill:none;stroke:rgba(60,60,60,0.35);stroke-width:0.8;pointer-events:none}
+.bubble{pointer-events:all;cursor:crosshair}
+.bubble:hover{stroke:#222 !important;stroke-width:1.3 !important}
+.ft{text-align:center;padding:2px 8px 4px;font-size:7.5px;color:#bbb;flex:0 0 auto}
+.ft a{color:#aaa;text-decoration:none}
+.tt{position:fixed;pointer-events:none;background:rgba(255,255,255,0.97);border:1px solid rgba(0,0,0,0.08);border-radius:2px;padding:9px 13px;font-size:11.5px;z-index:1000;;min-width:270px;box-shadow:0 5px 24px rgba(0,0,0,0.1);display:none;line-height:1.35;color:#1a1a1a}
+.tt .cn{font-family:'Libre Baskerville',serif;font-size:13px;font-weight:700;border-bottom:1px solid rgba(0,0,0,0.06);padding-bottom:3px;margin-bottom:2px}
+.tt .sv{font-size:16px;font-weight:700;margin:2px 0}
+.tt .dr{display:flex;justify-content:space-between;font-size:10px;color:#777;padding:0.5px 0}
+.tt .dr .v{color:#333;font-weight:600}
+.tt .hd{font-size:7px;color:#aaa;text-transform:uppercase;letter-spacing:0.7px;font-weight:700;margin-top:4px}
+.tt .dr .vr{color:#cc2222;font-weight:600}
+.tt .dr .vb{color:#1155bb;font-weight:600}
+.lo{position:fixed;inset:0;background:#f7f7f5;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.5s}
+.lo.h{opacity:0;pointer-events:none}
+.sp{width:28px;height:28px;border:3px solid rgba(0,0,0,0.05);border-top-color:#333;border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="lo" id="lo"><div class="sp"></div></div>
+
+<div class="top">
+  <h1>The American Shift</h1>
+</div>
+
+<div class="bar" id="bar">
+  <button class="on" data-m="swing">Margin Swing</button>
+  <button data-m="rel">Relative Trend</button>
+  <button data-m="to">Turnout</button>
+  <button data-m="vd">Vote Margin</button>
+  <button data-m="vs">Vote Shift</button>
+  <button id="quadBtn" style="margin-left:8px;border-color:rgba(0,0,0,0.15)">◻◻ Quad</button>
+</div>
+
+<div class="yr">
+  <label>From</label><select id="yF"></select>
+  <span class="ar">→</span>
+  <label>To</label><select id="yT"></select>
+</div>
+
+<div class="info" id="info"></div>
+<div class="lgw" id="lgw"></div>
+
+<div class="mapw" id="mapw">
+  <svg class="map" id="map" viewBox="0 0 975 610" preserveAspectRatio="xMidYMid meet"></svg>
+</div>
+
+<div class="quadw hide" id="quadw">
+  <div class="qcell"><div class="qbar"><select class="qmode" data-q="0"><option value="swing">Swing</option><option value="rel">Relative</option><option value="to">Turnout</option><option value="vd">Vote Margin</option><option value="vs">Vote Shift</option></select><select class="qsf" data-q="0"></select><span class="ar">→</span><select class="qst" data-q="0"></select></div><svg id="qm0" viewBox="0 0 975 610" preserveAspectRatio="xMidYMid meet"></svg></div>
+  <div class="qcell"><div class="qbar"><select class="qmode" data-q="1"><option value="swing">Swing</option><option value="rel">Relative</option><option value="to">Turnout</option><option value="vd">Vote Margin</option><option value="vs">Vote Shift</option></select><select class="qsf" data-q="1"></select><span class="ar">→</span><select class="qst" data-q="1"></select></div><svg id="qm1" viewBox="0 0 975 610" preserveAspectRatio="xMidYMid meet"></svg></div>
+  <div class="qcell"><div class="qbar"><select class="qmode" data-q="2"><option value="swing">Swing</option><option value="rel">Relative</option><option value="to">Turnout</option><option value="vd">Vote Margin</option><option value="vs">Vote Shift</option></select><select class="qsf" data-q="2"></select><span class="ar">→</span><select class="qst" data-q="2"></select></div><svg id="qm2" viewBox="0 0 975 610" preserveAspectRatio="xMidYMid meet"></svg></div>
+  <div class="qcell"><div class="qbar"><select class="qmode" data-q="3"><option value="swing">Swing</option><option value="rel">Relative</option><option value="to">Turnout</option><option value="vd">Vote Margin</option><option value="vs">Vote Shift</option></select><select class="qsf" data-q="3"></select><span class="ar">→</span><select class="qst" data-q="3"></select></div><svg id="qm3" viewBox="0 0 975 610" preserveAspectRatio="xMidYMid meet"></svg></div>
+</div>
+
+<div class="ft">
+  <a href="https://github.com/cilekagaci/us-presidential-county-1960-2016">cilekagaci</a> 1960–96 ·
+  <a href="https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VOQCHQ">MIT MEDSL</a> 2000–20 ·
+  <a href="https://github.com/tonmcg/US_County_Level_Election_Results_08-24">tonmcg</a> 2024 · Census TIGER
+</div>
+
+<div class="tt" id="tt"></div>
+
+<script>
+(async function(){
+const YRS=[1960,1964,1968,1972,1976,1980,1984,1988,1992,1996,2000,2004,2008,2012,2016,2020,2024];
+const tt=document.getElementById('tt'),svg=d3.select('#map'),lgw=document.getElementById('lgw');
+const sF=document.getElementById('yF'),sT=document.getElementById('yT');
+
+function scol(v){const t=Math.max(-50,Math.min(50,v));if(t>=0){const s=t/50;return`rgb(${222-s*32|0},${222-s*172|0},${228-s*196|0})`}const s=-t/50;return`rgb(${222-s*192|0},${222-s*142|0},${228-s*8|0})`}
+function rcol(v){const t=Math.max(-40,Math.min(40,v));if(t>=0){const s=t/40;return`rgb(${225-s*195|0},${225-s*140|0},${232-s*12|0})`}const s=-t/40;return`rgb(${225-s*25|0},${225-s*175|0},${232-s*200|0})`}
+function mf(rm,a){return rm>0?`rgba(204,34,34,${a})`:`rgba(17,85,187,${a})`}
+
+function gleg(fn,lL,rL,ticks,rng){
+  const[lo,hi]=rng;
+  lgw.innerHTML=`<div class="lgr"><span class="lgl r">${lL}</span><div class="lgb"><canvas id="lgC" width="320" height="8"></canvas></div><span class="lgl d">${rL}</span></div><div class="lgt">${ticks.map(t=>`<span>${t}</span>`).join('')}</div>`;
+  const c=document.getElementById('lgC'),x=c.getContext('2d');c.width=320;c.height=8;
+  for(let i=0;i<320;i++){x.fillStyle=fn(lo+(i/319)*(hi-lo));x.fillRect(i,0,1,8)}
+}
+function bleg(sizes){
+  lgw.innerHTML=`<div class="bl">${sizes.map(({r,label})=>`<div class="bli"><div class="c" style="width:${r*2}px;height:${r*2}px"></div><span class="cl">${label}</span></div>`).join('')}</div><div style="font-size:7px;color:#aaa;text-align:center;margin-top:1px"><span style="display:inline-block;width:7px;height:7px;background:rgba(204,34,34,0.5);border-radius:50%;margin-right:2px;vertical-align:middle"></span>R <span style="display:inline-block;width:7px;height:7px;background:rgba(17,85,187,0.5);border-radius:50%;margin-left:5px;margin-right:2px;vertical-align:middle"></span>D</div>`
+}
+
+/* LOAD */
+const [topo, medsl, d24] = await Promise.all([
+  d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-albers-10m.json'),
+  d3.csv('https://raw.githubusercontent.com/xsarinix/election2020-data/main/countypres_2000-2020.csv'),
+  d3.csv('https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv')
+]);
+
+let pre = null;
+try {
+  pre = await d3.tsv('https://raw.githubusercontent.com/cilekagaci/us-presidential-county-1960-2016/master/data/processed/us-presidential-counties-1960-2016.tsv');
+} catch(e) { console.warn('Pre-2000 load failed', e); }
+
+const byY = {}; YRS.forEach(y => byY[y] = new Map());
+
+// MEDSL 2000-2020
+medsl.filter(d => d.office === 'US PRESIDENT').forEach(d => {
+  const yr=+d.year; if(!byY[yr]) return;
+  const f=d.county_fips?d.county_fips.padStart(5,'0'):null;
+  if(!f||f==='00000') return;
+  if(!byY[yr].has(f)) byY[yr].set(f,{dem:0,rep:0,total:0,name:d.county_name,state:d.state_po||d.state});
+  const e=byY[yr].get(f),v=+d.candidatevotes||0,p=(d.party||'').toUpperCase();
+  if(p==='DEMOCRAT')e.dem+=v;else if(p==='REPUBLICAN')e.rep+=v;e.total+=v;
+});
+
+// 2024
+d24.forEach(d=>{
+  const f=d.county_fips?d.county_fips.padStart(5,'0'):null;if(!f)return;
+  byY[2024].set(f,{dem:+d.votes_dem||0,rep:+d.votes_gop||0,total:+d.total_votes||0,name:d.county_name,state:d.state_name});
+});
+
+// Pre-2000 (cilekagaci: per-party rows, columns use dots)
+if(pre&&pre.length){
+  const cols=pre.columns;
+  // Exact column names from the data: year, county.fips, county.name, state.abb, party, vote.count, county.total.count
+  const cVotes = cols.find(c=>c==='vote.count');
+  const cParty = cols.find(c=>c==='party');
+  const cFips = cols.find(c=>c==='county.fips');
+  const cCounty = cols.find(c=>c==='county.name');
+  const cState = cols.find(c=>c==='state.abb');
+  const cYear = cols.find(c=>c==='year');
+  
+  console.log('Pre-2000 cols:', {cYear,cFips,cParty,cVotes,cCounty,cState});
+  
+  if(cParty&&cVotes){
+    const parseNum = s => { const v=+(String(s||'0').replace(/[,\s]/g,'')); return isNaN(v)?0:v; };
+    
+    // Dump first 5 rows completely
+    pre.slice(0,5).forEach((r,i) => console.log(`ROW ${i}:`, JSON.stringify(r)));
+    
+    // Collect unique party values
+    const partySet=new Set(); pre.slice(0,2000).forEach(r=>partySet.add(r[cParty]));
+    console.log('UNIQUE PARTIES:', [...partySet]);
+    
+    // Sample vote values
+    console.log('SAMPLE VOTES:', pre.slice(0,5).map(r=>r[cVotes]));
+    console.log('PARSED VOTES:', pre.slice(0,5).map(r=>parseNum(r[cVotes])));
+    
+    pre.forEach(d=>{
+      const yr=+d[cYear]; if(!byY[yr]||yr>=2000) return;
+      const f=d[cFips]; if(!f) return;
+      const fips=f.toString().padStart(5,'0'); if(fips==='00000'||fips.length<4) return;
+      const m=byY[yr];
+      if(!m.has(fips)) m.set(fips,{dem:0,rep:0,total:0,name:d[cCounty]||'',state:d[cState]||''});
+      const e=m.get(fips),v=parseNum(d[cVotes]);
+      const p=(d[cParty]||'').toLowerCase().trim();
+      // Match every possible format
+      if(p==='democrat'||p==='democratic'||p==='dem'||p==='d'||p.includes('democrat')) e.dem+=v;
+      else if(p==='republican'||p==='rep'||p==='gop'||p==='r'||p.includes('republican')) e.rep+=v;
+      e.total+=v;
+    });
+    
+    // Verify totals
+    const s60=byY[1960];
+    if(s60.size>0){
+      const first=[...s60.values()][0];
+      console.log('1960 FIRST COUNTY:', first);
+      let totDem=0,totRep=0;
+      s60.forEach(d=>{totDem+=d.dem;totRep+=d.rep});
+      console.log('1960 NATIONAL TOTALS: D='+totDem+' R='+totRep);
+    }
+  } else {
+    console.warn('COLUMNS NOT FOUND: cParty='+cParty+' cVotes='+cVotes);
+    console.log('Available columns:', cols);
+  }
+}
+
+const actY=YRS.filter(y=>byY[y].size>20);
+console.log('Active:', actY.map(y=>`${y}:${byY[y].size}`).join(', '));
+
+sF.innerHTML='';sT.innerHTML='';
+actY.forEach(y=>{
+  sF.innerHTML+=`<option value="${y}"${y===actY[0]?' selected':''}>${y}</option>`;
+  sT.innerHTML+=`<option value="${y}"${y===actY[actY.length-1]?' selected':''}>${y}</option>`;
+});
+
+const natT={};
+actY.forEach(yr=>{let nD=0,nR=0,nTot=0;byY[yr].forEach(d=>{nD+=d.dem;nR+=d.rep;nTot+=d.total});natT[yr]={dem:nD,rep:nR,total:nTot,dPct:nTot?(nD/nTot)*100:0}});
+
+const counties=topojson.feature(topo,topo.objects.counties);
+const stM=topojson.mesh(topo,topo.objects.states,(a,b)=>a!==b);
+const natM=topojson.mesh(topo,topo.objects.nation);
+const path=d3.geoPath();
+const cen=new Map();
+counties.features.forEach(f=>{const c=path.centroid(f);if(c&&isFinite(c[0]))cen.set(f.id,c)});
+
+let mode='swing',yF=actY[0],yT=actY[actY.length-1];
+let comp=new Map(),sc={};
+
+function recomp(){
+  comp.clear();
+  const mF=byY[yF],mTo=byY[yT],nF=natT[yF],nTo=natT[yT];
+  let rS=0,bS=0,rDU=0,rRU=0;const sw=[],rl=[];
+  const all=new Set([...mF.keys(),...mTo.keys()]);
+  all.forEach(fips=>{
+    const dF=mF.get(fips),dT=mTo.get(fips);
+    if(!dT||dT.total===0)return;
+    const rmT=((dT.rep-dT.dem)/dT.total)*100,dpT=(dT.dem/dT.total)*100,relDT=dpT-nTo.dPct;
+    let swing=null,rmF=null,dpF=null,relDF=null,relTr=null,voteShift=null;
+    let demF=null,repF=null,totF=null;
+    if(dF&&dF.total>0){
+      rmF=((dF.rep-dF.dem)/dF.total)*100;dpF=(dF.dem/dF.total)*100;relDF=dpF-nF.dPct;
+      swing=rmT-rmF;relTr=relDT-relDF;
+      voteShift=(dT.dem-dT.rep)-(dF.dem-dF.rep);
+      demF=dF.dem;repF=dF.rep;totF=dF.total;
+      sw.push(swing);rl.push(relTr);
+      if(swing>0)rS++;else bS++;
+      if(relTr>0)rDU++;else rRU++;
+    }
+    comp.set(fips,{swing,rmF,rmT,relTr,relDF,relDT,
+      demF,repF,totF,demT:dT.dem,repT:dT.rep,totT:dT.total,
+      margF:demF!==null?demF-repF:null,margT:dT.dem-dT.rep,
+      name:dT.name||(dF?dF.name:''),state:dT.state||(dF?dF.state:''),
+      vdiff:Math.abs(dT.rep-dT.dem),winT:dT.rep>dT.dem?'R':'D',
+      voteShift,absVS:voteShift!==null?Math.abs(voteShift):0,
+      fips});
+  });
+  sw.sort((a,b)=>a-b);rl.sort((a,b)=>a-b);
+  sc={rS,bS,rDU,rRU,medSw:sw.length?sw[sw.length>>1]:0,medRl:rl.length?rl[rl.length>>1]:0,
+    totVT:Array.from(comp.values()).reduce((s,d)=>s+d.totT,0),ct:comp.size,swCt:sw.length};
+}
+
+let rTo,rDf,rVS;
+function updSc(){
+  const v=Array.from(comp.values());
+  rTo=d3.scaleSqrt().domain([0,d3.max(v,d=>d.totT)||1]).range([0,26]);
+  rDf=d3.scaleSqrt().domain([0,d3.max(v,d=>d.vdiff)||1]).range([0,26]);
+  rVS=d3.scaleSqrt().domain([0,d3.max(v,d=>d.absVS)||1]).range([0,26]);
+}
+
+const gC=svg.append('g'),gB=svg.append('g'),gBo=svg.append('g');
+gC.selectAll('path').data(counties.features).join('path').attr('class','county').attr('d',path).attr('fill','#ddd9d2')
+  .on('mousemove',(ev,feat)=>{const d=comp.get(feat.id);if(!d)return;tt.style.display='block';tt.innerHTML=ttH(d);posTT(ev)})
+  .on('mouseleave',()=>tt.style.display='none');
+gBo.append('path').datum(stM).attr('class','stb').attr('d',path);
+gBo.append('path').datum(natM).attr('class','nb').attr('d',path);
+
+function updInfo(){
+  const e=document.getElementById('info'),s=sc;
+  if(mode==='swing')
+    e.innerHTML=`<div class="s"><div class="n" style="color:#1155bb">${s.bS.toLocaleString()}</div><div class="l">→ Dem</div></div><div class="s"><div class="n" style="color:#666">${s.medSw>0?'+':''}${s.medSw.toFixed(1)}</div><div class="l">Median</div></div><div class="s"><div class="n" style="color:#cc2222">${s.rS.toLocaleString()}</div><div class="l">→ Rep</div></div>`;
+  else if(mode==='rel')
+    e.innerHTML=`<div class="s"><div class="n" style="color:#1155bb">${s.rDU.toLocaleString()}</div><div class="l">Rel → D</div></div><div class="s"><div class="n" style="color:#666">${s.medRl>0?'+':''}${s.medRl.toFixed(1)}</div><div class="l">Median</div></div><div class="s"><div class="n" style="color:#cc2222">${s.rRU.toLocaleString()}</div><div class="l">Rel → R</div></div>`;
+  else if(mode==='to')
+    e.innerHTML=`<div class="s"><div class="n" style="color:#333">${(s.totVT/1e6).toFixed(1)}M</div><div class="l">${yT} Total</div></div><div class="s"><div class="n" style="color:#1155bb">${natT[yT].dPct.toFixed(1)}%</div><div class="l">${yT} Nat D%</div></div>`;
+  else if(mode==='vd'){
+    const v=Array.from(comp.values());
+    const tR=v.filter(d=>d.winT==='R').sort((a,b)=>b.vdiff-a.vdiff)[0];
+    const tD=v.filter(d=>d.winT==='D').sort((a,b)=>b.vdiff-a.vdiff)[0];
+    e.innerHTML=`<div class="s"><div class="n" style="color:#1155bb">${tD?tD.name.replace(/ County$/,''):'-'}</div><div class="l">Top D Surplus</div></div><div class="s"><div class="n" style="color:#cc2222">${tR?tR.name.replace(/ County$/,''):'-'}</div><div class="l">Top R Surplus</div></div>`;
+  } else {
+    const v=Array.from(comp.values()).filter(d=>d.voteShift!==null);
+    const tD=v.sort((a,b)=>b.voteShift-a.voteShift)[0];
+    const tR=v.sort((a,b)=>a.voteShift-b.voteShift)[0];
+    e.innerHTML=`<div class="s"><div class="n" style="color:#1155bb">${tD?tD.name.replace(/ County$/,'')+' +'+Math.round(tD.voteShift/1000)+'K':'-'}</div><div class="l">Top D Shift</div></div><div class="s"><div class="n" style="color:#cc2222">${tR?tR.name.replace(/ County$/,'')+' +'+Math.round(-tR.voteShift/1000)+'K':'-'}</div><div class="l">Top R Shift</div></div>`;
+  }
+}
+
+function updLg(){
+  if(mode==='swing')gleg(scol,'← D','R →',['+50D','','','0','','','+50R'],[-50,50]);
+  else if(mode==='rel')gleg(rcol,'← R','D →',['+40R','','0','','+40D'],[-40,40]);
+  else if(mode==='to')bleg([{r:rTo(10000),label:'10K'},{r:rTo(100000),label:'100K'},{r:rTo(500000),label:'500K'},{r:rTo(2000000),label:'2M'}]);
+  else if(mode==='vd')bleg([{r:rDf(5000),label:'5K'},{r:rDf(50000),label:'50K'},{r:rDf(200000),label:'200K'},{r:rDf(800000),label:'800K'}]);
+  else bleg([{r:rVS(5000),label:'5K'},{r:rVS(25000),label:'25K'},{r:rVS(100000),label:'100K'},{r:rVS(500000),label:'500K'}]);
+}
+
+function updMap(){
+  const isBub=mode==='to'||mode==='vd'||mode==='vs';
+  gC.selectAll('.county').attr('fill',d=>{
+    const dd=comp.get(d.id);if(!dd||isBub)return'#ddd9d2';
+    if(dd.swing===null)return'#ddd9d2';
+    return mode==='swing'?scol(dd.swing):rcol(dd.relTr);
+  }).attr('stroke',isBub?'rgba(200,195,188,0.5)':'rgba(255,255,255,0.4)');
+  gB.selectAll('*').remove();
+  if(isBub){
+    let rS,vF,cF;
+    if(mode==='to'){rS=rTo;vF=d=>d.totT;cF=d=>mf(d.rmT,0.45)}
+    else if(mode==='vd'){rS=rDf;vF=d=>d.vdiff;cF=d=>mf(d.rmT,0.45)}
+    else{rS=rVS;vF=d=>d.absVS;cF=d=>d.voteShift>0?'rgba(17,85,187,0.5)':'rgba(204,34,34,0.5)'}
+    const sorted=Array.from(comp.values()).filter(d=>cen.has(d.fips)&&vF(d)>0&&(mode!=='vs'||d.voteShift!==null)).sort((a,b)=>vF(b)-vF(a));
+    gB.selectAll('circle').data(sorted).join('circle').attr('class','bubble')
+      .attr('cx',d=>cen.get(d.fips)[0]).attr('cy',d=>cen.get(d.fips)[1])
+      .attr('r',d=>Math.max(0.3,rS(vF(d))))
+      .attr('fill',d=>cF(d))
+      .attr('stroke',d=>mode==='vs'?(d.voteShift>0?'rgba(17,85,187,0.7)':'rgba(204,34,34,0.7)'):mf(d.rmT,0.65))
+      .attr('stroke-width',0.35)
+      .on('mousemove',(ev,d)=>{tt.style.display='block';tt.innerHTML=ttH(d);posTT(ev)})
+      .on('mouseleave',()=>tt.style.display='none');
+  }
+}
+
+function full(){recomp();updSc();updInfo();updLg();updMap()}
+
+/* TOOLTIP */
+function fmV(v){return v!=null?v.toLocaleString():'—'}
+function fmM(v){if(v==null)return'—';return v>0?`<span class="vb">D+${v.toLocaleString()}</span>`:`<span class="vr">R+${Math.abs(v).toLocaleString()}</span>`}
+function fmP(v){if(v==null)return'—';return v>0?`<span class="vr">R+${v.toFixed(1)}</span>`:`<span class="vb">D+${Math.abs(v).toFixed(1)}</span>`}
+function fmR(v){if(v==null)return'—';return v>0?`<span class="vb">D+${v.toFixed(1)}</span>`:`<span class="vr">R+${Math.abs(v).toFixed(1)}</span>`}
+
+function ttH(d){
+  const has=d.swing!==null;
+  let hl;
+  if(mode==='rel') hl=has?fmR(d.relTr)+' rel. trend':'—';
+  else if(mode==='vs'&&d.voteShift!=null) hl=fmM(d.voteShift)+' vote shift';
+  else hl=has?fmP(d.swing)+' swing':'—';
+  
+  let h=`<div class="cn">${d.name}, ${d.state}</div><div class="sv">${hl}</div>`;
+  
+  // FROM year
+  if(has){
+    h+=`<div class="hd">${yF}</div>`;
+    h+=`<div class="dr"><span>Dem</span><span class="vb">${fmV(d.demF)}</span></div>`;
+    h+=`<div class="dr"><span>Rep</span><span class="vr">${fmV(d.repF)}</span></div>`;
+    h+=`<div class="dr"><span>Total</span><span class="v">${fmV(d.totF)}</span></div>`;
+    h+=`<div class="dr"><span>Margin</span>${fmM(d.margF)}</div>`;
+    h+=`<div class="dr"><span>R Margin %</span>${fmP(d.rmF)}</div>`;
+  }
+  
+  // TO year
+  h+=`<div class="hd">${yT}</div>`;
+  h+=`<div class="dr"><span>Dem</span><span class="vb">${fmV(d.demT)}</span></div>`;
+  h+=`<div class="dr"><span>Rep</span><span class="vr">${fmV(d.repT)}</span></div>`;
+  h+=`<div class="dr"><span>Total</span><span class="v">${fmV(d.totT)}</span></div>`;
+  h+=`<div class="dr"><span>Margin</span>${fmM(d.margT)}</div>`;
+  h+=`<div class="dr"><span>R Margin %</span>${fmP(d.rmT)}</div>`;
+  
+  // Shift summary
+  if(has){
+    h+=`<div class="hd">Shift</div>`;
+    h+=`<div class="dr"><span>Margin Swing</span>${fmP(d.swing)}</div>`;
+    h+=`<div class="dr"><span>Relative Trend</span>${fmR(d.relTr)}</div>`;
+    if(d.voteShift!=null) h+=`<div class="dr"><span>Raw Vote Shift</span>${fmM(d.voteShift)}</div>`;
+  }
+  return h;
+}
+
+function posTT(ev){let x=ev.clientX+12,y=ev.clientY-8;if(x+280>window.innerWidth)x=ev.clientX-280;if(y+400>window.innerHeight)y=ev.clientY-400;tt.style.left=Math.max(2,x)+'px';tt.style.top=Math.max(2,y)+'px'}
+
+/* EVENTS */
+let quadOn=false;
+const quadBtn=document.getElementById('quadBtn');
+const mapwEl=document.getElementById('mapw');
+const quadwEl=document.getElementById('quadw');
+
+// Cache county path strings for quad reuse
+const countyPaths=new Map();
+counties.features.forEach(f=>countyPaths.set(f.id, path(f)));
+
+// Quad state: 4 cells, each with its own from/to
+const qState=[
+  {f:null,t:null,m:'swing'},{f:null,t:null,m:'rel'},{f:null,t:null,m:'to'},{f:null,t:null,m:'vs'}
+];
+
+// Compute full data for a year pair (same as recomp but returns map)
+function compPair(yFrom,yTo2){
+  const mF=byY[yFrom],mTo2=byY[yTo2],nF2=natT[yFrom],nTo2=natT[yTo2];
+  const out=new Map();
+  const all=new Set([...mF.keys(),...mTo2.keys()]);
+  all.forEach(fips=>{
+    const dF=mF.get(fips),dT=mTo2.get(fips);
+    if(!dT||dT.total===0)return;
+    const rmT=((dT.rep-dT.dem)/dT.total)*100;
+    const dpT=(dT.dem/dT.total)*100,relDT=dpT-nTo2.dPct;
+    let swing=null,rmF=null,relTr=null,demF=null,repF=null,totF=null,voteShift=null;
+    if(dF&&dF.total>0){
+      rmF=((dF.rep-dF.dem)/dF.total)*100;
+      const dpF=(dF.dem/dF.total)*100;
+      swing=rmT-rmF;relTr=(dpT-nTo2.dPct)-(dpF-nF2.dPct);
+      voteShift=(dT.dem-dT.rep)-(dF.dem-dF.rep);
+      demF=dF.dem;repF=dF.rep;totF=dF.total;
+    }
+    out.set(fips,{swing,rmF,rmT,relTr,relDT,
+      demF,repF,totF,demT:dT.dem,repT:dT.rep,totT:dT.total,
+      margF:demF!==null?demF-repF:null,margT:dT.dem-dT.rep,
+      name:dT.name||(dF?dF.name:''),state:dT.state||(dF?dF.state:''),
+      vdiff:Math.abs(dT.rep-dT.dem),winT:dT.rep>dT.dem?'R':'D',
+      voteShift,absVS:voteShift!==null?Math.abs(voteShift):0,fips});
+  });
+  return out;
+}
+
+function colorFor(dd,m){
+  if(!dd)return'#ddd9d2';
+  if(m==='swing') return dd.swing!==null?scol(dd.swing):'#ddd9d2';
+  if(m==='rel') return dd.relTr!=null?rcol(dd.relTr):'#ddd9d2';
+  return'#ddd9d2';
+}
+
+function renderQuadCell(idx){
+  const q=qState[idx];
+  const data=compPair(q.f,q.t);
+  const cm=q.m;
+  const isBub=cm==='to'||cm==='vd'||cm==='vs';
+  const s=d3.select('#qm'+idx);
+  s.selectAll('*').remove();
+  const g=s.append('g');
+  
+  // Counties
+  g.selectAll('path').data(counties.features).join('path')
+    .attr('d',path)
+    .attr('fill',feat=>{
+      if(isBub) return '#ddd9d2';
+      return colorFor(data.get(feat.id),cm);
+    })
+    .attr('stroke',isBub?'rgba(200,195,188,0.5)':'rgba(255,255,255,0.3)').attr('stroke-width',0.12)
+    .attr('cursor','crosshair')
+    .on('mousemove',(ev,feat)=>quadTT(ev,data.get(feat.id),q))
+    .on('mouseleave',()=>tt.style.display='none')
+    .on('mouseenter',function(){d3.select(this).attr('stroke','#222').attr('stroke-width',0.8)})
+    .on('mouseout',function(){d3.select(this).attr('stroke',isBub?'rgba(200,195,188,0.5)':'rgba(255,255,255,0.3)').attr('stroke-width',0.12)});
+  
+  // Bubbles
+  if(isBub){
+    const vals=Array.from(data.values());
+    const maxTo=d3.max(vals,d=>d.totT)||1;
+    const maxVd=d3.max(vals,d=>d.vdiff)||1;
+    const maxVs=d3.max(vals,d=>d.absVS)||1;
+    const rS=cm==='to'?d3.scaleSqrt().domain([0,maxTo]).range([0,18]):
+              cm==='vd'?d3.scaleSqrt().domain([0,maxVd]).range([0,18]):
+              d3.scaleSqrt().domain([0,maxVs]).range([0,18]);
+    const vF=cm==='to'?d=>d.totT:cm==='vd'?d=>d.vdiff:d=>d.absVS;
+    const cF=cm==='vs'?d=>d.voteShift>0?'rgba(17,85,187,0.5)':'rgba(204,34,34,0.5)':d=>mf(d.rmT,0.45);
+    const sF2=cm==='vs'?d=>d.voteShift>0?'rgba(17,85,187,0.7)':'rgba(204,34,34,0.7)':d=>mf(d.rmT,0.65);
+    
+    const sorted=vals.filter(d=>cen.has(d.fips)&&vF(d)>0&&(cm!=='vs'||d.voteShift!==null))
+      .sort((a,b)=>vF(b)-vF(a));
+    
+    g.selectAll('circle').data(sorted).join('circle')
+      .attr('cx',d=>cen.get(d.fips)[0]).attr('cy',d=>cen.get(d.fips)[1])
+      .attr('r',d=>Math.max(0.25,rS(vF(d))))
+      .attr('fill',d=>cF(d)).attr('stroke',d=>sF2(d)).attr('stroke-width',0.3)
+      .attr('cursor','crosshair')
+      .on('mousemove',(ev,d)=>quadTT(ev,d,q))
+      .on('mouseleave',()=>tt.style.display='none');
+  }
+  
+  // State borders
+  g.append('path').datum(stM).attr('d',path).attr('fill','none')
+    .attr('stroke','rgba(80,80,80,0.18)').attr('stroke-width',0.4);
+}
+
+function quadTT(ev,d,q){
+  if(!d)return;
+  const has=d.swing!==null;
+  let hl;
+  if(q.m==='rel') hl=has?fmR(d.relTr)+' rel. trend':'—';
+  else if(q.m==='vs'&&d.voteShift!=null) hl=fmM(d.voteShift)+' vote shift';
+  else hl=has?fmP(d.swing)+' swing':'—';
+  let h=`<div class="cn">${d.name}, ${d.state}</div><div class="sv">${hl}</div>`;
+  if(has){
+    h+=`<div class="hd">${q.f}</div>`;
+    h+=`<div class="dr"><span>Dem</span><span class="vb">${fmV(d.demF)}</span></div>`;
+    h+=`<div class="dr"><span>Rep</span><span class="vr">${fmV(d.repF)}</span></div>`;
+    h+=`<div class="dr"><span>Total</span><span class="v">${fmV(d.totF)}</span></div>`;
+    h+=`<div class="dr"><span>Margin</span>${fmM(d.margF)}</div>`;
+  }
+  h+=`<div class="hd">${q.t}</div>`;
+  h+=`<div class="dr"><span>Dem</span><span class="vb">${fmV(d.demT)}</span></div>`;
+  h+=`<div class="dr"><span>Rep</span><span class="vr">${fmV(d.repT)}</span></div>`;
+  h+=`<div class="dr"><span>Total</span><span class="v">${fmV(d.totT)}</span></div>`;
+  h+=`<div class="dr"><span>Margin</span>${fmM(d.margT)}</div>`;
+  if(has){
+    h+=`<div class="hd">Shift</div>`;
+    h+=`<div class="dr"><span>Swing</span>${fmP(d.swing)}</div>`;
+    h+=`<div class="dr"><span>Relative</span>${fmR(d.relTr)}</div>`;
+    if(d.voteShift!=null) h+=`<div class="dr"><span>Vote Shift</span>${fmM(d.voteShift)}</div>`;
+  }
+  tt.style.display='block';tt.innerHTML=h;posTT(ev);
+}
+
+function populateQuadSelectors(){
+  const opts=actY.map(y=>`<option value="${y}">${y}</option>`).join('');
+  document.querySelectorAll('.qsf').forEach(sel=>sel.innerHTML=opts);
+  document.querySelectorAll('.qst').forEach(sel=>sel.innerHTML=opts);
+  
+  // Default: last 4 consecutive pairs ending at yT
+  const toIdx=actY.indexOf(yT);
+  const defaults=[];
+  for(let i=Math.max(1,toIdx-3);i<=toIdx;i++){
+    defaults.push([actY[Math.max(0,i-1)],actY[i]]);
+  }
+  while(defaults.length<4) defaults.unshift(defaults[0]);
+  
+  const defaultModes=['swing','rel','to','vs'];
+  defaults.forEach((pair,i)=>{
+    qState[i].f=pair[0];qState[i].t=pair[1];qState[i].m=defaultModes[i];
+    document.querySelector(`.qsf[data-q="${i}"]`).value=pair[0];
+    document.querySelector(`.qst[data-q="${i}"]`).value=pair[1];
+    document.querySelector(`.qmode[data-q="${i}"]`).value=defaultModes[i];
+  });
+}
+
+function initQuadEvents(){
+  document.querySelectorAll('.qsf,.qst,.qmode').forEach(sel=>{
+    sel.addEventListener('change',()=>{
+      const idx=+sel.dataset.q;
+      qState[idx].f=+document.querySelector(`.qsf[data-q="${idx}"]`).value;
+      qState[idx].t=+document.querySelector(`.qst[data-q="${idx}"]`).value;
+      qState[idx].m=document.querySelector(`.qmode[data-q="${idx}"]`).value;
+      renderQuadCell(idx);
+    });
+  });
+}
+
+function updAllQuad(){for(let i=0;i<4;i++)renderQuadCell(i)}
+
+document.querySelectorAll('.bar button[data-m]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.bar button[data-m]').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');mode=b.dataset.m;full();
+  });
+});
+
+quadBtn.addEventListener('click',()=>{
+  quadOn=!quadOn;
+  quadBtn.classList.toggle('on',quadOn);
+  mapwEl.classList.toggle('hide',quadOn);
+  quadwEl.classList.toggle('hide',!quadOn);
+  document.getElementById('info').style.display=quadOn?'none':'flex';
+  lgw.style.display=quadOn?'none':'flex';
+  document.querySelector('.yr').style.display=quadOn?'none':'flex';
+  // Hide mode buttons in quad (each cell has its own)
+  document.querySelectorAll('.bar button[data-m]').forEach(b=>b.style.display=quadOn?'none':'');
+  if(quadOn){populateQuadSelectors();initQuadEvents();updAllQuad()}
+});
+
+sF.addEventListener('change',()=>{yF=+sF.value;full()});
+sT.addEventListener('change',()=>{yT=+sT.value;full()});
+
+/* INIT */
+yF=actY[0];yT=actY[actY.length-1];full();
+document.getElementById('lo').classList.add('h');
+setTimeout(()=>document.getElementById('lo').remove(),600);
+})().catch(e=>{console.error(e);document.getElementById('lo').innerHTML=`<div style="color:#cc2222;font-size:13px;text-align:center;padding:20px">Error: ${e.message}</div>`});
+</script>
+</body>
+</html>
