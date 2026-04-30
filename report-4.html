@@ -1,0 +1,1599 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <title>US/24 — State Election Data Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      /* Page */
+      --pg-bg: #f3f4f6;
+      --bg-grad-1: #eef2ff;
+      --bg-grad-2: #fff1f2;
+
+      /* Card / ink */
+      --card-bg: #ffffff;
+      --ink: #111827;
+      --dim: #374151;
+      --muted: #6b7280;
+      --faint: #9ca3af;
+      --rule: #e5e7eb;
+
+      /* Brand + party */
+      --purple: #4f46e5;
+      --blue: #2563eb;
+      --blue-dark: #1e40af;
+      --blue-soft: #dbeafe;
+      --red: #dc2626;
+      --red-dark: #991b1b;
+      --red-soft: #fee2e2;
+      --tossup: #fde047;
+
+      /* Type */
+      --sans: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      /* Riso */
+      --shadow: 4px 4px 0 0 var(--ink);
+      --shadow-sm: 2px 2px 0 0 var(--ink);
+    }
+    html[data-theme="dark"]{
+      --pg-bg: #0a0a0a;
+      --bg-grad-1: rgba(79,70,229,0.10);
+      --bg-grad-2: rgba(220,38,38,0.08);
+      --card-bg: #141414;
+      --ink: #ffffff;
+      --dim: #d0d0d0;
+      --muted: #a0a0a0;
+      --faint: #8a8a8a;
+      --rule: #333333;
+      --blue: #60a5fa;
+      --blue-dark: #93c5fd;
+      --blue-soft: #1e3a8a;
+      --red: #f87171;
+      --red-dark: #fca5a5;
+      --red-soft: #7f1d1d;
+      --shadow: 4px 4px 0 0 var(--ink);
+      --shadow-sm: 2px 2px 0 0 var(--ink);
+    }
+
+    *{ box-sizing: border-box; }
+    html, body{ height: 100%; }
+    body{
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      background-color: var(--pg-bg);
+      background-image:
+        radial-gradient(circle at 10% 10%, var(--bg-grad-1), transparent 40%),
+        radial-gradient(circle at 90% 20%, var(--bg-grad-2), transparent 40%);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    a{ color: var(--blue); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+    button{ font-family: var(--sans); }
+
+    /* === Layout shell === */
+    .wrap{
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 16px 22px;
+      gap: 14px;
+      max-width: 1480px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* === Title row === */
+    .title-row{
+      display: flex;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+    .title-left{
+      background: var(--card-bg);
+      border: 1px solid var(--ink);
+      box-shadow: var(--shadow);
+      padding: 10px 16px 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 0;
+    }
+    .display-mark{
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .display-mark .slash{ color: var(--blue); transition: color .25s ease; }
+    .display-mark.is-r .slash{ color: var(--red); }
+    .title-meta{
+      border-left: 1px solid var(--ink);
+      padding-left: 14px;
+      flex: 1;
+      min-width: 0;
+    }
+    .title-meta .top{
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .title-meta .sub{
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .title-right{
+      background: var(--card-bg);
+      border: 1px solid var(--ink);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      padding: 0;
+    }
+    .kpi{
+      padding: 8px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 96px;
+      border-right: 1px solid var(--ink);
+    }
+    .kpi .lab{
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: var(--mono);
+      white-space: nowrap;
+    }
+    .kpi .val{
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+      margin-top: 2px;
+      line-height: 1;
+    }
+    .kpi .val.blue{ color: var(--blue-dark); }
+    .kpi .val.red{ color: var(--red-dark); }
+    .toggle-group{
+      display: flex;
+      align-items: center;
+      padding: 8px 10px;
+      gap: 6px;
+    }
+    .tbtn{
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--ink);
+      background: var(--card-bg);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      border-radius: 0;
+      padding: 0;
+      transition: background .15s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .tbtn:hover{ background: var(--rule); }
+    .tbtn.copy{ width: auto; padding: 0 10px; font-size: 11px; font-family: var(--mono); letter-spacing: 0.04em; text-transform: uppercase; }
+    .tbtn:active{ transform: translate(1px,1px); box-shadow: 1px 1px 0 0 var(--ink); }
+
+    /* === Body grid === */
+    .body-grid{
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    /* === Sidebar === */
+    .sidebar{
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+    }
+    .panel{
+      background: var(--card-bg);
+      border: 1px solid var(--ink);
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+      position: relative;
+    }
+    .panel.search-panel{ padding: 10px 12px; flex-shrink: 0; }
+    .panel.map-panel{
+      display: flex;
+      flex-direction: column;
+      padding: 12px 14px 14px;
+    }
+    .panel-head{
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+      font-family: var(--mono);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .panel-head .hint{
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: none;
+      letter-spacing: 0.02em;
+      font-family: var(--sans);
+    }
+
+    /* Search */
+    .search-row{
+      display: flex;
+      gap: 8px;
+      position: relative;
+    }
+    .search-row input{
+      flex: 1;
+      padding: 8px 10px;
+      border: 1px solid var(--ink);
+      box-shadow: var(--shadow-sm);
+      background: var(--card-bg);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+      outline: none;
+      border-radius: 0;
+      letter-spacing: 0.02em;
+    }
+    .search-row input::placeholder{ color: var(--faint); font-weight: 500; }
+    .search-row input:focus{ background: #fffbe9; }
+    html[data-theme="dark"] .search-row input:focus{ background: #1f1f1f; }
+    .go-btn{
+      padding: 8px 12px;
+      border: 1px solid var(--ink);
+      box-shadow: var(--shadow-sm);
+      background: var(--ink);
+      color: var(--card-bg);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-family: var(--mono);
+      cursor: pointer;
+      border-radius: 0;
+    }
+    .go-btn:hover{ background: var(--dim); }
+    .go-btn:active{ transform: translate(1px,1px); box-shadow: 1px 1px 0 0 var(--ink); }
+
+    .suggest{
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 38px;
+      z-index: 30;
+      background: var(--card-bg);
+      border: 1px solid var(--ink);
+      box-shadow: var(--shadow);
+      display: none;
+      max-height: 240px;
+      overflow: auto;
+    }
+    .suggest button{
+      width: 100%;
+      text-align: left;
+      padding: 8px 10px;
+      border: none;
+      border-bottom: 1px solid var(--rule);
+      background: transparent;
+      cursor: pointer;
+      color: var(--ink);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .suggest button:last-child{ border-bottom: none; }
+    .suggest button:hover{ background: var(--rule); }
+    .suggest .meta{
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 10px;
+      font-family: var(--mono);
+      letter-spacing: 0.06em;
+    }
+
+    /* Cartogram */
+    .map-frame{
+      flex: 1;
+      min-height: 0;
+      border: 1px solid var(--ink);
+      background: var(--card-bg);
+      padding: 10px;
+      position: relative;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gridmap{
+      display: grid;
+      grid-template-columns: repeat(12, 22px);
+      grid-auto-rows: 22px;
+      gap: 3px;
+      width: max-content;
+      margin: 0 auto;
+    }
+    .cell{
+      width: 22px;
+      height: 22px;
+      border: 1px solid var(--ink);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 9px;
+      cursor: pointer;
+      user-select: none;
+      font-family: var(--mono);
+      letter-spacing: 0;
+      transition: transform .12s ease, border-color .15s ease;
+      padding: 0;
+      border-radius: 0;
+    }
+    .cell:hover{
+      border-color: var(--purple);
+      border-width: 2px;
+      z-index: 2;
+    }
+    .cell.active{
+      box-shadow: var(--shadow-sm);
+      transform: translate(-1px,-1px);
+      border-color: var(--ink);
+      border-width: 2px;
+    }
+    .cell:focus-visible{
+      outline: 2px solid var(--purple);
+      outline-offset: 2px;
+    }
+
+    .legend{
+      flex-shrink: 0;
+      margin-top: 10px;
+    }
+    .legend-bar{
+      height: 10px;
+      width: 100%;
+      border: 1px solid var(--ink);
+      background: linear-gradient(90deg, var(--red-dark) 0%, var(--red) 25%, #fafaf7 50%, var(--blue) 75%, var(--blue-dark) 100%);
+    }
+    html[data-theme="dark"] .legend-bar{
+      background: linear-gradient(90deg, #991b1b 0%, var(--red) 25%, #2a2a2a 50%, var(--blue) 75%, #93c5fd 100%);
+    }
+    .legend-row{
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    /* Tooltip on cartogram */
+    .tooltip{
+      position: absolute;
+      pointer-events: none;
+      transform: translate(-50%, -100%) translateY(-6px);
+      background: var(--card-bg);
+      border: 1px solid var(--ink);
+      box-shadow: var(--shadow);
+      padding: 8px 10px;
+      min-width: 180px;
+      opacity: 0;
+      transition: opacity .1s ease;
+      z-index: 40;
+      border-radius: 0;
+    }
+    .tooltip.show{ opacity: 1; }
+    .tooltip .t1{
+      font-weight: 900;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--ink);
+    }
+    .tooltip .t1 .abbr{
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      align-self: center;
+    }
+    .tooltip .t2{
+      margin-top: 6px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 0.02em;
+      line-height: 1.5;
+    }
+    .tooltip .t2 b{ color: var(--ink); font-weight: 800; }
+
+    /* === Main content === */
+    .main{
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+    }
+
+    /* Lean strip */
+    .strip-panel{
+      background: var(--card-bg);
+      border: 1px solid var(--ink);
+      box-shadow: var(--shadow);
+      padding: 10px 14px 12px;
+      flex-shrink: 0;
+    }
+    .strip-row{
+      display: flex;
+      gap: 6px;
+      align-items: stretch;
+      margin-top: 8px;
+    }
+    .strip-cell{
+      flex: 1;
+      min-width: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
+    }
+    .strip-square{
+      height: 36px;
+      border: 1px solid var(--ink);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 13px;
+      font-family: var(--mono);
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      border-radius: 0;
+    }
+    .strip-year{
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* Charts row */
+    .charts-row{
+      flex: 0 0 auto;
+      height: 280px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .chart-card{
+      background: var(--card-bg);
+      border: 1px solid var(--ink);
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .chart-card .head{
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .chart-card .head h3{
+      margin: 0;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+    .chart-card .head .badge{
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .chart-frame{
+      flex: 1;
+      min-height: 0;
+      border: 1px solid var(--ink);
+      background: var(--card-bg);
+      padding: 6px;
+      position: relative;
+    }
+    svg.chart{
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+    }
+    svg.chart text{
+      font-family: var(--sans);
+      font-weight: 700;
+      text-rendering: geometricPrecision;
+    }
+
+    /* Chart hover tooltip */
+    .chartTip{
+      position: fixed;
+      z-index: 50;
+      padding: 8px 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--ink);
+      box-shadow: var(--shadow);
+      font-size: 11px;
+      pointer-events: none;
+      display: none;
+      max-width: 220px;
+      border-radius: 0;
+    }
+    .chartTip .row1{
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .chartTip .row1 .lbl{
+      font-weight: 800;
+      font-size: 11px;
+      color: var(--ink);
+      letter-spacing: 0;
+    }
+    .chartTip .row1 .yr{
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .chartTip .val{
+      font-family: var(--mono);
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Status */
+    .status{
+      position: fixed;
+      bottom: 14px;
+      right: 14px;
+      padding: 8px 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--ink);
+      box-shadow: var(--shadow);
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--mono);
+      letter-spacing: 0.04em;
+      display: none;
+      z-index: 60;
+      border-radius: 0;
+    }
+    .status.show{ display: block; }
+
+    .srOnly{
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Mobile / smaller screens */
+    @media (max-width: 1080px){
+      body{ height: auto; overflow: auto; }
+      .wrap{ height: auto; }
+      .body-grid{ grid-template-columns: 1fr; }
+      .charts-row{ grid-template-columns: 1fr; }
+      .chart-frame{ min-height: 240px; }
+      .map-panel{ flex: 0 0 auto; }
+      .map-frame{ min-height: 200px; }
+    }
+    @media (max-width: 700px){
+      .title-row{ flex-direction: column; }
+      .display-mark{ font-size: 26px; }
+      .title-right{ flex-wrap: wrap; }
+      .kpi{ min-width: 80px; padding: 6px 10px; }
+      .kpi .val{ font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <noscript>
+    <div style="padding:16px; max-width:960px; margin:0 auto; color:#111; font-family:system-ui;">
+      This page needs JavaScript enabled to load the CSV and render charts.
+    </div>
+  </noscript>
+
+  <div class="wrap">
+
+    <!-- TITLE ROW -->
+    <div class="title-row">
+      <div class="title-left">
+        <div class="display-mark" id="displayMark">US<span class="slash">/</span>24</div>
+        <div class="title-meta">
+          <div class="top" id="stateName">Select a state</div>
+          <div class="sub" id="subtitle">Presidential 2000–2024 · Projection 2028</div>
+        </div>
+      </div>
+
+      <div class="title-right">
+        <div class="kpi">
+          <div class="lab">Lean ’24</div>
+          <div class="val" id="kpiLean">—</div>
+        </div>
+        <div class="kpi">
+          <div class="lab">D ratio ’24</div>
+          <div class="val" id="kpiRatio">—</div>
+        </div>
+        <div class="kpi">
+          <div class="lab">50–50 D ’28</div>
+          <div class="val" id="kpi5050">—</div>
+        </div>
+        <div class="toggle-group">
+          <button class="tbtn" id="resetBtn" title="Reset to default state" aria-label="Reset">↺</button>
+          <button class="tbtn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">☾</button>
+          <button class="tbtn copy" id="copyLinkBtn" title="Copy link">link</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body-grid">
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="panel search-panel">
+          <div class="panel-head">
+            <span>Search</span>
+            <span class="hint">type abbr or name</span>
+          </div>
+          <div class="search-row" role="search">
+            <label class="srOnly" for="searchBox">Search states</label>
+            <input id="searchBox" autocomplete="off" placeholder="NC, Texas, District…" />
+            <button class="go-btn" id="goBtn">Go</button>
+            <div class="suggest" id="suggest"></div>
+          </div>
+        </div>
+
+        <div class="panel map-panel">
+          <div class="panel-head">
+            <span>Cartogram · 2024 Lean</span>
+            <span class="hint">click a state</span>
+          </div>
+          <div class="map-frame" id="mapFrame">
+            <div id="gridmap" class="gridmap" aria-label="US grid map" role="grid"></div>
+            <div id="tip" class="tooltip" role="status" aria-live="polite"></div>
+          </div>
+          <div class="legend">
+            <div class="legend-bar" title="Red = R-leaning vs national; Blue = D-leaning vs national"></div>
+            <div class="legend-row">
+              <span>R+30 →</span>
+              <span>even</span>
+              <span>← D+30</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN -->
+      <div class="main">
+
+        <!-- LEAN STRIP -->
+        <div class="strip-panel">
+          <div class="panel-head">
+            <span>Partisan lean trajectory</span>
+            <span class="hint">percentage points vs national</span>
+          </div>
+          <div class="strip-row" id="leanStrip"></div>
+        </div>
+
+        <!-- CHARTS ROW -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="head">
+              <h3>Lean vs national</h3>
+              <span class="badge">PP</span>
+            </div>
+            <div class="chart-frame">
+              <svg id="leanChart" class="chart" aria-label="Lean chart"></svg>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="head">
+              <h3>State-to-national D ratio</h3>
+              <span class="badge">×</span>
+            </div>
+            <div class="chart-frame">
+              <svg id="ratioChart" class="chart" aria-label="Ratio chart"></svg>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="head">
+              <h3>If national vote = 50–50</h3>
+              <span class="badge">%</span>
+            </div>
+            <div class="chart-frame">
+              <svg id="normChart" class="chart" aria-label="Normalized chart"></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status" id="statusMsg"></div>
+  <div class="chartTip" id="chartTip"></div>
+
+<script>
+const YEARS_LEAN = [2000, 2004, 2008, 2012, 2016, 2020, 2024];
+const YEARS_RATIO = [2000, 2004, 2008, 2012, 2016, 2020, 2024, 2028];
+const GRID_POS = {"WA":[0,0],"MT":[1,0],"ND":[2,0],"MN":[3,0],"WI":[4,0],"MI":[5,0],"VT":[6,0],"NH":[7,0],"ME":[8,0],"OR":[0,1],"ID":[1,1],"SD":[2,1],"IA":[3,1],"IL":[4,1],"IN":[5,1],"OH":[6,1],"PA":[7,1],"NY":[8,1],"MA":[9,1],"CA":[0,2],"NV":[1,2],"WY":[2,2],"NE":[3,2],"MO":[4,2],"KY":[5,2],"WV":[6,2],"VA":[7,2],"NJ":[8,2],"CT":[9,2],"RI":[10,2],"AZ":[1,3],"UT":[2,3],"CO":[3,3],"KS":[4,3],"AR":[5,3],"TN":[6,3],"NC":[7,3],"SC":[8,3],"DE":[9,3],"MD":[10,3],"DC":[11,3],"NM":[2,4],"OK":[3,4],"LA":[4,4],"MS":[5,4],"AL":[6,4],"GA":[7,4],"FL":[8,4],"TX":[3,5],"AK":[0,6],"HI":[1,6]};
+
+let DATA = new Map();
+let ORDERED = [];
+let CURRENT = null;
+
+function $(id){ return document.getElementById(id); }
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function lerp(a,b,t){ return a + (b-a)*t; }
+function getCSS(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+function safeNum(x){
+  const n = Number(x);
+  return Number.isFinite(n) ? n : null;
+}
+function fmt(v, digits=2){
+  const n = safeNum(v);
+  if (n === null) return "—";
+  const fixed = Math.abs(n) < 1e-9 ? 0 : n;
+  return fixed.toFixed(digits).replace(/\.?0+$/, "");
+}
+function fmtSigned(v, digits=1){
+  const n = safeNum(v);
+  if (n === null) return "—";
+  const abs = Math.abs(n).toFixed(digits).replace(/\.?0+$/, "");
+  if (Math.abs(n) < 0.05) return "0";
+  return (n > 0 ? "+" : "−") + abs;
+}
+function pct(v){
+  const n = safeNum(v);
+  if (n === null) return "—";
+  return `${Math.round(n)}%`;
+}
+
+function leanColor(v){
+  // Riso palette: red→cream→blue. Cream sits at zero so mid-values stay readable.
+  const vmin = -50, vmax = 50;
+  const n = safeNum(v);
+  if (n === null) return "transparent";
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  const cream = dark ? [40, 40, 40] : [250, 250, 247];
+  const red = dark ? [248, 113, 113] : [220, 38, 38];
+  const redDark = dark ? [220, 38, 38] : [127, 29, 29];
+  const blue = dark ? [96, 165, 250] : [37, 99, 235];
+  const blueDark = dark ? [147, 197, 253] : [30, 64, 175];
+
+  const x = clamp(n, vmin, vmax);
+  if (x < 0){
+    const t = Math.abs(x) / Math.abs(vmin);
+    const start = cream, mid = red, end = redDark;
+    let r,g,b;
+    if (t < 0.5){
+      const u = t/0.5;
+      r = lerp(start[0],mid[0],u); g = lerp(start[1],mid[1],u); b = lerp(start[2],mid[2],u);
+    } else {
+      const u = (t-0.5)/0.5;
+      r = lerp(mid[0],end[0],u); g = lerp(mid[1],end[1],u); b = lerp(mid[2],end[2],u);
+    }
+    return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+  } else {
+    const t = x / vmax;
+    const start = cream, mid = blue, end = blueDark;
+    let r,g,b;
+    if (t < 0.5){
+      const u = t/0.5;
+      r = lerp(start[0],mid[0],u); g = lerp(start[1],mid[1],u); b = lerp(start[2],mid[2],u);
+    } else {
+      const u = (t-0.5)/0.5;
+      r = lerp(mid[0],end[0],u); g = lerp(mid[1],end[1],u); b = lerp(mid[2],end[2],u);
+    }
+    return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+  }
+}
+
+function rgbFromCssColor(c){
+  if (!c) return null;
+  if (c.startsWith("rgb")){
+    const m = c.match(/\d+/g);
+    return m ? m.map(Number).slice(0,3) : null;
+  }
+  if (c.startsWith("#")){
+    const hex = c.slice(1);
+    if (hex.length === 3){
+      return [parseInt(hex[0]+hex[0],16), parseInt(hex[1]+hex[1],16), parseInt(hex[2]+hex[2],16)];
+    }
+    if (hex.length >= 6){
+      return [parseInt(hex.slice(0,2),16), parseInt(hex.slice(2,4),16), parseInt(hex.slice(4,6),16)];
+    }
+  }
+  return null;
+}
+
+function textColor(bg){
+  const rgb = rgbFromCssColor(bg);
+  if (!rgb) return "var(--ink)";
+  const [r,g,b] = rgb;
+  const lum = (0.2126*r + 0.7152*g + 0.0722*b)/255;
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  return lum < 0.55 ? "#ffffff" : "#111827";
+}
+
+/* CSV parser (RFC4180-enough) */
+function parseCSV(text){
+  const rows = [];
+  let i=0, field="", row=[], inQuotes=false;
+  function endField(){ row.push(field); field=""; }
+  function endRow(){
+    if (row.length === 1 && row[0] === "") { row=[]; return; }
+    rows.push(row); row=[];
+  }
+  text = text.replace(/\r\n/g,"\n").replace(/\r/g,"\n");
+  while (i < text.length){
+    const ch = text[i];
+    if (inQuotes){
+      if (ch === '"'){
+        if (text[i+1] === '"'){ field += '"'; i++; }
+        else { inQuotes=false; }
+      } else { field += ch; }
+    } else {
+      if (ch === '"'){ inQuotes=true; }
+      else if (ch === ","){ endField(); }
+      else if (ch === "\n"){ endField(); endRow(); }
+      else { field += ch; }
+    }
+    i++;
+  }
+  endField(); endRow();
+
+  const header = (rows[0] || []).map(h => String(h || "").trim());
+  const out = [];
+  for (let r=1; r<rows.length; r++){
+    const parts = rows[r];
+    const obj = {};
+    for (let c=0; c<header.length; c++){
+      const key = header[c] || `col_${c}`;
+      const val = (parts[c] ?? "").toString().trim();
+      if (!(key in obj) || obj[key] === "") obj[key] = val;
+    }
+    out.push(obj);
+  }
+  return out;
+}
+
+function showStatus(msg, isError=false){
+  const el = $("statusMsg");
+  el.textContent = msg;
+  el.classList.add("show");
+  if (isError) el.style.borderColor = "var(--red)";
+  else el.style.borderColor = "var(--ink)";
+}
+
+function buildMap(){
+  const el = $("gridmap");
+  el.innerHTML = "";
+  for (const abbr of Object.keys(GRID_POS)){
+    const [col,row] = GRID_POS[abbr];
+    const cell = document.createElement("button");
+    cell.type = "button";
+    cell.className = "cell";
+    cell.dataset.abbr = abbr;
+    cell.style.gridColumn = (col+1);
+    cell.style.gridRow = (row+1);
+    cell.textContent = abbr;
+    cell.setAttribute("role","gridcell");
+    cell.setAttribute("aria-label", `State ${abbr}`);
+    cell.addEventListener("click", () => selectState(abbr, true));
+    cell.addEventListener("mouseenter", (e) => showTip(abbr, e));
+    cell.addEventListener("mousemove", (e) => moveTip(e));
+    cell.addEventListener("mouseleave", hideTip);
+    cell.addEventListener("focus", (e) => showTip(abbr, e, true));
+    cell.addEventListener("blur", hideTip);
+    el.appendChild(cell);
+  }
+
+  el.addEventListener("keydown", (e) => {
+    const active = document.activeElement;
+    if (!active || !active.classList.contains("cell")) return;
+    const abbr = active.dataset.abbr;
+    const pos = GRID_POS[abbr];
+    if (!pos) return;
+    const [cx, cy] = pos;
+    const dirs = {ArrowLeft:[-1,0], ArrowRight:[1,0], ArrowUp:[0,-1], ArrowDown:[0,1]};
+    if (!(e.key in dirs)) return;
+    e.preventDefault();
+    const [dx,dy] = dirs[e.key];
+    let best = null;
+    for (const [a,[x,y]] of Object.entries(GRID_POS)){
+      if (dx !== 0 && y === cy && (x - cx) * dx > 0){
+        const d = Math.abs(x - cx);
+        if (!best || d < best.d) best = {a, d};
+      }
+      if (dy !== 0 && x === cx && (y - cy) * dy > 0){
+        const d = Math.abs(y - cy);
+        if (!best || d < best.d) best = {a, d};
+      }
+    }
+    if (best){
+      const next = el.querySelector(`.cell[data-abbr="${best.a}"]`);
+      if (next) next.focus();
+    }
+  });
+
+  colorMap();
+}
+
+function colorMap(){
+  document.querySelectorAll(".cell").forEach(cell => {
+    const abbr = cell.dataset.abbr;
+    const row = DATA.get(abbr);
+    const v = row ? row["lean_2024"] : null;
+    const bg = leanColor(v);
+    cell.style.background = bg;
+    cell.style.color = textColor(bg);
+  });
+}
+
+function setActiveCell(abbr){
+  document.querySelectorAll(".cell").forEach(c => c.classList.toggle("active", c.dataset.abbr === abbr));
+}
+
+function showTip(abbr, evt, fromFocus=false){
+  const row = DATA.get(abbr);
+  if (!row) return;
+  const tip = $("tip");
+  const name = row.name || abbr;
+  const lean = fmtSigned(row.lean_2024, 1);
+  const ratio = fmt(row.ratioD_2024, 3);
+  const d50 = pct(row.normD_2028);
+  tip.innerHTML = `
+    <div class="t1"><span>${name}</span><span class="abbr">${abbr}</span></div>
+    <div class="t2">
+      LEAN <b>${lean}</b> · D RATIO <b>${ratio}</b><br/>
+      50–50 D ’28: <b>${d50}</b>
+    </div>
+  `;
+  tip.classList.add("show");
+  if (fromFocus){
+    const rect = evt.target.getBoundingClientRect();
+    positionTip(rect.left + rect.width/2, rect.top);
+  } else {
+    moveTip(evt);
+  }
+}
+
+function positionTip(x, y){
+  const tip = $("tip");
+  const map = $("mapFrame");
+  const rect = map.getBoundingClientRect();
+  tip.style.left = `${x - rect.left + map.scrollLeft}px`;
+  tip.style.top = `${y - rect.top + map.scrollTop}px`;
+}
+function moveTip(evt){ if (!evt) return; positionTip(evt.clientX, evt.clientY); }
+function hideTip(){ $("tip").classList.remove("show"); }
+
+function makeLeanStrip(row){
+  const strip = $("leanStrip");
+  strip.innerHTML = "";
+  YEARS_LEAN.forEach(y => {
+    const v = row[`lean_${y}`];
+    const bg = leanColor(v);
+    const wrap = document.createElement("div");
+    wrap.className = "strip-cell";
+
+    const cell = document.createElement("div");
+    cell.className = "strip-square";
+    cell.style.background = bg;
+    cell.style.color = textColor(bg);
+    cell.textContent = fmtSigned(v, 1);
+
+    const lbl = document.createElement("div");
+    lbl.className = "strip-year";
+    lbl.textContent = y;
+
+    wrap.appendChild(cell);
+    wrap.appendChild(lbl);
+    strip.appendChild(wrap);
+  });
+}
+
+function svgClear(svg){ while(svg.firstChild) svg.removeChild(svg.firstChild); }
+function svgEl(tag, attrs={}){
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const [k,v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+function niceStep(v){
+  if (v <= 0) return 1;
+  const k = Math.floor(Math.log10(v));
+  const base = Math.pow(10, k);
+  const m = v / base;
+  let s = 10;
+  if (m <= 1) s = 1;
+  else if (m <= 2) s = 2;
+  else if (m <= 5) s = 5;
+  return s * base;
+}
+function niceTicks(vmin, vmax, n=5){
+  if (vmin === vmax){ const step = 1; return [vmin-step, vmin, vmin+step]; }
+  const span = vmax - vmin;
+  const step = niceStep(span / (n-1));
+  const lo = Math.floor(vmin / step) * step;
+  const hi = Math.ceil(vmax / step) * step;
+  const ticks = [];
+  for (let t=lo, i=0; i<120; i++, t += step){
+    ticks.push(t);
+    if (t >= hi - 1e-9) break;
+  }
+  return ticks;
+}
+
+/* === Riso line chart === */
+function lineChart(svgId, years, series, opts={}){
+  const svg = $(svgId);
+  svgClear(svg);
+
+  const ink = getCSS("--ink") || "#111827";
+  const muted = getCSS("--muted") || "#6b7280";
+  const cardBg = getCSS("--card-bg") || "#fff";
+
+  // Use real pixel dimensions of the SVG container
+  const rect = svg.getBoundingClientRect();
+  const W = Math.max(280, Math.round(rect.width));
+  const H = Math.max(180, Math.round(rect.height));
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("preserveAspectRatio", "none");
+
+  const padL = 40, padR = 22, padT = 16, padB = 30;
+  const x0=padL, y0=padT, w=W-padL-padR, h=H-padT-padB;
+
+  const tip = $("chartTip");
+  const showTip = (x, y, label, year, valTxt, color) => {
+    if (!tip) return;
+    tip.innerHTML = `
+      <div class="row1"><span class="lbl">${label}</span><span class="yr">${year}</span></div>
+      <div class="val" style="color:${color}">${valTxt}</div>
+    `;
+    tip.style.display = "block";
+    const ox = 14, oy = 14;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const r = tip.getBoundingClientRect();
+    let px = x + ox, py = y + oy;
+    if (px + r.width > vw - 8) px = x - r.width - ox;
+    if (py + r.height > vh - 8) py = y - r.height - oy;
+    tip.style.left = px + "px";
+    tip.style.top  = py + "px";
+  };
+  const hideTip = () => { if (tip) tip.style.display = "none"; };
+
+  // domain
+  let all=[];
+  series.forEach(s => all = all.concat(s.values.filter(v => Number.isFinite(v))));
+  let ymin = all.length ? Math.min(...all) : 0;
+  let ymax = all.length ? Math.max(...all) : 1;
+
+  const span0 = (ymax - ymin) || 1;
+  const pad = span0 * 0.18;
+  ymin -= pad; ymax += pad;
+
+  if (opts.baseline !== undefined){
+    ymin = Math.min(ymin, opts.baseline - pad*0.5);
+    ymax = Math.max(ymax, opts.baseline + pad*0.5);
+  }
+  if (opts.yFormat === "pct"){
+    ymin = Math.max(0, ymin);
+    ymax = Math.min(100, ymax);
+    if ((ymax-ymin) < 26){
+      const mid = (ymin+ymax)/2;
+      ymin = Math.max(0, mid-13);
+      ymax = Math.min(100, mid+13);
+    }
+  }
+
+  const ticks = niceTicks(ymin, ymax, 5);
+  ymin = ticks[0]; ymax = ticks[ticks.length-1];
+
+  const sx = (yr) => x0 + ((yr - years[0])/(years[years.length-1]-years[0]))*w;
+  const sy = (v)  => y0 + (1 - ((v - ymin)/(ymax - ymin)))*h;
+
+  // y grid + labels (ink at 18% opacity)
+  ticks.forEach(t => {
+    const y = sy(t);
+    svg.appendChild(svgEl("line",{
+      x1:x0, y1:y, x2:x0+w, y2:y,
+      stroke: ink, "stroke-opacity": 0.15, "stroke-width": "1",
+      "vector-effect":"non-scaling-stroke"
+    }));
+    const lbl = opts.tickFmt ? opts.tickFmt(t)
+      : (opts.yFormat === "pct" ? `${Math.round(t)}%`
+        : (Math.abs(t) < 1e-9 ? "0" : String(t).replace(/\.0+$/, "")));
+    const txt = svgEl("text",{
+      x: x0-6, y: y+3.5, "text-anchor":"end",
+      "font-size":"9.5", "font-weight":"800", "font-family":"ui-monospace, Menlo, monospace",
+      fill: muted, "letter-spacing":"0.04em"
+    });
+    txt.textContent = lbl;
+    svg.appendChild(txt);
+  });
+
+  // x grid + year labels
+  years.forEach((yr,i) => {
+    const x = sx(yr);
+    svg.appendChild(svgEl("line",{
+      x1:x, y1:y0, x2:x, y2:y0+h,
+      stroke: ink, "stroke-opacity": 0.08, "stroke-width": "1",
+      "vector-effect":"non-scaling-stroke"
+    }));
+    const isProjection = opts.projectionFromYear !== undefined && yr >= opts.projectionFromYear;
+    const txt = svgEl("text",{
+      x:x, y:y0+h+18, "text-anchor":"middle",
+      "font-size":"9.5", "font-weight":"800", "font-family":"ui-monospace, Menlo, monospace",
+      fill: isProjection ? ink : muted, "letter-spacing":"0.04em",
+      "fill-opacity": isProjection ? "1" : "0.85"
+    });
+    txt.textContent = String(yr);
+    svg.appendChild(txt);
+  });
+
+  // axes (ink, hard, 1.5px)
+  svg.appendChild(svgEl("line",{x1:x0, y1:y0, x2:x0, y2:y0+h, stroke: ink, "stroke-width": "1.5", "vector-effect":"non-scaling-stroke"}));
+  svg.appendChild(svgEl("line",{x1:x0, y1:y0+h, x2:x0+w, y2:y0+h, stroke: ink, "stroke-width": "1.5", "vector-effect":"non-scaling-stroke"}));
+
+  // baseline (zero line, majority line, etc.) — solid ink at 50%
+  if (opts.baseline !== undefined && opts.baseline >= ymin && opts.baseline <= ymax){
+    const y = sy(opts.baseline);
+    svg.appendChild(svgEl("line",{
+      x1:x0, y1:y, x2:x0+w, y2:y,
+      stroke: ink, "stroke-opacity": "0.45", "stroke-width": "1.25",
+      "stroke-dasharray": "4,3",
+      "vector-effect":"non-scaling-stroke"
+    }));
+  }
+
+  // projection divider
+  if (opts.projectionFromYear !== undefined){
+    const xDiv = sx(opts.projectionFromYear) - ((sx(opts.projectionFromYear) - sx(opts.projectionFromYear - 4))/2);
+    if (xDiv > x0 && xDiv < x0+w){
+      svg.appendChild(svgEl("line",{
+        x1: xDiv, y1: y0, x2: xDiv, y2: y0+h,
+        stroke: ink, "stroke-opacity":"0.5", "stroke-width":"1",
+        "stroke-dasharray":"3,3",
+        "vector-effect":"non-scaling-stroke"
+      }));
+      const t = svgEl("text",{
+        x: xDiv+4, y: y0+10, "text-anchor":"start",
+        "font-size":"8", "font-weight":"800", "font-family":"ui-monospace, Menlo, monospace",
+        fill: ink, "fill-opacity":"0.6", "letter-spacing":"0.08em"
+      });
+      t.textContent = "→ PROJ";
+      svg.appendChild(t);
+    }
+  }
+
+  // straight-line series (riso: tension:0)
+  series.forEach((s, si) => {
+    const pts = s.values.map((v,i) => [sx(years[i]), sy(v)]);
+    const projIdx = opts.projectionFromYear !== undefined
+      ? years.findIndex(y => y >= opts.projectionFromYear)
+      : -1;
+
+    // historical segment
+    const histEnd = projIdx === -1 ? pts.length : projIdx;
+    if (histEnd > 1){
+      const dHist = pts.slice(0, histEnd).map((p,i) => (i===0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(" ");
+      svg.appendChild(svgEl("path",{
+        d:dHist, fill:"none", stroke:s.color, "stroke-width":"2.6",
+        "vector-effect":"non-scaling-stroke",
+        "stroke-linecap":"square", "stroke-linejoin":"miter"
+      }));
+    }
+    // projection segment (dashed)
+    if (projIdx > 0 && projIdx < pts.length){
+      const dProj = pts.slice(projIdx-1).map((p,i) => (i===0 ? `M ${p[0]} ${p[1]}` : `L ${p[0]} ${p[1]}`)).join(" ");
+      svg.appendChild(svgEl("path",{
+        d:dProj, fill:"none", stroke:s.color, "stroke-width":"2.2",
+        "stroke-dasharray":"5,3",
+        "vector-effect":"non-scaling-stroke",
+        "stroke-linecap":"butt", "stroke-linejoin":"miter"
+      }));
+    }
+
+    // square points (riso)
+    pts.forEach((p,i) => {
+      const sz = 7;
+      const isProj = projIdx >= 0 && i >= projIdx;
+      const rect = svgEl("rect",{
+        x: p[0]-sz/2, y: p[1]-sz/2, width: sz, height: sz,
+        fill: s.color, stroke: ink, "stroke-width": "1.2",
+        "vector-effect": "non-scaling-stroke",
+        tabindex:"0", "data-year": String(years[i]),
+        "data-value": String(s.values[i])
+      });
+      if (isProj){
+        rect.setAttribute("fill", cardBg);
+        rect.setAttribute("stroke", s.color);
+        rect.setAttribute("stroke-width", "1.5");
+      }
+      const handler = (e) => {
+        const yr = rect.dataset.year;
+        const val = Number(rect.dataset.value);
+        const valTxt = opts.valueFmt
+          ? opts.valueFmt(val)
+          : (opts.yFormat === "pct" ? `${Math.round(val)}%` : fmt(val, opts.decimals ?? 2));
+        showTip(e.clientX, e.clientY, s.label || svgId, yr, valTxt, s.color);
+      };
+      rect.addEventListener("pointerenter", handler);
+      rect.addEventListener("pointermove", handler);
+      rect.addEventListener("pointerleave", hideTip);
+      rect.addEventListener("blur", hideTip);
+      svg.appendChild(rect);
+    });
+
+    // last value label
+    if (opts.lastLabel){
+      const i = years.length - 1;
+      const x = pts[i][0], y = pts[i][1];
+      const val = s.values[i];
+      const valTxt = opts.valueFmt
+        ? opts.valueFmt(val)
+        : (opts.yFormat === "pct" ? `${Math.round(val)}%` : fmt(val, opts.decimals ?? 2));
+      // Background plate for label readability
+      const labelText = valTxt;
+      const charW = 7;
+      const tw = labelText.length * charW + 8;
+      const lx = Math.min(x0+w-tw-2, x+8);
+      const ly = Math.max(y0+10, y-14);
+      svg.appendChild(svgEl("rect",{
+        x: lx, y: ly-9, width: tw, height: 14,
+        fill: cardBg, stroke: ink, "stroke-width": "1",
+        "vector-effect":"non-scaling-stroke"
+      }));
+      const tx = svgEl("text",{
+        x: lx+4, y: ly+1.5,
+        "font-size":"10", "font-weight":"900",
+        "font-family":"ui-monospace, Menlo, monospace",
+        fill: s.color, "letter-spacing":"-0.01em"
+      });
+      tx.textContent = labelText;
+      svg.appendChild(tx);
+    }
+  });
+
+  // legend (multi-series)
+  if (series.length > 1){
+    const g = svgEl("g",{});
+    let lx = x0 + 8, ly = y0 + 4;
+    series.forEach((s, i) => {
+      const y = ly + i*14;
+      // square chip
+      g.appendChild(svgEl("rect",{
+        x: lx, y: y-4, width: 8, height: 8,
+        fill: s.color, stroke: ink, "stroke-width":"1",
+        "vector-effect":"non-scaling-stroke"
+      }));
+      const t = svgEl("text",{
+        x: lx+13, y: y+3, "font-size":"10",
+        fill: getCSS("--ink") || "#111827", "font-weight":"800",
+        "letter-spacing":"-0.01em"
+      });
+      t.textContent = s.label || `Series ${i+1}`;
+      g.appendChild(t);
+    });
+    svg.appendChild(g);
+  }
+}
+
+function updateKPIs(row){
+  const lean = safeNum(row.lean_2024 ?? row.lean_latest);
+  const ratio = safeNum(row.ratioD_2024 ?? row.ratio_latest);
+  $("kpiLean").textContent = lean === null ? "—" : fmtSigned(lean, 1);
+  $("kpiRatio").textContent = ratio === null ? "—" : fmt(ratio, 3);
+  $("kpi5050").textContent = pct(row.normD_2028);
+
+  // KPI color cue
+  $("kpiLean").classList.remove("blue","red");
+  $("kpiLean").classList.add(lean !== null && lean < 0 ? "red" : "blue");
+  $("kpiRatio").classList.remove("blue","red");
+  $("kpiRatio").classList.add(ratio !== null && ratio < 1 ? "red" : "blue");
+  const d50 = safeNum(row.normD_2028);
+  $("kpi5050").classList.remove("blue","red");
+  $("kpi5050").classList.add(d50 !== null && d50 < 50 ? "red" : "blue");
+}
+
+function selectState(abbr, updateHash){
+  const row = DATA.get(abbr);
+  if (!row) return;
+  CURRENT = abbr;
+
+  setActiveCell(abbr);
+
+  // Update display mark slash color based on lean
+  const lean = safeNum(row.lean_2024);
+  const mark = $("displayMark");
+  mark.classList.toggle("is-r", lean !== null && lean < 0);
+
+  $("stateName").textContent = (row.name || abbr) + " · " + abbr;
+  updateKPIs(row);
+  makeLeanStrip(row);
+
+  const blue = getCSS("--blue") || "#2563eb";
+  const red = getCSS("--red") || "#dc2626";
+
+  const leanVals = YEARS_LEAN.map(y => safeNum(row[`lean_${y}`]) ?? 0);
+  const leanLast = leanVals[leanVals.length - 1] ?? 0;
+  const leanLineColor = (leanLast < 0) ? red : blue;
+  lineChart("leanChart", YEARS_LEAN, [
+    { values: leanVals, color: leanLineColor, label: "Lean" }
+  ], {
+    baseline: 0,
+    lastLabel: true,
+    decimals: 1,
+    tickFmt: (t) => (t > 0 ? "+" : (t < 0 ? "−" : "")) + Math.abs(Math.round(t)),
+    valueFmt: (v) => fmtSigned(v, 1)
+  });
+
+  const ratioVals = YEARS_RATIO.map(y => safeNum(row[`ratioD_${y}`]) ?? 1);
+  const ratioLast = ratioVals[ratioVals.length - 2] ?? 1;
+  const ratioLineColor = (ratioLast < 1) ? red : blue;
+  lineChart("ratioChart", YEARS_RATIO, [
+    { values: ratioVals, color: ratioLineColor, label: "D ratio" }
+  ], {
+    baseline: 1,
+    lastLabel: true,
+    decimals: 3,
+    projectionFromYear: 2028,
+    tickFmt: (t) => fmt(t, 2),
+    valueFmt: (v) => fmt(v, 3)
+  });
+
+  const normD = YEARS_RATIO.map(y => safeNum(row[`normD_${y}`]) ?? 50);
+  const normR = YEARS_RATIO.map(y => safeNum(row[`normR_${y}`]) ?? 50);
+  lineChart("normChart", YEARS_RATIO, [
+    { values: normD, color: blue, label: "D" },
+    { values: normR, color: red,  label: "R" }
+  ], {
+    baseline: 50,
+    lastLabel: true,
+    yFormat: "pct",
+    decimals: 0,
+    projectionFromYear: 2028,
+    tickFmt: (t) => `${Math.round(t)}%`,
+    valueFmt: (v) => `${Math.round(v)}%`
+  });
+
+  if (updateHash) location.hash = abbr;
+}
+
+function bestMatch(query){
+  query = (query || "").trim().toLowerCase();
+  if (!query) return null;
+  const ab = query.toUpperCase();
+  if (DATA.has(ab)) return ab;
+  for (const [k,v] of DATA.entries()) if ((v.name || "").toLowerCase() === query) return k;
+  for (const [k,v] of DATA.entries()) if ((v.name || "").toLowerCase().includes(query)) return k;
+  return null;
+}
+
+function renderSuggest(matches){
+  const wrap = $("suggest");
+  if (!matches.length){ wrap.style.display = "none"; wrap.innerHTML = ""; return; }
+  wrap.style.display = "block";
+  wrap.innerHTML = "";
+  matches.slice(0,8).forEach(m => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.innerHTML = `<span>${m.name}</span><span class="meta">${m.abbr}</span>`;
+    btn.addEventListener("click", () => {
+      $("searchBox").value = m.abbr;
+      wrap.style.display = "none";
+      selectState(m.abbr, true);
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+function getMatches(q){
+  q = (q || "").trim().toLowerCase();
+  if (!q) return [];
+  const ab = q.toUpperCase();
+  const out = [];
+  for (const s of ORDERED){
+    if (s.abbr === ab) out.unshift(s);
+    else if (s.abbr.toLowerCase().startsWith(q) || s.name.toLowerCase().includes(q)) out.push(s);
+  }
+  return out;
+}
+
+function setTheme(theme){
+  const root = document.documentElement;
+  if (theme === "dark") root.setAttribute("data-theme", "dark");
+  else root.removeAttribute("data-theme");
+  localStorage.setItem("theme", theme);
+  $("themeBtn").textContent = theme === "dark" ? "☀" : "☾";
+  // Re-color anything theme-dependent
+  if (CURRENT){
+    colorMap();
+    selectState(CURRENT, false);
+  } else {
+    colorMap();
+  }
+}
+function toggleTheme(){
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  setTheme(isDark ? "light" : "dark");
+}
+
+function copyDeepLink(){
+  const abbr = CURRENT || "";
+  const url = `${location.origin}${location.pathname}#${abbr}`;
+  navigator.clipboard?.writeText(url).then(() => {
+    showStatus("Link copied.");
+    setTimeout(() => $("statusMsg").classList.remove("show"), 1500);
+  }).catch(() => { window.prompt("Copy this link:", url); });
+}
+
+async function init(){
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "dark" || savedTheme === "light") setTheme(savedTheme);
+  else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+
+  $("themeBtn").addEventListener("click", toggleTheme);
+  $("resetBtn").addEventListener("click", () => {
+    const def = DATA.has("NC") ? "NC" : (ORDERED[0]?.abbr || null);
+    if (def) selectState(def, true);
+  });
+  $("copyLinkBtn").addEventListener("click", copyDeepLink);
+
+  let text = "";
+  try{
+    const resp = await fetch("state_report_data.csv", {cache:"no-store"});
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    text = await resp.text();
+  }catch(err){
+    showStatus(`Could not load state_report_data.csv. (${err})`, true);
+    return;
+  }
+
+  const rows = parseCSV(text);
+  if (!rows.length){
+    showStatus("CSV loaded but no rows were parsed.", true);
+    return;
+  }
+
+  rows.forEach(r => DATA.set((r.abbr || "").toUpperCase(), r));
+  ORDERED = rows
+    .filter(r => (r.abbr || "").trim().length)
+    .map(r => ({
+      abbr: (r.abbr || "").toUpperCase(),
+      name: r.name || (r.abbr || "").toUpperCase(),
+      lean_2024: safeNum(r.lean_2024),
+      ratioD_2024: safeNum(r.ratioD_2024)
+    }))
+    .sort((a,b) => a.name.localeCompare(b.name));
+
+  buildMap();
+
+  const searchBox = $("searchBox");
+  searchBox.addEventListener("input", () => renderSuggest(getMatches(searchBox.value)));
+  searchBox.addEventListener("focus", () => renderSuggest(getMatches(searchBox.value)));
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".search-row")) $("suggest").style.display = "none";
+  });
+
+  $("goBtn").addEventListener("click", () => {
+    const q = searchBox.value;
+    const m = bestMatch(q);
+    if (m) selectState(m, true);
+  });
+  searchBox.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") $("goBtn").click();
+    if (e.key === "Escape") { $("suggest").style.display = "none"; searchBox.blur(); }
+  });
+
+  window.addEventListener("hashchange", () => {
+    const h = (location.hash || "").replace("#","").toUpperCase();
+    if (DATA.has(h)) selectState(h, false);
+  });
+
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    if (resizeTimer) cancelAnimationFrame(resizeTimer);
+    resizeTimer = requestAnimationFrame(() => {
+      if (CURRENT) selectState(CURRENT, false);
+    });
+  });
+
+  const h = (location.hash || "").replace("#","").toUpperCase();
+  const first = DATA.has(h) ? h : (DATA.has("NC") ? "NC" : (ORDERED[0]?.abbr || null));
+  // Wait one frame so flexbox measurements are settled before charts read them
+  if (first) requestAnimationFrame(() => selectState(first, false));
+
+  showStatus(`Loaded ${rows.length} rows.`, false);
+  setTimeout(() => $("statusMsg").classList.remove("show"), 1200);
+}
+
+init();
+</script>
+</body>
+</html>
